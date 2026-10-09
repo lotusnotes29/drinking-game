@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Drinking Board Game</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Single Screen Party Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Kanit & Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -16,8 +16,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        kanit: ['Kanit', 'sans-serif'],
-                        inter: ['Inter', 'sans-serif']
+                        kanit: ['Kanit', 'sans-serif']
                     },
                     colors: {
                         neonYellow: '#facc15',
@@ -31,7 +30,7 @@
                     animation: {
                         'pulse-glow': 'pulseGlow 2s infinite',
                         'bounce-short': 'bounceShort 0.5s infinite alternate',
-                        'dice-spin': 'diceSpin 0.6s ease-in-out'
+                        'dice-spin': 'diceSpin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                     },
                     keyframes: {
                         pulseGlow: {
@@ -44,7 +43,7 @@
                         },
                         diceSpin: {
                             '0%': { transform: 'rotate(0deg) scale(0.8)' },
-                            '50%': { transform: 'rotate(180deg) scale(1.2)' },
+                            '50%': { transform: 'rotate(180deg) scale(1.15)' },
                             '100%': { transform: 'rotate(360deg) scale(1)' }
                         }
                     }
@@ -58,30 +57,28 @@
             font-family: 'Kanit', sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
             background-color: #090d16;
             color: #ffffff;
+            overflow-x: hidden;
         }
 
-        /* Glassmorphism utility */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .glass-panel-amber {
-            background: rgba(30, 18, 10, 0.82);
+            background: rgba(30, 18, 10, 0.88);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
@@ -91,356 +88,373 @@
             background: rgba(250, 204, 21, 0.4);
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(250, 204, 21, 0.7);
-        }
 
-        /* Board grid specific styling */
-        .board-grid-map1 {
+        /* Map 1 Grid: 12 Cols x 9 Rows */
+        .grid-map1 {
             display: grid;
-            grid-template-columns: repeat(10, minmax(0, 1fr));
+            grid-template-columns: repeat(12, minmax(0, 1fr));
             grid-template-rows: repeat(9, minmax(0, 1fr));
-            gap: 4px;
+            gap: 3px;
         }
 
-        .board-grid-map2 {
+        /* Map 2 Grid: 8 Cols x 8 Rows */
+        .grid-map2 {
             display: grid;
             grid-template-columns: repeat(8, minmax(0, 1fr));
             grid-template-rows: repeat(8, minmax(0, 1fr));
-            gap: 4px;
+            gap: 3px;
         }
 
-        /* Dice face rendering */
-        .dice-pip {
-            width: 22%;
-            height: 22%;
-            background-color: #1e293b;
-            border-radius: 50%;
-        }
-
-        /* Theme glow accents */
         .theme-dark-glow {
-            box-shadow: 0 0 25px rgba(250, 204, 21, 0.25);
+            box-shadow: 0 0 30px rgba(250, 204, 21, 0.18);
         }
         .theme-beer-glow {
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.25);
         }
 
-        /* Modal pop animation */
         @keyframes modalPop {
             0% { transform: scale(0.85); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
         .animate-modal-pop {
-            animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: modalPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased selection:bg-yellow-400 selection:text-black">
 
-    <header class="w-full bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-500 to-amber-600 flex items-center justify-center text-2xl shadow-lg shadow-yellow-500/20">
+    <!-- HEADER BAR -->
+    <header class="w-full bg-slate-900/95 border-b border-slate-800 px-3 sm:px-5 py-2.5 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-yellow-500 to-amber-600 flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-yellow-500/20">
                 🍺
             </div>
             <div>
-                <h1 class="text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p class="text-xs text-slate-400 font-medium hidden sm:block">DRINKING BOARD GAME - PARTY EDITION</p>
+                <p class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">HOT-SEAT SINGLE SCREEN MODE</p>
             </div>
         </div>
 
-        <!-- Header Actions -->
         <div class="flex items-center gap-2">
-            <button id="btn-sound-toggle" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/60" title="เปิด/ปิด เสียง">
-                <i id="sound-icon" class="fa-solid fa-volume-high text-lg"></i>
+            <button id="btn-sound-toggle" onclick="toggleSound()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs sm:text-sm font-bold flex items-center gap-1.5" title="เปิด/ปิด เสียง">
+                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                <span class="hidden sm:inline">เสียง</span>
             </button>
-            <button id="btn-view-stats" onclick="openStatsModal()" class="hidden px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs md:text-sm transition border border-slate-700/60 flex items-center gap-2">
+            <button id="btn-view-stats" onclick="openStatsModal()" class="hidden px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs sm:text-sm transition border border-slate-700/70 flex items-center gap-1.5">
                 <i class="fa-solid fa-trophy text-yellow-400"></i>
-                <span>สถิติผู้เล่น</span>
+                <span>ตารางลำดับ</span>
             </button>
-            <button id="btn-reset-game" onclick="confirmResetGame()" class="hidden p-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-400 transition border border-rose-800/50" title="ตั้งค่าใหม่">
-                <i class="fa-solid fa-rotate-left text-lg"></i>
+            <button id="btn-reset-game" onclick="openConfirmModal()" class="hidden p-2 sm:px-3 sm:py-2 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 transition border border-rose-800/60 text-xs sm:text-sm font-bold flex items-center gap-1" title="เริ่มเกมใหม่">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span class="hidden sm:inline">ตั้งค่าใหม่</span>
             </button>
         </div>
     </header>
 
-    <main id="app-container" class="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 w-full max-w-7xl mx-auto">
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-container" class="flex-grow flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 w-full max-w-7xl mx-auto">
         
         <!-- SETUP SCREEN -->
-        <section id="setup-screen" class="w-full max-w-4xl glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-slate-800 my-auto">
-            <div class="text-center mb-6">
-                <span class="inline-block px-4 py-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-glass-cheers mr-1.5"></i> ต้อนรับสู่วงเหล้า
+        <section id="setup-screen" class="w-full max-w-4xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
+            <div class="text-center mb-5">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
+                    <i class="fa-solid fa-users mr-1"></i> รวมวง 4 - 20 คน บนจอเดียว
                 </span>
-                <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกจำนวนผู้เล่น ปรับแต่งอวตาร และเลือกด่านประลองคอแข็ง</p>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">ตั้งค่านักดื่มในวง แล้วเตรียมส่งต่อคิวเล่นบนหน้าจอนี้!</p>
             </div>
 
-            <!-- Configuration Steps Grid -->
-            <div class="space-y-6">
-                <!-- STEP 1: Player Count & Game Settings -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/60 p-4 sm:p-5 rounded-2xl border border-slate-800">
-                    <!-- Player Count -->
+            <div class="space-y-5">
+                <!-- STEP 1: Player Count & Dice Setup -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center justify-between">
-                            <span><i class="fa-solid fa-users text-yellow-400 mr-1.5"></i> จำนวนผู้เล่น (4 - 20 คน)</span>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นในวง
+                            </label>
                             <span id="player-count-display" class="text-yellow-400 font-extrabold text-base">4 คน</span>
-                        </label>
-                        <input type="range" id="player-count-range" min="4" max="20" value="4" oninput="updatePlayerCount(this.value)" class="w-full accent-yellow-400 cursor-pointer h-2 bg-slate-700 rounded-lg">
+                        </div>
+                        <input type="range" id="player-count-range" min="4" max="20" value="4" oninput="updatePlayerCount(this.value)" class="w-full accent-yellow-400 cursor-pointer h-2.5 bg-slate-700 rounded-lg">
                         
-                        <!-- Quick Pick Chips -->
-                        <div class="flex flex-wrap gap-1.5 mt-3">
-                            <button onclick="updatePlayerCount(4)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">4 คน</button>
-                            <button onclick="updatePlayerCount(6)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">6 คน</button>
-                            <button onclick="updatePlayerCount(8)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">8 คน</button>
-                            <button onclick="updatePlayerCount(12)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">12 คน</button>
-                            <button onclick="updatePlayerCount(16)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">16 คน</button>
-                            <button onclick="updatePlayerCount(20)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">20 คน</button>
+                        <div class="flex flex-wrap gap-1.5 mt-2.5">
+                            <button onclick="updatePlayerCount(4)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">4 คน</button>
+                            <button onclick="updatePlayerCount(6)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">6 คน</button>
+                            <button onclick="updatePlayerCount(8)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">8 คน</button>
+                            <button onclick="updatePlayerCount(12)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">12 คน</button>
+                            <button onclick="updatePlayerCount(16)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">16 คน</button>
+                            <button onclick="updatePlayerCount(20)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">20 คน</button>
                         </div>
                     </div>
 
-                    <!-- Dice Count Selector -->
+                    <!-- Dice Selection -->
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-                            <i class="fa-solid fa-dice text-yellow-400 mr-1.5"></i> จำนวนลูกเต๋าที่ใช้
+                            <i class="fa-solid fa-dice text-yellow-400 mr-1"></i> จำนวนลูกเต๋า
                         </label>
                         <div class="grid grid-cols-3 gap-2">
-                            <button type="button" onclick="selectDiceCount(1)" id="dice-btn-1" class="dice-select-btn p-3 rounded-xl bg-yellow-500 text-slate-950 font-bold text-center border border-yellow-400 transition shadow-lg shadow-yellow-500/20">
-                                <div class="text-lg">🎲 1 ลูก</div>
-                                <div class="text-[10px] opacity-80 mt-0.5">มาตรฐาน</div>
+                            <button type="button" onclick="selectDiceCount(1)" id="dice-btn-1" class="dice-select-btn p-2.5 rounded-xl bg-yellow-500 text-slate-950 font-extrabold text-center border border-yellow-400 transition shadow-lg shadow-yellow-500/20">
+                                <div class="text-base">🎲 1 ลูก</div>
+                                <div class="text-[10px] opacity-90">มาตรฐาน</div>
                             </button>
-                            <button type="button" onclick="selectDiceCount(2)" id="dice-btn-2" class="dice-select-btn p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-center border border-slate-700 transition">
-                                <div class="text-lg">🎲🎲 2 ลูก</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5">เดินเร็ว / มีเบิ้ล</div>
+                            <button type="button" onclick="selectDiceCount(2)" id="dice-btn-2" class="dice-select-btn p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-extrabold text-center border border-slate-700 transition">
+                                <div class="text-base">🎲🎲 2 ลูก</div>
+                                <div class="text-[10px] text-slate-400">เดินไว / มีเบิ้ล</div>
                             </button>
-                            <button type="button" onclick="selectDiceCount(3)" id="dice-btn-3" class="dice-select-btn p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-center border border-slate-700 transition">
-                                <div class="text-lg">🎲 3 ลูก</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5">สปีดความเร็วสูง</div>
+                            <button type="button" onclick="selectDiceCount(3)" id="dice-btn-3" class="dice-select-btn p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-extrabold text-center border border-slate-700 transition">
+                                <div class="text-base">🎲 3 ลูก</div>
+                                <div class="text-[10px] text-slate-400">สปีดเร็วสูง</div>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- STEP 2: Theme / Map Selection -->
+                <!-- STEP 2: Map Theme Selection -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-                        <i class="fa-solid fa-map text-yellow-400 mr-1.5"></i> เลือกด่านกระดาน (Theme & Board Map)
+                        <i class="fa-solid fa-map-location-dot text-yellow-400 mr-1"></i> เลือกด่านกระดานประลอง
                     </label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Theme 1 Card -->
-                        <div id="theme-card-1" onclick="selectTheme(1)" class="cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-yellow-500 shadow-lg shadow-yellow-500/10 transition hover:scale-[1.01]">
-                            <div class="flex items-center justify-between mb-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div id="theme-card-1" onclick="selectTheme(1)" class="cursor-pointer p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-yellow-500 shadow-lg shadow-yellow-500/10 transition hover:scale-[1.01]">
+                            <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-2xl">🖤</span>
-                                    <h3 class="font-extrabold text-white text-base">ด่าน "สายแข็ง นักดื่ม"</h3>
+                                    <span class="text-xl">🖤</span>
+                                    <h3 class="font-extrabold text-white text-sm sm:text-base">ด่าน "สายแข็ง นักดื่ม"</h3>
                                 </div>
-                                <span class="w-5 h-5 rounded-full bg-yellow-400 text-black flex items-center justify-center text-xs font-bold shadow-md">✓</span>
+                                <span id="theme-check-1" class="w-5 h-5 rounded-full bg-yellow-400 text-black flex items-center justify-center text-xs font-bold shadow">✓</span>
                             </div>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-3">
-                                ธีมสีดำ-เทา-เหลืองสไตล์นีออนผับ มีทั้งหมด 35 ช่อง! เน้นช็อตเข้มจัดหนัก ดื่มรอบวง และคำสั่งสั่งเพื่อน
+                            <p class="text-xs text-slate-400 leading-normal mb-2">
+                                ธีมสีดำ-เทา-เหลืองสไตล์นีออนผับ มี 35 ช่อง! เน้นช็อตเพรียว ดื่มรอบวง และคำสั่งสั่งเพื่อน
                             </p>
                             <div class="flex flex-wrap gap-1 text-[10px] text-yellow-300 font-semibold">
-                                <span class="bg-yellow-500/20 px-2 py-0.5 rounded border border-yellow-500/30">35 ช่อง</span>
-                                <span class="bg-yellow-500/20 px-2 py-0.5 rounded border border-yellow-500/30">เน้นช็อตเพรียว</span>
-                                <span class="bg-yellow-500/20 px-2 py-0.5 rounded border border-yellow-500/30">เบิ้ลพักตา</span>
+                                <span class="bg-yellow-500/20 px-2 py-0.5 rounded border border-yellow-500/30">35 ช่องวนลูป</span>
+                                <span class="bg-yellow-500/20 px-2 py-0.5 rounded border border-yellow-500/30">เบิ้ล 3 ครั้งพักตา</span>
                             </div>
                         </div>
 
-                        <!-- Theme 2 Card -->
-                        <div id="theme-card-2" onclick="selectTheme(2)" class="cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-amber-950/60 to-stone-900 border-2 border-slate-800 transition hover:scale-[1.01]">
-                            <div class="flex items-center justify-between mb-2">
+                        <div id="theme-card-2" onclick="selectTheme(2)" class="cursor-pointer p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/50 to-stone-900 border-2 border-slate-800 transition hover:scale-[1.01]">
+                            <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-2xl">🍺</span>
-                                    <h3 class="font-extrabold text-amber-300 text-base">ด่าน "สายแข็ง จิบเบียร์"</h3>
+                                    <span class="text-xl">🍺</span>
+                                    <h3 class="font-extrabold text-amber-300 text-sm sm:text-base">ด่าน "สายแข็ง จิบเบียร์"</h3>
                                 </div>
                                 <span id="theme-check-2" class="w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold"></span>
                             </div>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-3">
-                                ธีมสีเหลือง-ส้ม-ทอง เบียร์โฟมนุ่มๆ มีทั้งหมด 28 ช่อง! เน้นยกเบียร์หมดแก้ว เติมน้ำแข็ง และแจกเพื่อน
+                            <p class="text-xs text-slate-400 leading-normal mb-2">
+                                ธีมสีเหลือง-ส้ม-ทอง เบียร์โฟมนุ่ม มี 28 ช่อง! เน้นยกหมดแก้ว เติมน้ำแข็ง และแจกเพื่อนรอบวง
                             </p>
                             <div class="flex flex-wrap gap-1 text-[10px] text-amber-300 font-semibold">
-                                <span class="bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">28 ช่อง</span>
-                                <span class="bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">ธีมวงเบียร์</span>
-                                <span class="bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">พักคอ 2 ตา</span>
+                                <span class="bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">28 ช่องวนลูป</span>
+                                <span class="bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">พักผ่อน 1-2 ตา</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- STEP 3: Player Customization List -->
+                <!-- STEP 3: Player Customization Roster -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                            <i class="fa-solid fa-user-gear text-yellow-400 mr-1.5"></i> กำหนดชื่อและอวตารผู้เล่น
+                            <i class="fa-solid fa-user-pen text-yellow-400 mr-1"></i> กำหนดชื่อและอวตารผู้เล่น
                         </label>
                         <button type="button" onclick="autoFillPlayerNames()" class="text-xs text-yellow-400 hover:text-yellow-300 underline font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> สุ่มชื่อตั้งต้น
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> สุ่มชื่อแก๊งค์ปาร์ตี้
                         </button>
                     </div>
 
-                    <!-- Scrollable Player Setup Roster -->
-                    <div id="player-setup-list" class="max-h-64 overflow-y-auto space-y-2.5 pr-1">
-                        <!-- Dynamic Player Rows generated via JS -->
+                    <!-- Scrollable Player Rows -->
+                    <div id="player-setup-list" class="max-h-56 overflow-y-auto space-y-2 pr-1">
+                        <!-- Rendered dynamically -->
                     </div>
                 </div>
 
-                <!-- Start Action Button -->
-                <div class="pt-2">
-                    <button type="button" onclick="startGame()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-500 text-slate-950 font-black text-lg md:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2">
-                        <span>เริ่มลุยวงเหล้าทันที!</span>
-                        <i class="fa-solid fa-play text-slate-950"></i>
+                <!-- START GAME BUTTON -->
+                <div class="pt-1">
+                    <button type="button" onclick="startGame()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2">
+                        <span>เริ่มลุยวงเหล้าส่งต่อคิว!</span>
+                        <i class="fa-solid fa-play"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- MAIN GAME BOARD SCREEN (Hidden by default) -->
-        <section id="game-screen" class="hidden w-full flex-col items-center justify-center space-y-4">
+        <!-- MAIN GAME SCREEN -->
+        <section id="game-screen" class="hidden w-full flex-col items-center justify-center space-y-3">
             
-            <!-- Outer Board Canvas Wrap -->
-            <div id="board-container" class="w-full glass-panel rounded-3xl p-2 sm:p-4 shadow-2xl relative border border-slate-800 transition-all duration-500">
+            <!-- Outer Board Container -->
+            <div id="board-container" class="w-full glass-panel rounded-3xl p-2 sm:p-3 shadow-2xl relative border border-slate-800 transition-all duration-300">
                 
-                <!-- Dynamic Grid Perimeter Board -->
-                <div id="board-grid" class="w-full aspect-square md:aspect-[16/11] max-h-[82vh] relative">
-                    <!-- Board Tiles dynamically rendered here -->
+                <!-- Dynamic Perimeter Grid -->
+                <div id="board-grid" class="w-full aspect-square md:aspect-[16/11] max-h-[78vh] relative">
+                    <!-- Board Tiles rendered dynamically -->
 
-                    <!-- CENTER CONTROL PANEL (Spans middle grid cells) -->
-                    <div id="center-panel" class="absolute inset-x-[10%] inset-y-[10%] sm:inset-x-[12%] sm:inset-y-[12%] rounded-2xl glass-panel p-3 sm:p-5 flex flex-col justify-between items-center text-center shadow-2xl z-10 border border-slate-700/60 overflow-y-auto">
+                    <!-- CENTER CONTROL HUB -->
+                    <div id="center-panel" class="absolute inset-x-[9%] inset-y-[9%] sm:inset-x-[11%] sm:inset-y-[11%] rounded-2xl glass-panel p-2.5 sm:p-4 flex flex-col justify-between items-center text-center shadow-2xl z-10 border border-slate-700/80 overflow-y-auto">
                         
-                        <!-- Top Center: Turn Header & Rules Toggle -->
-                        <div class="w-full flex items-center justify-between border-b border-slate-800/80 pb-2 mb-1">
-                            <div class="flex items-center gap-2">
-                                <span id="current-player-avatar" class="text-2xl sm:text-3xl animate-bounce-short">🍺</span>
+                        <!-- Current Turn Pass-and-Play Banner -->
+                        <div class="w-full flex items-center justify-between border-b border-slate-800/80 pb-2">
+                            <div class="flex items-center gap-2.5">
+                                <div id="current-player-avatar-box" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-slate-800 border-2 border-yellow-400 flex items-center justify-center text-2xl sm:text-3xl shadow-md animate-bounce-short">
+                                    🍺
+                                </div>
                                 <div class="text-left">
-                                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">ตาดื่มของ:</div>
-                                    <div id="current-player-name" class="text-sm sm:text-base md:text-lg font-extrabold text-yellow-400 truncate max-w-[120px] sm:max-w-[200px]">
+                                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
+                                        <span>ถึงคิวของคุณแล้ว!</span>
+                                        <span id="turn-sequence-tag" class="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.2 rounded font-extrabold">คิวที่ 1/4</span>
+                                    </div>
+                                    <div id="current-player-name" class="text-sm sm:text-lg font-black text-yellow-400 truncate max-w-[130px] sm:max-w-[220px]">
                                         ผู้เล่น 1
                                     </div>
                                 </div>
                             </div>
-                            <!-- Player Status Badge -->
-                            <div id="current-player-status" class="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-semibold text-slate-300">
-                                🎲 พร้อมทอย
+
+                            <!-- Player Status Tag -->
+                            <div id="current-player-status" class="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-[10px] sm:text-xs font-bold text-slate-300">
+                                🎲 รอทอยลูกเต๋า
                             </div>
                         </div>
 
-                        <!-- Center Middle: Interactive Dice & Action Section -->
-                        <div class="my-auto py-2 flex flex-col items-center justify-center w-full">
-                            <!-- Dice Display Area -->
-                            <div id="dice-display-box" class="flex items-center justify-center gap-3 my-2 min-h-[64px]">
-                                <!-- Dice faces rendered here dynamically -->
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-yellow-400 flex items-center justify-center text-2xl sm:text-3xl shadow-lg shadow-yellow-500/20 font-black text-yellow-400">
+                        <!-- Center Middle: Interactive Dice & Roll Button -->
+                        <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+                            <!-- Animated Dice Faces Display -->
+                            <div id="dice-display-box" class="flex items-center justify-center gap-2.5 my-1.5 min-h-[56px]">
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950 flex items-center justify-center font-black text-2xl shadow-lg shadow-yellow-500/30 border-2 border-yellow-200">
                                     🎲
                                 </div>
                             </div>
 
-                            <!-- Roll Output & Double Alert -->
-                            <div id="roll-result-text" class="text-xs sm:text-sm font-extrabold text-slate-300 h-5">
-                                กดปุ่มทอยลูกเต๋าเพื่อเดิน!
+                            <!-- Dice Roll Text Output -->
+                            <div id="roll-result-text" class="text-xs sm:text-sm font-extrabold text-slate-300 min-h-[20px]">
+                                กดปุ่มทอยลูกเต๋าแล้วส่งแก้ว!
                             </div>
 
-                            <!-- Roll Dice Main Button -->
-                            <button id="btn-roll-dice" onclick="handleRollDice()" class="mt-3 px-6 sm:px-10 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-lg tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition-all duration-150 flex items-center gap-2">
-                                <i class="fa-solid fa-dice-five text-base sm:text-xl"></i>
+                            <!-- Roll Action Button -->
+                            <button id="btn-roll-dice" onclick="handleRollDice()" class="mt-2.5 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
+                                <i class="fa-solid fa-dice-five text-base sm:text-lg"></i>
                                 <span>ทอยลูกเต๋า</span>
                             </button>
                         </div>
 
-                        <!-- Center Bottom: Fixed Map Rules & History Log -->
-                        <div class="w-full space-y-2 mt-auto">
-                            <!-- Map Rules Accordion/Box -->
-                            <div id="center-map-rules" class="bg-slate-950/70 p-2.5 rounded-xl border border-yellow-500/30 text-left text-[10px] sm:text-xs">
+                        <!-- Center Bottom: Fixed Rules & Log -->
+                        <div class="w-full space-y-1.5 mt-auto">
+                            <!-- Map Rules Accordion -->
+                            <div class="bg-slate-950/80 p-2 sm:p-2.5 rounded-xl border border-yellow-500/30 text-left text-[10px] sm:text-xs">
                                 <div class="font-extrabold text-yellow-400 uppercase tracking-wider mb-1 flex items-center justify-between">
                                     <span><i class="fa-solid fa-gavel mr-1"></i> กฎเหล็กประจำด่าน</span>
-                                    <span id="rules-theme-tag" class="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded">สายแข็ง</span>
+                                    <span id="rules-theme-tag" class="text-[9px] bg-yellow-500/20 text-yellow-300 px-1 py-0.2 rounded">สายแข็ง</span>
                                 </div>
                                 <ol id="rules-list" class="list-decimal list-inside space-y-0.5 text-slate-300 font-medium">
-                                    <!-- Rules populated via JS -->
+                                    <!-- Populated via JS -->
                                 </ol>
                             </div>
 
-                            <!-- History Activity Log -->
-                            <div class="bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-left">
-                                <div class="text-[10px] font-bold text-slate-400 mb-1 flex items-center justify-between">
-                                    <span><i class="fa-solid fa-clock-rotate-left text-slate-500 mr-1"></i> ประวัติการเดินล่าสุด</span>
-                                    <button onclick="clearHistoryLog()" class="text-[9px] text-slate-500 hover:text-slate-300">ล้างประวัติ</button>
+                            <!-- Action History Log -->
+                            <div class="bg-slate-950/60 p-1.5 sm:p-2 rounded-xl border border-slate-800 text-left">
+                                <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 mb-0.5 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-clock-rotate-left mr-1"></i> บันทึกเหตุการณ์ล่าสุด</span>
+                                    <button onclick="clearHistoryLog()" class="text-[9px] text-slate-500 hover:text-slate-300">ล้าง</button>
                                 </div>
-                                <div id="history-log" class="h-10 sm:h-12 overflow-y-auto text-[10px] sm:text-xs text-slate-300 space-y-1">
-                                    <div class="text-slate-500 italic">เริ่มต้นเกมส์! ชนแก้วเตรียมพร้อม!</div>
+                                <div id="history-log" class="h-9 sm:h-11 overflow-y-auto text-[10px] sm:text-xs text-slate-300 space-y-0.5">
+                                    <div class="text-slate-500 italic">พร้อมชนแก้วแล้ว! ส่งต่อให้ผู้เล่นคนแรก</div>
                                 </div>
                             </div>
                         </div>
 
                     </div>
-                    <!-- END CENTER CONTROL PANEL -->
+                </div>
+            </div>
 
+            <!-- PASS-AND-PLAY ROSTER SUMMARY BAR -->
+            <div class="w-full glass-panel rounded-2xl p-2 sm:p-3 border border-slate-800">
+                <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span><i class="fa-solid fa-layer-group text-yellow-400 mr-1"></i> สถานะนักดื่มรอบวง (คลิกเพื่อดูรายละเอียด)</span>
+                    <span id="total-laps-stat" class="text-yellow-400 font-bold">รอบวงรวม: 0</span>
+                </div>
+                
+                <!-- Horizontal Scrollable Player Badges -->
+                <div id="roster-bar" class="flex items-center gap-2 overflow-x-auto pb-1">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
         </section>
     </main>
 
-    <!-- TILE LANDING MODAL (Pop-up instruction card) -->
-    <div id="tile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="w-full max-w-md glass-panel rounded-3xl p-6 text-center border-2 border-yellow-400 shadow-2xl animate-modal-pop relative overflow-hidden">
-            <!-- Background Glow Decor -->
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellow-500/20 rounded-full blur-2xl"></div>
-            <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl"></div>
+    <!-- TILE ACTION MODAL -->
+    <div id="tile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-md glass-panel rounded-3xl p-5 sm:p-6 text-center border-2 border-yellow-400 shadow-2xl animate-modal-pop relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-28 h-28 bg-yellow-500/20 rounded-full blur-2xl"></div>
+            <div class="absolute -left-8 -bottom-8 w-28 h-28 bg-amber-500/20 rounded-full blur-2xl"></div>
 
-            <!-- Player Badge -->
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 mb-4 shadow-md">
+            <!-- Active Player Badge -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800 border border-slate-700 mb-3 shadow-md">
                 <span id="modal-player-avatar" class="text-xl">🍺</span>
-                <span id="modal-player-name" class="font-extrabold text-sm text-yellow-400">ผู้เล่น 1</span>
-                <span class="text-xs text-slate-400">เดินมาตกที่</span>
+                <span id="modal-player-name" class="font-extrabold text-xs sm:text-sm text-yellow-400">ผู้เล่น 1</span>
+                <span class="text-[11px] text-slate-400">ตกที่ช่อง</span>
             </div>
 
             <!-- Tile Main Icon -->
-            <div id="modal-tile-icon" class="text-5xl sm:text-6xl my-2 animate-bounce-short">
+            <div id="modal-tile-icon" class="text-5xl sm:text-6xl my-1 animate-bounce-short">
                 🍻
             </div>
 
             <!-- Tile Title -->
-            <h3 id="modal-tile-title" class="text-xl sm:text-2xl font-black text-white tracking-wide my-1">
+            <h3 id="modal-tile-title" class="text-lg sm:text-2xl font-black text-white tracking-wide my-1">
                 ตั้งวง (ชนแก้ว)
             </h3>
 
-            <!-- Tile Instruction Text -->
-            <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 my-4 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+            <!-- Tile Description -->
+            <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 my-3 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
                 <p id="modal-tile-desc">
                     คำสั่งประจำช่องนี้จะปรากฏที่นี่...
                 </p>
             </div>
 
-            <!-- Confirm / Action Button -->
-            <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition">
-                รับทราบคำสั่ง! (จัดไป)
+            <!-- Modal Action Button -->
+            <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition">
+                จัดไป! (ส่งคิวต่อ)
             </button>
         </div>
     </div>
 
-    <!-- STATS & LEADERBOARD MODAL -->
-    <div id="stats-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="w-full max-w-lg glass-panel rounded-3xl p-6 border border-slate-700 shadow-2xl animate-modal-pop relative max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+    <!-- STATS MODAL -->
+    <div id="stats-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-md glass-panel rounded-3xl p-5 border border-slate-700 shadow-2xl animate-modal-pop relative max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-trophy text-yellow-400 text-xl"></i>
-                    <h3 class="text-lg font-extrabold text-white">ตารางสถิตินักดื่มในวง</h3>
+                    <i class="fa-solid fa-trophy text-yellow-400 text-lg"></i>
+                    <h3 class="text-base font-extrabold text-white">ตารางสรุปผลนักดื่ม</h3>
                 </div>
-                <button onclick="closeStatsModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center transition">
+                <button onclick="closeStatsModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Roster Stats List -->
-            <div id="stats-list-container" class="space-y-2.5 overflow-y-auto flex-grow pr-1">
-                <!-- Dynamically populated via JS -->
+            <div id="stats-list-container" class="space-y-2 overflow-y-auto flex-grow pr-1">
+                <!-- Populated via JS -->
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-800 text-center">
-                <button onclick="closeStatsModal()" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
+            <div class="mt-3 pt-2 border-t border-slate-800 text-center">
+                <button onclick="closeStatsModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
                     ปิดหน้าต่าง
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET CONFIRMATION MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-sm glass-panel rounded-3xl p-5 text-center border border-rose-800/80 shadow-2xl animate-modal-pop">
+            <div class="text-4xl my-2">⚠️</div>
+            <h3 class="text-lg font-extrabold text-white mb-2">ต้องการเริ่มตั้งค่าใหม่?</h3>
+            <p class="text-xs text-slate-300 mb-4">ข้อมูลการเดินและจำนวนดื่มปัจจุบันจะถูกรีเซ็ตทั้งหมด</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeConfirmModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    ยกเลิก
+                </button>
+                <button onclick="resetGameToSetup()" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition">
+                    ยืนยันเริ่มใหม่
                 </button>
             </div>
         </div>
@@ -448,120 +462,7 @@
 
     <script>
         /* ==========================================================================
-           1. GAME DATASETS & MAP DEFINITIONS
-           ========================================================================== */
-
-        // 20 Unique Avatars Emojis
-        const AVATAR_LIST = [
-            "🍺", "🥂", "🍹", "🍷", "🍾", "🍻", "🥃", "🍸", "👑", "🦁",
-            "🐯", "🐼", "🦄", "🐲", "👺", "🤡", "👻", "🤖", "👽", "🎃"
-        ];
-
-        // Default Thai Fun Player Names
-        const DEFAULT_NAMES = [
-            "สายแข็ง", "เซียนเหล้า", "จิบชิลๆ", "คอทองคำ", "สายเปย์",
-            "ตับทองคำ", "ขาปาร์ตี้", "จิบไม่พัก", "น็อคยาก", "ตัวตึง",
-            "ทรงดี", "จัดหนัก", "หมดแก้ว", "พระราม9", "สายชน",
-            "เจ้าพ่อช็อต", "ยกลืมบ้าน", "บาร์เทนเดอร์", "ละมุนลิ้น", "ยอดนักดื่ม"
-        ];
-
-        // Map 1: "สายแข็ง นักดื่ม" (35 Total Tiles)
-        const MAP_1_DATA = {
-            id: 1,
-            name: "สายแข็ง นักดื่ม",
-            themeClass: "theme-dark",
-            rules: [
-                "ใครน็อคก่อนแพ้",
-                "เบิ้ล 3 ครั้ง พัก 1 ตา",
-                "เลิกก่อนจ่ายค่าเหล้า",
-                "ให้คนแพ้ทำอะไรตกลงกันเอง"
-            ],
-            // Corner Positions: BL (Index 0), TL (Index 8), TR (Index 18), BR (Index 26)
-            tiles: [
-                { title: "ตั้งวง (ชนแก้ว)", icon: "🍻", type: "start", desc: "เริ่มต้นความบันเทิง! ชนแก้วพร้อมกันทุกคน แล้วดื่มคนละ 1 จิบ!" }, // 0: BL Start
-                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "สั่งคนซ้ายมือจัดไป 1 ช็อตเน้นๆ!" },
-                { title: "ดื่ม 3 ช็อต", icon: "🥃", type: "drink", desc: "จัดหนัก! คุณต้องดื่มเอง 3 ช็อต!" },
-                { title: "กินกับแกล้ม 1 คำ", icon: "🍖", type: "snack", desc: "พักคอแป๊บ! ตักกับแกล้มกิน 1 คำโตๆ" },
-                { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อตเบาๆ" },
-                { title: "จิบเบาๆ", icon: "🍹", type: "sip", desc: "จิบพอกรึ่มๆ 1 จิบ" },
-                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👉", type: "command", desc: "ใช้อำนาจที่มี! เลือกเพื่อน 1 คนดื่มหมดแก้ว!" },
-                { title: "ดื่มหมดแก้ว", icon: "🍺", type: "heavy", desc: "ใจต้องนิ่ง! ดื่มให้หมดแก้วตรงหน้า!" },
-                { title: "คนข้างขวา ดื่ม 2 ช็อต", icon: "👉", type: "corner", desc: "ชี้ไปทางขวา! คนข้างขวาจัดไป 2 ช็อต!" }, // 8: TL Corner
-                { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตพอให้ชุ่มคอ" },
-                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👑", type: "command", desc: "เลือกเป้าหมายเลย! สั่งใครก็ได้ยกหมดแก้ว!" },
-                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "คนซ้ายมือเตรียมตัว... จัดไป 1 ช็อต!" },
-                { title: "ดื่ม 3 ช็อต", icon: "🔥", type: "heavy", desc: "สายแข็งตัวจริง! จัดไป 3 ช็อตเต็มๆ!" },
-                { title: "ดื่มรอบวง", icon: "🌐", type: "group", desc: "ปาร์ตี้ไทม์! ทุกคนในวงยกดื่มพร้อมกัน 1 ช็อต!" },
-                { title: "จิบเบาๆ", icon: "🥂", type: "sip", desc: "จิบเบาๆ พอได้รสชาติ" },
-                { title: "ชงเหล้าให้เพื่อนรอบวง", icon: "🍾", type: "serve", desc: "รับบทเด็กชง! เติมเครื่องดื่มให้เพื่อนทุกคนรอบวง" },
-                { title: "ดื่ม 1 ช็อต", icon: "🥃", type: "drink", desc: "จัดไป 1 ช็อตเน้นๆ" },
-                { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตสบายๆ" },
-                { title: "อยากทำอะไรก็ทำ..ตามใจ", icon: "🎉", type: "corner", desc: "สิทธิ์ของผู้ชนะ! สั่งอะไรก็ได้ 1 อย่าง (หรือจะให้ใครทำอะไรก็ได้ตามใจคุณ)" }, // 18: TR Corner
-                { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อต" },
-                { title: "ดื่มรอบวง", icon: "🍻", type: "group", desc: "ชนแก้วรอบวง! ยกพร้อมกันทุกคน!" },
-                { title: "เดินไปอีก 4 ช่อง", icon: "🚀", type: "automove", desc: "โชคดีสุดๆ! เดินหน้าเพิ่มทันที 4 ช่อง!", autoMove: 4 },
-                { title: "จิบเบาๆ", icon: "🍹", type: "sip", desc: "จิบเบาๆ ชิลๆ" },
-                { title: "ให้คนข้างขวาดื่ม 1 ช็อต", icon: "👉", type: "action", desc: "หันขวาแล้วชี้! คนข้างขวาดื่ม 1 ช็อต" },
-                { title: "ดื่ม 3 ช็อต", icon: "⚡", type: "heavy", desc: "โดนหนัก! ดื่มเอง 3 ช็อต!" },
-                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "คนซ้ายมือรับโชคไป 1 ช็อต" },
-                { title: "สั่งใครก็ได้ ดื่ม 2 ช็อต", icon: "🎯", type: "corner", desc: "เล็งเป้าหมาย! สั่งเพื่อนคนไหนก็ได้ดื่ม 2 ช็อต!" }, // 26: BR Corner
-                { title: "ดื่ม 1 ช็อต", icon: "🥃", type: "drink", desc: "จัดไป 1 ช็อต" },
-                { title: "จิบเบาๆ", icon: "🥂", type: "sip", desc: "จิบ 1 ทีพอหล่อๆ" },
-                { title: "ชงเหล้าให้เพื่อนรอบวง", icon: "🍾", type: "serve", desc: "บาร์เทนเดอร์จำเป็น! ชงเครื่องดื่มบริการเพื่อนรอบวง" },
-                { title: "เสียภาษี(ค่าเหล้า) 20 บาท", icon: "💸", type: "tax", desc: "จ่ายค่าน้ำแข็ง/ค่าเหล้า 20 บาท เข้ากองกลาง!" },
-                { title: "ดื่ม 3 ช็อต", icon: "💥", type: "heavy", desc: "จัดไปเน้นๆ 3 ช็อต!" },
-                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👑", type: "command", desc: "ชี้ตัวเลย! สั่งเพื่อน 1 คนดื่มให้หมดแก้ว!" },
-                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "ส่งต่อความรัก... คนข้างซ้ายดื่ม 1 ช็อต!" },
-                { title: "กินกับแกล้ม 1 คำ", icon: "🍗", type: "snack", desc: "เคี้ยวกับแกล้ม 1 คำล้างคอ" }
-            ]
-        };
-
-        // Map 2: "สายแข็ง จิบเบียร์" (28 Total Tiles)
-        const MAP_2_DATA = {
-            id: 2,
-            name: "สายแข็ง จิบเบียร์",
-            themeClass: "theme-beer",
-            rules: [
-                "ไม่เมาห้ามเลิก",
-                "เลิกเล่น เสียเบียร์ 5 ขวด",
-                "ลุกเข้าห้องน้ำ ยกเบียร์หมดแก้ว",
-                "รินเบียร์หกยกครึ่งแก้ว"
-            ],
-            // Corner Positions: BL (Index 0), TL (Index 7), TR (Index 14), BR (Index 21)
-            tiles: [
-                { title: "เริ่มเกมส์ ชนแก้ว ยกหมดแก้ว", icon: "🍻", type: "start", desc: "เริ่มเปิดวงเบียร์! ชนแก้วร่วมกันแล้วยกหมดแก้วแรก!" }, // 0: BL Start
-                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "วาร์ปไปข้างหน้า! เดินเพิ่มทันที 3 ช่อง", autoMove: 3 },
-                { title: "รินเบียร์รอบวง", icon: "🍺", type: "serve", desc: "เด็กเชียร์เบียร์! เดินรินเบียร์ให้เพื่อนๆ ทุกคนในวง" },
-                { title: "สิทธิ์พิเศษพัก 1 ตา", icon: "🛑", type: "skip", desc: "ได้พักคอ! สิทธิ์พักผ่อน ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
-                { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "ส่งแก้วให้คนซ้ายมือ ดื่มเบียร์ 1 อึกใหญ่!" },
-                { title: "ให้คนขวามือดื่ม", icon: "👉", type: "action", desc: "ส่งแก้วให้คนขวามือ ดื่มเบียร์ 1 อึกใหญ่!" },
-                { title: "เรียกใครก็ได้ดื่มแทน", icon: "🤝", type: "command", desc: "หาตัวแทน! เลือกเพื่อน 1 คนมาดื่มแทนคุณในตานี้" },
-                { title: "เติมน้ำแข็งให้ทุกคน", icon: "🧊", type: "corner", desc: "พนักงานบริการ! คอยเติมน้ำแข็งใส่แก้วให้ทุกคนรอบวง" }, // 7: TL Corner
-                { title: "ตักกับแกล้ม 1 คำ", icon: "🥜", type: "snack", desc: "ตักกับแกล้มอร่อยๆ กิน 1 คำ" },
-                { title: "เลือกเพื่อนดื่มด้วย 3 คน", icon: "👨‍👩‍👧‍👦", type: "group", desc: "ไม่เหงาแน่นอน! เลือกเพื่อน 3 คนยกแก้วดื่มพร้อมกัน" },
-                { title: "ผู้หญิงดื่มรอบวง", icon: "👩", type: "group", desc: "สาวๆ สดใส! สาวๆ ทุกคนในวงยกดื่มพร้อมกัน 1 จิบ" },
-                { title: "ยกหมดแก้ว", icon: "🍺", type: "heavy", desc: "สายเพรียว! ยกเบียร์ให้หมดแก้วเลย" },
-                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "สปีดแรง! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
-                { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "จัดไป! คนซ้ายมือดื่มเบียร์ 1 อึกใหญ่" },
-                { title: "พัก 2 ตา", icon: "😴", type: "corner", desc: "สลบแป๊บ! ได้พักผ่อนข้ามการทอยลูกเต๋า 2 ตาติด!", skipTurns: 2 }, // 14: TR Corner
-                { title: "ผู้ชายหมดแก้วรอบวง", icon: "👨", type: "group", desc: "หนุ่มๆ สายแข็ง! ผู้ชายทุกคนยกหมดแก้วพร้อมกัน!" },
-                { title: "อยากกินอะไรกินได้เลย", icon: "🍕", type: "snack", desc: "เวลาของกิน! เลือกกินกับแกล้มอะไรก็ได้ตามใจชอบ" },
-                { title: "สมทบค่าเบียร์ 1 ขวด", icon: "🍾", type: "tax", desc: "สายเปย์! ออกค่าเบียร์เพิ่ม 1 ขวด" },
-                { title: "พัก 1 ตา", icon: "🛌", type: "skip", desc: "พักผ่อนร่าง! ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
-                { title: "รินเบียร์ให้เพื่อนๆ รอบวง", icon: "🍺", type: "serve", desc: "เด็กชงเบียร์ประจำวง! รินเบียร์เติมให้เพื่อนทุกคน" },
-                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "พุ่งทะยาน! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
-                { title: "เสียเบียร์ 2 ขวด กินกับแกล้ม 2 คำ", icon: "🍺", type: "corner", desc: "รับบทหนัก! เสียเบียร์ 2 ขวด และตักกับแกล้มกิน 2 คำ" }, // 21: BR Corner
-                { title: "เลือกเพื่อนดื่มด้วย 1 คน", icon: "🍻", type: "group", desc: "หาคู่ชน! เลือกเพื่อน 1 คนยกแก้วดื่มไปด้วยกัน" },
-                { title: "ดื่มครึ่งแก้ว", icon: "🍷", type: "sip", desc: "ครึ่งแก้วพอดีๆ ดื่มเลย!" },
-                { title: "สมทบค่าเบียร์ 1 ขวด", icon: "💰", type: "tax", desc: "สมทบกองกลาง! สัญญาว่าจะจ่ายค่าเบียร์เพิ่ม 1 ขวด" },
-                { title: "ให้คนก่อนหน้าดื่มแทน", icon: "🔙", type: "command", desc: "ย้อนศร! ให้คนเล่นคนก่อนหน้าดื่มแทนคุณ" },
-                { title: "ว่างๆ อมน้ำแข็งรอก่อน", icon: "🧊", type: "fun", desc: "คูลๆ! อมน้ำแข็งในปากรอเล่นตาต่อไป" },
-                { title: "หมดแก้ว", icon: "🍻", type: "heavy", desc: "ปิดท้ายรอบ! ยกหมดแก้วตรงหน้า!" }
-            ]
-        };
-
-        /* ==========================================================================
-           2. WEB AUDIO SYNTHESIZER SOUND ENGINE
+           1. WEB AUDIO SYNTHESIZER SOUND ENGINE
            ========================================================================== */
         class SoundEngine {
             constructor() {
@@ -584,17 +485,17 @@
                 this.init();
                 if (!this.ctx) return;
                 const now = this.ctx.currentTime;
-                for (let i = 0; i < 7; i++) {
+                for (let i = 0; i < 6; i++) {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(140 + Math.random() * 260, now + i * 0.07);
-                    gain.gain.setValueAtTime(0.12, now + i * 0.07);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.05);
+                    osc.frequency.setValueAtTime(150 + Math.random() * 240, now + i * 0.06);
+                    gain.gain.setValueAtTime(0.12, now + i * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.05);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
-                    osc.start(now + i * 0.07);
-                    osc.stop(now + i * 0.07 + 0.06);
+                    osc.start(now + i * 0.06);
+                    osc.stop(now + i * 0.06 + 0.06);
                 }
             }
 
@@ -606,14 +507,14 @@
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(580, now);
-                osc.frequency.exponentialRampToValueAtTime(220, now + 0.07);
-                gain.gain.setValueAtTime(0.18, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.06);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start(now);
-                osc.stop(now + 0.08);
+                osc.stop(now + 0.07);
             }
 
             playLand() {
@@ -621,18 +522,18 @@
                 this.init();
                 if (!this.ctx) return;
                 const now = this.ctx.currentTime;
-                const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+                const notes = [523.25, 659.25, 783.99, 1046.5];
                 notes.forEach((freq, idx) => {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.22);
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                    gain.gain.setValueAtTime(0.18, now + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.2);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.08);
-                    osc.stop(now + idx * 0.08 + 0.24);
+                    osc.start(now + idx * 0.07);
+                    osc.stop(now + idx * 0.07 + 0.22);
                 });
             }
 
@@ -641,18 +542,17 @@
                 this.init();
                 if (!this.ctx) return;
                 const now = this.ctx.currentTime;
-                const notes = [380, 280, 180];
-                notes.forEach((freq, idx) => {
+                [360, 260, 160].forEach((freq, idx) => {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-                    gain.gain.setValueAtTime(0.15, now + idx * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.15);
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+                    gain.gain.setValueAtTime(0.12, now + idx * 0.09);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.12);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.1);
-                    osc.stop(now + idx * 0.1 + 0.16);
+                    osc.start(now + idx * 0.09);
+                    osc.stop(now + idx * 0.09 + 0.14);
                 });
             }
         }
@@ -671,29 +571,188 @@
         }
 
         /* ==========================================================================
-           3. APPLICATION STATE MANAGEMENT
+           2. DATASETS & MAP DEFINITIONS
+           ========================================================================== */
+        const AVATAR_LIST = [
+            "🍺", "🥂", "🍹", "🍷", "🍾", "🍻", "🥃", "🍸", "👑", "🦁",
+            "🐯", "🐼", "🦄", "🐲", "👺", "🤡", "👻", "🤖", "👽", "🎃"
+        ];
+
+        const DEFAULT_NAMES = [
+            "สายเมา 1", "สายย่อ 2", "สายจิบ 3", "นักยก 4",
+            "เซียนเหล้า", "คอทองคำ", "สายเปย์", "ตับทองคำ",
+            "ขาปาร์ตี้", "จิบไม่พัก", "น็อคยาก", "ตัวตึง",
+            "ทรงดี", "จัดหนัก", "หมดแก้ว", "สายชน",
+            "เจ้าพ่อช็อต", "ยกลืมบ้าน", "ละมุนลิ้น", "ยอดนักดื่ม"
+        ];
+
+        // MAP 1 DATA (35 TILES)
+        const MAP_1_DATA = {
+            id: 1,
+            name: "สายแข็ง นักดื่ม",
+            rules: [
+                "ใครน็อคก่อนแพ้",
+                "เบิ้ล 3 ครั้ง พัก 1 ตา",
+                "เลิกก่อนจ่ายค่าเหล้า",
+                "ให้คนแพ้ทำอะไรตกลงกันเอง"
+            ],
+            tiles: [
+                { title: "จุดเริ่มต้น (ตั้งวง ชนแก้ว)", icon: "🍻", type: "start", desc: "เริ่มต้นความบันเทิง! ชนแก้วพร้อมกันทุกคน แล้วดื่มคนละ 1 จิบ!" }, // 0: BL
+                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "สั่งคนซ้ายมือจัดไป 1 ช็อตเน้นๆ!" },
+                { title: "ดื่ม 3 ช็อต", icon: "🥃", type: "drink", desc: "จัดหนัก! คุณต้องดื่มเอง 3 ช็อต!" },
+                { title: "กินกับแกล้ม 1 คำ", icon: "🍖", type: "snack", desc: "พักคอแป๊บ! ตักกับแกล้มกิน 1 คำโตๆ" },
+                { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อตเบาๆ" },
+                { title: "จิบเบาๆ", icon: "🍹", type: "sip", desc: "จิบพอกรึ่มๆ 1 จิบ" },
+                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👉", type: "command", desc: "ใช้อำนาจที่มี! เลือกเพื่อน 1 คนดื่มหมดแก้ว!" },
+                { title: "ดื่มหมดแก้ว", icon: "🍺", type: "heavy", desc: "ใจต้องนิ่ง! ดื่มให้หมดแก้วตรงหน้า!" },
+                { title: "คนข้างขวา ดื่ม 2 ช็อต", icon: "👉", type: "corner", desc: "ชี้ไปทางขวา! คนข้างขวาจัดไป 2 ช็อต!" }, // 8: TL
+                { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตพอให้ชุ่มคอ" },
+                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👑", type: "command", desc: "เลือกเป้าหมายเลย! สั่งใครก็ได้ยกหมดแก้ว!" },
+                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "คนซ้ายมือเตรียมตัว... จัดไป 1 ช็อต!" },
+                { title: "ดื่ม 3 ช็อต", icon: "🔥", type: "heavy", desc: "สายแข็งตัวจริง! จัดไป 3 ช็อตเต็มๆ!" },
+                { title: "ดื่มรอบวง", icon: "🌐", type: "group", desc: "ปาร์ตี้ไทม์! ทุกคนในวงยกดื่มพร้อมกัน 1 ช็อต!" },
+                { title: "จิบเบาๆ", icon: "🥂", type: "sip", desc: "จิบเบาๆ พอได้รสชาติ" },
+                { title: "ชงเหล้าให้เพื่อนรอบวง", icon: "🍾", type: "serve", desc: "รับบทเด็กชง! เติมเครื่องดื่มให้เพื่อนทุกคนรอบวง" },
+                { title: "อยากทำอะไรก็ทำ..ตามใจ", icon: "🎉", type: "corner", desc: "สิทธิ์ของผู้ชนะ! สั่งอะไรก็ได้ 1 อย่าง (หรือสั่งเพื่อนตามใจคุณ)" }, // 16: TR
+                { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อต" },
+                { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตสบายๆ" },
+                { title: "ดื่ม 1 ช็อต", icon: "🥃", type: "drink", desc: "จัดไป 1 ช็อตเน้นๆ" },
+                { title: "ดื่มรอบวง", icon: "🍻", type: "group", desc: "ชนแก้วรอบวง! ยกพร้อมกันทุกคน!" },
+                { title: "เดินไปอีก 4 ช่อง", icon: "🚀", type: "automove", desc: "โชคดีสุดๆ! เดินหน้าเพิ่มทันที 4 ช่อง!", autoMove: 4 },
+                { title: "จิบเบาๆ", icon: "🍹", type: "sip", desc: "จิบเบาๆ ชิลๆ" },
+                { title: "ให้คนข้างขวาดื่ม 1 ช็อต", icon: "👉", type: "action", desc: "หันขวาแล้วชี้! คนข้างขวาดื่ม 1 ช็อต" },
+                { title: "สั่งใครก็ได้ ดื่ม 2 ช็อต", icon: "🎯", type: "corner", desc: "เล็งเป้าหมาย! สั่งเพื่อนคนไหนก็ได้ดื่ม 2 ช็อต!" }, // 24: BR
+                { title: "ดื่ม 3 ช็อต", icon: "⚡", type: "heavy", desc: "โดนหนัก! ดื่มเอง 3 ช็อต!" },
+                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "คนซ้ายมือรับโชคไป 1 ช็อต" },
+                { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อต" },
+                { title: "จิบเบาๆ", icon: "🥂", type: "sip", desc: "จิบ 1 ทีพอหล่อๆ" },
+                { title: "ชงเหล้าให้เพื่อนรอบวง", icon: "🍾", type: "serve", desc: "บาร์เทนเดอร์จำเป็น! ชงเครื่องดื่มบริการเพื่อนรอบวง" },
+                { title: "เสียภาษี(ค่าเหล้า) 20 บาท", icon: "💸", type: "tax", desc: "จ่ายค่าน้ำแข็ง/ค่าเหล้า 20 บาท เข้ากองกลาง!" },
+                { title: "ดื่ม 3 ช็อต", icon: "💥", type: "heavy", desc: "จัดไปเน้นๆ 3 ช็อต!" },
+                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👑", type: "command", desc: "ชี้ตัวเลย! สั่งเพื่อน 1 คนดื่มให้หมดแก้ว!" },
+                { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "ส่งต่อความรัก... คนข้างซ้ายดื่ม 1 ช็อต!" },
+                { title: "กินกับแกล้ม 1 คำ", icon: "🍗", type: "snack", desc: "เคี้ยวกับแกล้ม 1 คำล้างคอ" }
+            ]
+        };
+
+        // MAP 2 DATA (28 TILES)
+        const MAP_2_DATA = {
+            id: 2,
+            name: "สายแข็ง จิบเบียร์",
+            rules: [
+                "ไม่เมาห้ามเลิก",
+                "เลิกเล่น เสียเบียร์ 5 ขวด",
+                "ลุกเข้าห้องน้ำ ยกเบียร์หมดแก้ว",
+                "รินเบียร์หกยกครึ่งแก้ว"
+            ],
+            tiles: [
+                { title: "เริ่มเกมส์ ชนแก้ว ยกหมดแก้ว", icon: "🍻", type: "start", desc: "เริ่มเปิดวงเบียร์! ชนแก้วร่วมกันแล้วยกหมดแก้วแรก!" }, // 0: BL
+                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "วาร์ปไปข้างหน้า! เดินเพิ่มทันที 3 ช่อง", autoMove: 3 },
+                { title: "รินเบียร์รอบวง", icon: "🍺", type: "serve", desc: "เด็กเชียร์เบียร์! เดินรินเบียร์ให้เพื่อนๆ ทุกคนในวง" },
+                { title: "สิทธิ์พิเศษพัก 1 ตา", icon: "🛑", type: "skip", desc: "ได้พักคอ! สิทธิ์พักผ่อน ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
+                { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "ส่งแก้วให้คนซ้ายมือ ดื่มเบียร์ 1 อึกใหญ่!" },
+                { title: "ให้คนขวามือดื่ม", icon: "👉", type: "action", desc: "ส่งแก้วให้คนขวามือ ดื่มเบียร์ 1 อึกใหญ่!" },
+                { title: "เรียกใครก็ได้ดื่มแทน", icon: "🤝", type: "command", desc: "หาตัวแทน! เลือกเพื่อน 1 คนมาดื่มแทนคุณในตานี้" },
+                { title: "เติมน้ำแข็งให้ทุกคน", icon: "🧊", type: "corner", desc: "พนักงานบริการ! คอยเติมน้ำแข็งใส่แก้วให้ทุกคนรอบวง" }, // 7: TL
+                { title: "ตักกับแกล้ม 1 คำ", icon: "🥜", type: "snack", desc: "ตักกับแกล้มอร่อยๆ กิน 1 คำ" },
+                { title: "เลือกเพื่อนดื่มด้วย 3 คน", icon: "👨‍👩‍👧‍👦", type: "group", desc: "ไม่เหงาแน่นอน! เลือกเพื่อน 3 คนยกแก้วดื่มพร้อมกัน" },
+                { title: "ผู้หญิงดื่มรอบวง", icon: "👩", type: "group", desc: "สาวๆ สดใส! สาวๆ ทุกคนในวงยกดื่มพร้อมกัน 1 จิบ" },
+                { title: "ยกหมดแก้ว", icon: "🍺", type: "heavy", desc: "สายเพรียว! ยกเบียร์ให้หมดแก้วเลย" },
+                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "สปีดแรง! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
+                { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "จัดไป! คนซ้ายมือดื่มเบียร์ 1 อึกใหญ่" },
+                { title: "พัก 2 ตา", icon: "😴", type: "corner", desc: "สลบแป๊บ! ได้พักผ่อนข้ามการทอยลูกเต๋า 2 ตาติด!", skipTurns: 2 }, // 14: TR
+                { title: "ผู้ชายหมดแก้วรอบวง", icon: "👨", type: "group", desc: "หนุ่มๆ สายแข็ง! ผู้ชายทุกคนยกหมดแก้วพร้อมกัน!" },
+                { title: "อยากกินอะไรกินได้เลย", icon: "🍕", type: "snack", desc: "เวลาของกิน! เลือกกินกับแกล้มอะไรก็ได้ตามใจชอบ" },
+                { title: "สมทบค่าเบียร์ 1 ขวด", icon: "🍾", type: "tax", desc: "สายเปย์! ออกค่าเบียร์เพิ่ม 1 ขวด" },
+                { title: "พัก 1 ตา", icon: "🛌", type: "skip", desc: "พักผ่อนร่าง! ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
+                { title: "รินเบียร์ให้เพื่อนๆ รอบวง", icon: "🍺", type: "serve", desc: "เด็กชงเบียร์ประจำวง! รินเบียร์เติมให้เพื่อนทุกคน" },
+                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "พุ่งทะยาน! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
+                { title: "เสียเบียร์ 2 ขวด กินกับแกล้ม 2 คำ", icon: "🍺", type: "corner", desc: "รับบทหนัก! เสียเบียร์ 2 ขวด และตักกับแกล้มกิน 2 คำ" }, // 21: BR
+                { title: "เลือกเพื่อนดื่มด้วย 1 คน", icon: "🍻", type: "group", desc: "หาคู่ชน! เลือกเพื่อน 1 คนยกแก้วดื่มไปด้วยกัน" },
+                { title: "ดื่มครึ่งแก้ว", icon: "🍷", type: "sip", desc: "ครึ่งแก้วพอดีๆ ดื่มเลย!" },
+                { title: "สมทบค่าเบียร์ 1 ขวด", icon: "💰", type: "tax", desc: "สมทบกองกลาง! สัญญาว่าจะจ่ายค่าเบียร์เพิ่ม 1 ขวด" },
+                { title: "ให้คนก่อนหน้าดื่มแทน", icon: "🔙", type: "command", desc: "ย้อนศร! ให้คนเล่นคนก่อนหน้าดื่มแทนคุณ" },
+                { title: "ว่างๆ อมน้ำแข็งรอก่อน", icon: "🧊", type: "fun", desc: "คูลๆ! อมน้ำแข็งในปากรอเล่นตาต่อไป" },
+                { title: "หมดแก้ว", icon: "🍻", type: "heavy", desc: "ปิดท้ายรอบ! ยกหมดแก้วตรงหน้า!" }
+            ]
+        };
+
+        /* ==========================================================================
+           3. HOLLOW PERIMETER GRID COORDINATES
+           ========================================================================== */
+        function getMap1Coordinates() {
+            // Map 1: 35 tiles total on a 12 columns x 9 rows grid
+            const coords = [];
+            
+            // BL = Tile 0 (Row 9, Col 1)
+            coords.push({ r: 9, c: 1 });
+            // Left Col UP (1..7): Row 8 down to Row 2 at Col 1 (7 tiles)
+            for (let r = 8; r >= 2; r--) coords.push({ r: r, c: 1 });
+            // TL = Tile 8 (Row 1, Col 1)
+            coords.push({ r: 1, c: 1 });
+            // Top Row RIGHT (9..15): Distributed across Cols 2,3,5,6,8,9,10 (7 tiles)
+            const topCols = [2, 3, 5, 6, 8, 9, 11];
+            topCols.forEach(c => coords.push({ r: 1, c: c }));
+            // TR = Tile 16 (Row 1, Col 12)
+            coords.push({ r: 1, c: 12 });
+            // Right Col DOWN (17..23): Row 2 to Row 8 at Col 12 (7 tiles)
+            for (let r = 2; r <= 8; r++) coords.push({ r: r, c: 12 });
+            // BR = Tile 24 (Row 9, Col 12)
+            coords.push({ r: 9, c: 12 });
+            // Bottom Row LEFT (25..34): Col 11 down to Col 2 (10 tiles)
+            for (let c = 11; c >= 2; c--) coords.push({ r: 9, c: c });
+
+            return coords;
+        }
+
+        function getMap2Coordinates() {
+            // Map 2: 28 tiles total on an 8 columns x 8 rows grid
+            const coords = [];
+            
+            // BL = Tile 0 (Row 8, Col 1)
+            coords.push({ r: 8, c: 1 });
+            // Left Col UP (1..6): Row 7 down to Row 2 at Col 1 (6 tiles)
+            for (let r = 7; r >= 2; r--) coords.push({ r: r, c: 1 });
+            // TL = Tile 7 (Row 1, Col 1)
+            coords.push({ r: 1, c: 1 });
+            // Top Row RIGHT (8..13): Col 2 to Col 7 at Row 1 (6 tiles)
+            for (let c = 2; c <= 7; c++) coords.push({ r: 1, c: c });
+            // TR = Tile 14 (Row 1, Col 8)
+            coords.push({ r: 1, c: 8 });
+            // Right Col DOWN (15..20): Row 2 to Row 7 at Col 8 (6 tiles)
+            for (let r = 2; r <= 7; r++) coords.push({ r: r, c: 8 });
+            // BR = Tile 21 (Row 8, Col 8)
+            coords.push({ r: 8, c: 8 });
+            // Bottom Row LEFT (22..27): Col 7 down to Col 2 at Row 8 (6 tiles)
+            for (let c = 7; c >= 2; c--) coords.push({ r: 8, c: c });
+
+            return coords;
+        }
+
+        /* ==========================================================================
+           4. GAME STATE MANAGEMENT
            ========================================================================== */
         let gameState = {
             playerCount: 4,
             diceCount: 1,
-            selectedThemeId: 1, // 1: Dark Neon, 2: Amber Beer
+            selectedThemeId: 1,
             players: [],
             currentPlayerIdx: 0,
             activeMap: MAP_1_DATA,
             isRolling: false,
             pendingAutoMove: 0,
-            history: []
+            history: [],
+            totalRoundCounter: 0
         };
 
-        // Initialize setup screen on load
         window.onload = function() {
             renderPlayerSetupRows(4);
             selectDiceCount(1);
             selectTheme(1);
         };
 
-        function updatePlayerCount(count) {
-            count = parseInt(count);
+        function updatePlayerCount(val) {
+            const count = parseInt(val);
             gameState.playerCount = count;
             document.getElementById("player-count-range").value = count;
             document.getElementById("player-count-display").innerText = `${count} คน`;
@@ -709,19 +768,17 @@
                 const defaultName = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
 
                 const row = document.createElement("div");
-                row.className = "flex items-center gap-2 sm:gap-3 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800";
+                row.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-slate-800";
                 row.innerHTML = `
-                    <div class="w-6 text-center font-extrabold text-xs text-yellow-400">#${i + 1}</div>
+                    <div class="w-6 text-center font-black text-xs text-yellow-400">#${i + 1}</div>
                     
-                    <!-- Avatar Dropdown Selector -->
                     <div class="relative">
-                        <select id="p-avatar-${i}" onchange="checkDuplicateAvatars()" class="bg-slate-800 text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer focus:outline-none focus:border-yellow-400">
+                        <select id="p-avatar-${i}" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer focus:outline-none focus:border-yellow-400">
                             ${AVATAR_LIST.map((emoji) => `<option value="${emoji}" ${emoji === defaultAvatar ? 'selected' : ''}>${emoji}</option>`).join('')}
                         </select>
                     </div>
 
-                    <!-- Player Name Input -->
-                    <input type="text" id="p-name-${i}" value="${defaultName}" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800/90 text-slate-100 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
+                    <input type="text" id="p-name-${i}" value="${defaultName}" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
                 `;
                 container.appendChild(row);
             }
@@ -730,8 +787,8 @@
         function autoFillPlayerNames() {
             const count = gameState.playerCount;
             for (let i = 0; i < count; i++) {
-                const input = document.getElementById(`p-name-${i}`);
-                if (input) input.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
+                const nameInput = document.getElementById(`p-name-${i}`);
+                if (nameInput) nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
                 
                 const avatarSel = document.getElementById(`p-avatar-${i}`);
                 if (avatarSel) avatarSel.value = AVATAR_LIST[i % AVATAR_LIST.length];
@@ -743,9 +800,9 @@
             [1, 2, 3].forEach(n => {
                 const btn = document.getElementById(`dice-btn-${n}`);
                 if (n === count) {
-                    btn.className = "dice-select-btn p-3 rounded-xl bg-yellow-500 text-slate-950 font-bold text-center border border-yellow-400 transition shadow-lg shadow-yellow-500/20";
+                    btn.className = "dice-select-btn p-2.5 rounded-xl bg-yellow-500 text-slate-950 font-extrabold text-center border border-yellow-400 transition shadow-lg shadow-yellow-500/20";
                 } else {
-                    btn.className = "dice-select-btn p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-center border border-slate-700 transition";
+                    btn.className = "dice-select-btn p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-extrabold text-center border border-slate-700 transition";
                 }
             });
         }
@@ -756,18 +813,28 @@
 
             const card1 = document.getElementById("theme-card-1");
             const card2 = document.getElementById("theme-card-2");
+            const check1 = document.getElementById("theme-check-1");
+            const check2 = document.getElementById("theme-check-2");
 
             if (themeId === 1) {
-                card1.className = "cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-yellow-500 shadow-lg shadow-yellow-500/10 transition hover:scale-[1.01]";
-                card2.className = "cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-amber-950/40 to-stone-900 border-2 border-slate-800 transition hover:scale-[1.01]";
+                card1.className = "cursor-pointer p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-yellow-500 shadow-lg shadow-yellow-500/10 transition hover:scale-[1.01]";
+                card2.className = "cursor-pointer p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/40 to-stone-900 border-2 border-slate-800 transition hover:scale-[1.01]";
+                check1.className = "w-5 h-5 rounded-full bg-yellow-400 text-black flex items-center justify-center text-xs font-bold shadow";
+                check1.innerText = "✓";
+                check2.className = "w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold";
+                check2.innerText = "";
             } else {
-                card1.className = "cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-slate-800 transition hover:scale-[1.01]";
-                card2.className = "cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-amber-950/80 to-stone-900 border-2 border-amber-500 shadow-lg shadow-amber-500/10 transition hover:scale-[1.01]";
+                card1.className = "cursor-pointer p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-slate-800 transition hover:scale-[1.01]";
+                card2.className = "cursor-pointer p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/80 to-stone-900 border-2 border-amber-500 shadow-lg shadow-amber-500/10 transition hover:scale-[1.01]";
+                check1.className = "w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold";
+                check1.innerText = "";
+                check2.className = "w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-xs font-bold shadow";
+                check2.innerText = "✓";
             }
         }
 
         /* ==========================================================================
-           4. GAME START & BOARD GENERATION
+           5. GAME START & BOARD GENERATION
            ========================================================================== */
         function startGame() {
             soundFX.init();
@@ -793,32 +860,28 @@
 
             gameState.currentPlayerIdx = 0;
             gameState.history = [];
+            gameState.totalRoundCounter = 0;
 
-            // Switch views
+            // Switch Screen Views
             document.getElementById("setup-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("hidden");
             document.getElementById("game-screen").classList.add("flex");
             document.getElementById("btn-view-stats").classList.remove("hidden");
             document.getElementById("btn-reset-game").classList.remove("hidden");
 
-            // Apply Map Theme styling
             const boardContainer = document.getElementById("board-container");
             if (gameState.activeMap.id === 1) {
-                boardContainer.className = "w-full glass-panel rounded-3xl p-2 sm:p-4 shadow-2xl relative border border-slate-800 theme-dark-glow";
+                boardContainer.className = "w-full glass-panel rounded-3xl p-2 sm:p-3 shadow-2xl relative border border-slate-800 theme-dark-glow";
             } else {
-                boardContainer.className = "w-full glass-panel-amber rounded-3xl p-2 sm:p-4 shadow-2xl relative border border-amber-900/50 theme-beer-glow";
+                boardContainer.className = "w-full glass-panel-amber rounded-3xl p-2 sm:p-3 shadow-2xl relative border border-amber-900/60 theme-beer-glow";
             }
 
-            // Render Center Map Rules
             renderRulesInCenter();
-
-            // Render Board Grid Tiles
             renderBoardGrid();
-
-            // Update Current Turn UI
             updateTurnUI();
+            updateRosterBar();
             
-            logHistory(`🚀 เริ่มต้นเกมส์ด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน พร้อมชนแก้ว!`);
+            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน พร้อมส่งแก้วเล่นบนจอนี้!`);
         }
 
         function renderRulesInCenter() {
@@ -829,129 +892,78 @@
             rulesList.innerHTML = gameState.activeMap.rules.map(r => `<li>${r}</li>`).join("");
         }
 
-        // Layout tiles on grid perimeter
         function renderBoardGrid() {
             const gridContainer = document.getElementById("board-grid");
             gridContainer.innerHTML = "";
 
             const map = gameState.activeMap;
-            const totalTiles = map.tiles.length;
+            const coords = (map.id === 1) ? getMap1Coordinates() : getMap2Coordinates();
 
-            // Determine dimensions based on tile count
-            let cols, rows;
-            if (totalTiles === 35) {
-                cols = 10;
-                rows = 9;
-                gridContainer.className = "w-full aspect-square md:aspect-[16/11] max-h-[82vh] relative board-grid-map1";
+            if (map.id === 1) {
+                gridContainer.className = "w-full aspect-square md:aspect-[16/11] max-h-[78vh] relative grid-map1";
             } else {
-                cols = 8;
-                rows = 8;
-                gridContainer.className = "w-full aspect-square md:aspect-[16/11] max-h-[82vh] relative board-grid-map2";
+                gridContainer.className = "w-full aspect-square md:aspect-[16/11] max-h-[78vh] relative grid-map2";
             }
 
-            // Calculate grid positions around the perimeter
-            const positions = getPerimeterCoordinates(totalTiles, cols, rows);
-
-            // Re-append center panel into grid
+            // Re-append center panel
             const centerPanel = document.getElementById("center-panel");
             gridContainer.appendChild(centerPanel);
 
-            // Render Each Tile Element
+            // Render Tiles
             map.tiles.forEach((tile, idx) => {
-                const coord = positions[idx];
+                const coord = coords[idx];
                 const isCorner = tile.type === 'corner' || tile.type === 'start';
 
                 const tileEl = document.createElement("div");
                 tileEl.id = `board-tile-${idx}`;
-                tileEl.style.gridColumn = `${coord.col}`;
-                tileEl.style.gridRow = `${coord.row}`;
-                
+                tileEl.style.gridColumn = `${coord.c}`;
+                tileEl.style.gridRow = `${coord.r}`;
+
                 let tileBgClass = isCorner 
-                    ? "bg-gradient-to-br from-yellow-500/20 via-slate-900 to-amber-600/20 border-yellow-400/80 shadow-md shadow-yellow-500/10" 
+                    ? "bg-gradient-to-br from-yellow-500/20 via-slate-900 to-amber-600/20 border-yellow-400 shadow-md shadow-yellow-500/10" 
                     : "bg-slate-900/90 border-slate-800 hover:border-slate-700";
 
                 if (gameState.activeMap.id === 2 && isCorner) {
                     tileBgClass = "bg-gradient-to-br from-amber-500/25 via-stone-900 to-yellow-600/25 border-amber-400 shadow-md shadow-amber-500/10";
                 }
 
-                tileEl.className = `relative rounded-xl border p-1 sm:p-1.5 flex flex-col justify-between items-center text-center overflow-hidden transition-all duration-200 ${tileBgClass}`;
+                tileEl.className = `relative rounded-xl border p-1 flex flex-col justify-between items-center text-center overflow-hidden transition-all duration-200 ${tileBgClass}`;
 
                 tileEl.innerHTML = `
-                    <div class="w-full flex items-center justify-between text-[8px] sm:text-[10px] font-extrabold text-slate-400">
-                        <span class="px-1 bg-slate-950/60 rounded text-yellow-400">#${idx + 1}</span>
+                    <div class="w-full flex items-center justify-between text-[8px] sm:text-[9px] font-black text-slate-400">
+                        <span class="px-1 bg-slate-950/70 rounded text-yellow-400">#${idx + 1}</span>
                         ${isCorner ? '<span class="text-[9px] text-yellow-400">★</span>' : ''}
                     </div>
-                    <div class="text-base sm:text-2xl my-0.5">${tile.icon}</div>
-                    <div class="text-[9px] sm:text-[11px] font-extrabold leading-tight line-clamp-2 text-slate-200">
+                    <div class="text-sm sm:text-2xl my-0.5">${tile.icon}</div>
+                    <div class="text-[8px] sm:text-[10px] font-extrabold leading-tight line-clamp-2 text-slate-200">
                         ${tile.title}
                     </div>
                     
-                    <!-- Player Tokens Container inside Tile -->
-                    <div id="tile-tokens-${idx}" class="w-full flex flex-wrap items-center justify-center gap-0.5 mt-1 min-h-[18px]">
+                    <!-- Player Tokens inside Tile -->
+                    <div id="tile-tokens-${idx}" class="w-full flex flex-wrap items-center justify-center gap-0.5 mt-0.5 min-h-[16px]">
                     </div>
                 `;
 
                 gridContainer.appendChild(tileEl);
             });
 
-            // Position initial player tokens
             updatePlayerTokensPosition();
         }
 
-        // Perimeter Coordinate Mapper
-        function getPerimeterCoordinates(total, cols, rows) {
-            const coords = [];
-            
-            if (total === 35) {
-                // Map 1 (35 tiles, 10 cols x 9 rows)
-                // Bottom-Left = Tile 0 (Row 9, Col 1)
-                // Left Col UP (1..7): Row 8..2, Col 1
-                // Top-Left = Tile 8 (Row 1, Col 1)
-                // Top Row RIGHT (9..17): Row 1, Col 2..10
-                // Top-Right = Tile 18 (Row 1, Col 10)
-                // Right Col DOWN (19..25): Row 2..8, Col 10
-                // Bottom-Right = Tile 26 (Row 9, Col 10)
-                // Bottom Row LEFT (27..34): Row 9, Col 9..2
-
-                coords.push({ row: 9, col: 1 }); // 0: BL
-                for (let r = 8; r >= 2; r--) coords.push({ row: r, col: 1 }); // 1..7 UP
-                coords.push({ row: 1, col: 1 }); // 8: TL
-                for (let c = 2; c <= 10; c++) coords.push({ row: 1, col: c }); // 9..17 RIGHT (Includes TR at 18)
-                for (let r = 2; r <= 8; r++) coords.push({ row: r, col: 10 }); // 19..25 DOWN
-                coords.push({ row: 9, col: 10 }); // 26: BR
-                for (let c = 9; c >= 2; c--) coords.push({ row: 9, col: c }); // 27..34 LEFT
-
-            } else {
-                // Map 2 (28 tiles, 8 cols x 8 rows)
-                coords.push({ row: 8, col: 1 }); // 0: BL
-                for (let r = 7; r >= 2; r--) coords.push({ row: r, col: 1 }); // 1..6 UP
-                coords.push({ row: 1, col: 1 }); // 7: TL
-                for (let c = 2; c <= 8; c++) coords.push({ row: 1, col: c }); // 8..14 RIGHT (Includes TR at 14)
-                for (let r = 2; r <= 7; r++) coords.push({ row: r, col: 8 }); // 15..20 DOWN
-                coords.push({ row: 8, col: 8 }); // 21: BR
-                for (let c = 7; c >= 2; c--) coords.push({ row: 8, col: c }); // 22..27 LEFT
-            }
-
-            return coords;
-        }
-
-        /* ==========================================================================
-           5. PLAYER TOKENS & MOVEMENT LOGIC
-           ========================================================================== */
         function updatePlayerTokensPosition() {
-            // Clear all tile token containers
             const totalTiles = gameState.activeMap.tiles.length;
             for (let i = 0; i < totalTiles; i++) {
                 const container = document.getElementById(`tile-tokens-${i}`);
                 if (container) container.innerHTML = "";
             }
 
-            // Render active players in their tiles
-            gameState.players.forEach(player => {
+            gameState.players.forEach((player) => {
                 const container = document.getElementById(`tile-tokens-${player.position}`);
                 if (container) {
                     const token = document.createElement("div");
-                    token.className = "w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-950/90 border border-yellow-400 flex items-center justify-center text-xs sm:text-sm shadow-md animate-modal-pop transform hover:scale-125 transition cursor-pointer";
+                    const isCurrent = player.id === gameState.currentPlayerIdx;
+                    
+                    token.className = `w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-950 border ${isCurrent ? 'border-yellow-300 ring-2 ring-yellow-400 scale-110 z-10' : 'border-slate-600'} flex items-center justify-center text-[10px] sm:text-xs shadow-md transform transition hover:scale-125 cursor-pointer`;
                     token.title = `${player.name} (${player.avatar})`;
                     token.innerText = player.avatar;
                     container.appendChild(token);
@@ -961,47 +973,77 @@
 
         function updateTurnUI() {
             const player = gameState.players[gameState.currentPlayerIdx];
-            document.getElementById("current-player-avatar").innerText = player.avatar;
+            document.getElementById("current-player-avatar-box").innerText = player.avatar;
             document.getElementById("current-player-name").innerText = player.name;
+            document.getElementById("turn-sequence-tag").innerText = `คิวที่ ${gameState.currentPlayerIdx + 1}/${gameState.players.length}`;
 
             const statusBadge = document.getElementById("current-player-status");
-            
+            const rollBtn = document.getElementById("btn-roll-dice");
+
             if (player.skipTurns > 0) {
-                statusBadge.className = "px-2.5 py-1 rounded-full bg-rose-950/80 border border-rose-700 text-[11px] font-bold text-rose-300 animate-pulse";
-                statusBadge.innerText = `😴 พักผ่อน (เหลืออีก ${player.skipTurns} ตา)`;
+                statusBadge.className = "px-2.5 py-1 rounded-full bg-rose-950/90 border border-rose-700 text-[10px] sm:text-xs font-extrabold text-rose-300 animate-pulse";
+                statusBadge.innerText = `😴 พักผ่อน (เหลือ ${player.skipTurns} ตา)`;
+                rollBtn.innerHTML = `<i class="fa-solid fa-ban"></i><span>ข้ามตาของคุณ</span>`;
             } else {
-                statusBadge.className = "px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-semibold text-slate-300";
+                statusBadge.className = "px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-[10px] sm:text-xs font-extrabold text-slate-300";
                 statusBadge.innerText = `🎲 พร้อมทอย (รอบที่ ${player.laps + 1})`;
+                rollBtn.innerHTML = `<i class="fa-solid fa-dice-five text-base sm:text-lg"></i><span>ทอยลูกเต๋า</span>`;
             }
 
-            // Reset dice view
-            renderDiceFaces(arrayFill(gameState.diceCount, 1));
+            renderDiceFaces(Array(gameState.diceCount).fill(1));
             document.getElementById("roll-result-text").innerText = "กดปุ่มทอยลูกเต๋าเพื่อเดิน!";
+            updateRosterBar();
         }
 
-        function arrayFill(count, val) {
-            return Array(count).fill(val);
+        function updateRosterBar() {
+            const container = document.getElementById("roster-bar");
+            container.innerHTML = "";
+
+            gameState.players.forEach((p, idx) => {
+                const isCurrent = idx === gameState.currentPlayerIdx;
+                const badge = document.createElement("div");
+                
+                let bgClass = isCurrent 
+                    ? "bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-400 ring-1 ring-yellow-400/50" 
+                    : "bg-slate-900/90 border-slate-800 hover:border-slate-700";
+
+                badge.className = `flex-shrink-0 px-2.5 py-1.5 rounded-xl border flex items-center gap-2 cursor-pointer transition ${bgClass}`;
+                badge.onclick = () => openStatsModal();
+
+                badge.innerHTML = `
+                    <span class="text-base sm:text-lg">${p.avatar}</span>
+                    <div class="text-left">
+                        <div class="text-[10px] font-extrabold ${isCurrent ? 'text-yellow-400' : 'text-slate-200'} truncate max-w-[80px]">
+                            ${p.name}
+                        </div>
+                        <div class="text-[9px] text-slate-400">
+                            ช่อง #${p.position + 1} ${p.skipTurns > 0 ? `| <span class="text-rose-400 font-bold">พัก ${p.skipTurns} ตา</span>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(badge);
+            });
         }
 
         /* ==========================================================================
-           6. DICE ROLLING & TURN STEPPING ENGINE
+           6. DICE ROLLING & PASS-AND-PLAY STEPS
            ========================================================================== */
         function handleRollDice() {
             if (gameState.isRolling) return;
 
             const player = gameState.players[gameState.currentPlayerIdx];
 
-            // Check if player is on SKIP TURN status
+            // If player is under REST / SKIP status
             if (player.skipTurns > 0) {
                 soundFX.playSkip();
                 player.skipTurns--;
-                logHistory(`🍻 [${player.name}] กำลังพักผ่อน! ข้ามตานี้ (เหลือพักอีก ${player.skipTurns} ตา)`);
-                
+                logHistory(`😴 [${player.name}] พักผ่อน 1 ตา (เหลืออีก ${player.skipTurns} ตา)`);
+
                 openTileModalCustom(
                     player,
-                    "😴 พักคอ 1 ตา!",
+                    "😴 อยู่ในช่วงพักผ่อน!",
                     "🛑",
-                    `คุณติดเงื่อนไขพักผ่อน! ในตานี้ผ่านไปโดยไม่ได้เดิน (เหลือพักอีก ${player.skipTurns} ตา)`,
+                    `คุณติดเงื่อนไขพักผ่อนในตานี้! (เหลือพักอีก ${player.skipTurns} ตา)`,
                     () => { advanceTurn(); }
                 );
                 return;
@@ -1012,10 +1054,8 @@
 
             soundFX.playRoll();
 
-            // Animate rolling effect
             let rolls = [];
             let ticks = 0;
-            const diceBox = document.getElementById("dice-display-box");
             
             const interval = setInterval(() => {
                 rolls = [];
@@ -1025,11 +1065,11 @@
                 renderDiceFaces(rolls);
                 ticks++;
 
-                if (ticks >= 10) {
+                if (ticks >= 8) {
                     clearInterval(interval);
                     finalizeDiceRoll(rolls);
                 }
-            }, 80);
+            }, 75);
         }
 
         function renderDiceFaces(rolls) {
@@ -1038,7 +1078,7 @@
 
             rolls.forEach(val => {
                 const dice = document.createElement("div");
-                dice.className = "w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950 flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg shadow-yellow-500/30 animate-dice-spin border-2 border-yellow-200";
+                dice.className = "w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950 flex items-center justify-center font-black text-xl sm:text-2xl shadow-lg shadow-yellow-500/30 animate-dice-spin border-2 border-yellow-200";
                 dice.innerText = val;
                 diceBox.appendChild(dice);
             });
@@ -1048,49 +1088,45 @@
             const sum = rolls.reduce((a, b) => a + b, 0);
             const player = gameState.players[gameState.currentPlayerIdx];
 
-            // Check for doubles / triples
             const isDouble = gameState.diceCount > 1 && rolls.every(r => r === rolls[0]);
-            let doubleText = "";
+            let doubleMsg = "";
 
             if (isDouble) {
                 player.consecutiveDoubles++;
-                doubleText = gameState.diceCount === 2 ? " 🎉 DOUBLE!" : " 🔥 TRIPLE!";
-                logHistory(`🎲 [${player.name}] ทอยได้แต้มเท่ากัน! ${doubleText}`);
+                doubleMsg = gameState.diceCount === 2 ? " 🎉 DOUBLE!" : " 🔥 TRIPLE!";
+                logHistory(`🎲 [${player.name}] ทอยเบิ้ลได้แต้มเท่ากัน! ${doubleMsg}`);
 
-                // Map 1 Rule: Doubles 3 times penalty
                 if (gameState.activeMap.id === 1 && player.consecutiveDoubles >= 3) {
                     player.skipTurns = 1;
                     player.consecutiveDoubles = 0;
                     document.getElementById("roll-result-text").innerText = `เบิ้ล 3 ครั้งติด! โดนพัก 1 ตา!`;
                     soundFX.playSkip();
-                    
+
                     setTimeout(() => {
                         openTileModalCustom(
                             player,
                             "เบิ้ล 3 ครั้ง พัก 1 ตา!",
                             "🎲",
-                            "คุณทอยได้แต้มเท่ากัน 3 ครั้งติดต่อกัน! โดนทำโทษพักผ่อน 1 ตาในรอบถัดไป!",
+                            "คุณทอยได้แต้มเท่ากัน 3 ครั้งติดต่อกัน! โดนลงโทษข้ามการเล่น 1 ตา!",
                             () => {
                                 gameState.isRolling = false;
                                 document.getElementById("btn-roll-dice").disabled = false;
                                 advanceTurn();
                             }
                         );
-                    }, 500);
+                    }, 400);
                     return;
                 }
             } else {
                 player.consecutiveDoubles = 0;
             }
 
-            document.getElementById("roll-result-text").innerText = `ทอยได้ ${sum} แต้ม! (${rolls.join(" + ")})${doubleText}`;
+            document.getElementById("roll-result-text").innerText = `ทอยได้ ${sum} แต้ม! (${rolls.join(" + ")})${doubleMsg}`;
 
-            // Animate Player Movement step-by-step
+            // Animate step-by-step
             animatePlayerSteps(player, sum, () => {
                 gameState.isRolling = false;
                 document.getElementById("btn-roll-dice").disabled = false;
-                
-                // Landed on Tile!
                 handleLandedTile(player);
             });
         }
@@ -1102,42 +1138,42 @@
             const stepTimer = setInterval(() => {
                 player.position = (player.position + 1) % totalTiles;
                 player.totalSteps++;
-                
+
                 if (player.position === 0) {
                     player.laps++;
+                    gameState.totalRoundCounter++;
+                    document.getElementById("total-laps-stat").innerText = `รอบวงรวม: ${gameState.totalRoundCounter}`;
                     logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง!`);
                 }
 
                 soundFX.playStep();
                 updatePlayerTokensPosition();
+                updateRosterBar();
 
                 stepsTaken++;
                 if (stepsTaken >= totalSteps) {
                     clearInterval(stepTimer);
                     if (onComplete) onComplete();
                 }
-            }, 220);
+            }, 200);
         }
 
         /* ==========================================================================
-           7. TILE LANDING ACTIONS & MODAL SYSTEM
+           7. TILE LANDING & MODAL ACTIONS
            ========================================================================== */
         function handleLandedTile(player) {
             soundFX.playLand();
             const map = gameState.activeMap;
             const tile = map.tiles[player.position];
 
-            // Track drink counts
             if (tile.title.includes("ดื่ม") || tile.title.includes("ช็อต") || tile.title.includes("แก้ว")) {
                 player.drinksCount++;
             }
 
-            // Apply Tile Skip Turns
             if (tile.skipTurns) {
                 player.skipTurns = tile.skipTurns;
             }
 
-            // Prepare AutoMove if tile specifies
             if (tile.autoMove) {
                 gameState.pendingAutoMove = tile.autoMove;
             } else {
@@ -1145,8 +1181,6 @@
             }
 
             logHistory(`📌 [${player.name}] ตกช่อง #${player.position + 1} "${tile.title}"`);
-
-            // Show Tile Landing Modal
             openTileModal(player, tile);
         }
 
@@ -1161,7 +1195,7 @@
             if (tile.autoMove) {
                 btn.innerText = `🚀 เดินหน้าต่ออีก ${tile.autoMove} ช่อง!`;
             } else {
-                btn.innerText = "รับทราบคำสั่ง! (จัดไป)";
+                btn.innerText = "จัดไป! (ส่งคิวต่อ)";
             }
 
             document.getElementById("tile-modal").classList.remove("hidden");
@@ -1186,11 +1220,8 @@
 
         function closeTileModal() {
             document.getElementById("tile-modal").classList.add("hidden");
-            
-            // Re-bind default modal button action
             document.getElementById("modal-confirm-btn").onclick = closeTileModal;
 
-            // Handle pending AutoMove
             if (gameState.pendingAutoMove > 0) {
                 const autoSteps = gameState.pendingAutoMove;
                 gameState.pendingAutoMove = 0;
@@ -1202,7 +1233,7 @@
                     animatePlayerSteps(player, autoSteps, () => {
                         handleLandedTile(player);
                     });
-                }, 300);
+                }, 250);
             } else {
                 advanceTurn();
             }
@@ -1211,14 +1242,15 @@
         function advanceTurn() {
             gameState.currentPlayerIdx = (gameState.currentPlayerIdx + 1) % gameState.players.length;
             updateTurnUI();
+            updatePlayerTokensPosition();
         }
 
         /* ==========================================================================
-           8. HISTORY LOG & STATS LEADERBOARD
+           8. HISTORY LOG & LEADERBOARD STATS
            ========================================================================== */
         function logHistory(msg) {
             gameState.history.unshift(msg);
-            if (gameState.history.length > 30) gameState.history.pop();
+            if (gameState.history.length > 25) gameState.history.pop();
 
             const logContainer = document.getElementById("history-log");
             logContainer.innerHTML = gameState.history.map(item => `<div class="truncate">${item}</div>`).join("");
@@ -1233,25 +1265,24 @@
             const container = document.getElementById("stats-list-container");
             container.innerHTML = "";
 
-            // Sort players by drink count or laps
             const sorted = [...gameState.players].sort((a, b) => b.drinksCount - a.drinksCount);
 
             sorted.forEach((p, idx) => {
                 const item = document.createElement("div");
-                item.className = "flex items-center justify-between bg-slate-900/80 p-3 rounded-2xl border border-slate-800";
+                item.className = "flex items-center justify-between bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800";
                 item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="font-extrabold text-sm text-yellow-400 w-5">#${idx + 1}</span>
-                        <span class="text-2xl">${p.avatar}</span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="font-extrabold text-xs text-yellow-400 w-4">#${idx + 1}</span>
+                        <span class="text-xl sm:text-2xl">${p.avatar}</span>
                         <div>
-                            <div class="font-extrabold text-white text-sm truncate max-w-[140px]">${p.name}</div>
-                            <div class="text-[10px] text-slate-400">เดินไปแล้ว ${p.totalSteps} ช่อง (${p.laps} รอบ)</div>
+                            <div class="font-extrabold text-white text-xs sm:text-sm truncate max-w-[130px]">${p.name}</div>
+                            <div class="text-[10px] text-slate-400">เดิน ${p.totalSteps} ช่อง (${p.laps} รอบ)</div>
                         </div>
                     </div>
                     <div class="text-right">
-                        <div class="text-sm font-black text-amber-400">${p.drinksCount} ช็อต/ครั้ง</div>
-                        <div class="text-[10px] ${p.skipTurns > 0 ? 'text-rose-400 font-bold' : 'text-slate-500'}">
-                            ${p.skipTurns > 0 ? `พักผ่อน (${p.skipTurns} ตา)` : 'ปกติ'}
+                        <div class="text-xs sm:text-sm font-black text-amber-400">${p.drinksCount} ช็อต/ครั้ง</div>
+                        <div class="text-[9px] ${p.skipTurns > 0 ? 'text-rose-400 font-bold' : 'text-slate-500'}">
+                            ${p.skipTurns > 0 ? `พักผ่อน (${p.skipTurns} ตา)` : 'พร้อมดื่ม'}
                         </div>
                     </div>
                 `;
@@ -1265,14 +1296,21 @@
             document.getElementById("stats-modal").classList.add("hidden");
         }
 
-        function confirmResetGame() {
-            if (confirm("คุณต้องการกลับไปหน้าตั้งค่าเพื่อเริ่มเกมใหม่ใช่หรือไม่?")) {
-                document.getElementById("game-screen").classList.add("hidden");
-                document.getElementById("game-screen").classList.remove("flex");
-                document.getElementById("setup-screen").classList.remove("hidden");
-                document.getElementById("btn-view-stats").classList.add("hidden");
-                document.getElementById("btn-reset-game").classList.add("hidden");
-            }
+        function openConfirmModal() {
+            document.getElementById("confirm-modal").classList.remove("hidden");
+        }
+
+        function closeConfirmModal() {
+            document.getElementById("confirm-modal").classList.add("hidden");
+        }
+
+        function resetGameToSetup() {
+            closeConfirmModal();
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("flex");
+            document.getElementById("setup-screen").classList.remove("hidden");
+            document.getElementById("btn-view-stats").classList.add("hidden");
+            document.getElementById("btn-reset-game").classList.add("hidden");
         }
     </script>
 </body>
