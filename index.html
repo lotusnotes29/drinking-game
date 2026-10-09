@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Single Screen Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Dual Screen Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PeerJS for WebRTC Real-time Dual-Screen -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -92,7 +96,6 @@
             border-radius: 4px;
         }
 
-        /* MAP 1: 10 Columns x 10 Rows Perimeter Grid */
         .grid-map1 {
             display: grid;
             grid-template-columns: repeat(10, minmax(0, 1fr));
@@ -102,7 +105,6 @@
             height: 100%;
         }
 
-        /* MAP 2: 8 Columns x 8 Rows Perimeter Grid */
         .grid-map2 {
             display: grid;
             grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -112,7 +114,6 @@
             height: 100%;
         }
 
-        /* Native CSS Grid Center Hub Spanning */
         .center-hub-map1 {
             grid-column: 2 / 10;
             grid-row: 2 / 10;
@@ -123,7 +124,6 @@
             grid-row: 2 / 8;
         }
 
-        /* 3D Dice Graphic */
         .dice-3d {
             width: 48px;
             height: 48px;
@@ -175,12 +175,11 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">HOT-SEAT SINGLE SCREEN BOARD GAME</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">DUAL-SCREEN EDITION</p>
             </div>
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2">
-            <!-- View Mode Switcher Button -->
             <button id="btn-toggle-view" onclick="toggleViewMode()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs font-bold flex items-center gap-1">
                 <i id="view-icon" class="fa-solid fa-table-cells-large"></i>
                 <span id="view-label">มุมมองการ์ด</span>
@@ -207,13 +206,46 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-users mr-1"></i> ปาร์ตี้ฮอตซีต 4 - 20 คน
+                    <i class="fa-solid fa-mobile-screen-button mr-1"></i> รองรับแยก 2 หน้าจอ / เครื่องเดียว
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกผู้เล่น จำนวนลูกเต๋า และด่านกระดาน แล้วส่งต่อคิวเล่นบนจอนี้!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกโหมดการเล่น จำนวนผู้เล่น และด่านกระดาน!</p>
             </div>
 
             <div class="space-y-5">
+                <!-- STEP 0: Display Mode Selection -->
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                        <i class="fa-solid fa-display text-yellow-400 mr-1"></i> เลือกโหมดการแสดงผล
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button" onclick="selectPlayMode('host')" id="mode-btn-host" class="p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-3">
+                            <div class="text-2xl">🖥️</div>
+                            <div>
+                                <div class="text-sm font-bold text-yellow-400">โหมด 2 หน้าจอ (Host Screen)</div>
+                                <div class="text-[10px] text-slate-300 font-normal">จอนี้แสดงกระดาน แล้วใช้อีกเครื่องกดทอย</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="selectPlayMode('single')" id="mode-btn-single" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-3 hover:border-slate-700">
+                            <div class="text-2xl">📱</div>
+                            <div>
+                                <div class="text-sm font-bold text-white">โหมด เครื่องเดียว (Single)</div>
+                                <div class="text-[10px] text-slate-400 font-normal">ทอยและเล่นจบในเครื่องเดียว ส่งต่อกันเล่น</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Room Connect Link Box for Host Mode -->
+                    <div id="host-qr-box" class="mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 flex flex-col sm:flex-row items-center gap-4">
+                        <div id="qrcode" class="bg-white p-2 rounded-lg flex-shrink-0"></div>
+                        <div class="text-center sm:text-left space-y-1">
+                            <div class="text-xs text-yellow-400 font-bold">สแกน QR Code นี้ด้วยมือถืออีกเครื่อง (Device 2)</div>
+                            <div class="text-xs text-slate-300">หรือเข้าเว็บนี้บนมือถือ แล้วใส่รหัสห้อง: <span id="room-code-display" class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded font-black text-sm">----</span></div>
+                            <div id="remote-conn-status" class="text-[11px] text-slate-400 italic">⏳ กำลังสร้างห้องรอเชื่อมต่อ...</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- STEP 1: Player Count & Dice Setup -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
                     <div>
@@ -310,7 +342,6 @@
                         </button>
                     </div>
 
-                    <!-- Scrollable Player Rows -->
                     <div id="player-setup-list" class="max-h-56 overflow-y-auto space-y-2 pr-1">
                         <!-- Rendered dynamically -->
                     </div>
@@ -326,6 +357,40 @@
             </div>
         </section>
 
+        <!-- REMOTE CONTROLLER SCREEN (For Device 2) -->
+        <section id="controller-screen" class="hidden w-full max-w-md glass-panel rounded-3xl p-5 text-center border-2 border-yellow-400 shadow-2xl my-auto flex-col items-center justify-between space-y-4">
+            <div class="w-full border-b border-slate-800 pb-3">
+                <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 text-xs font-bold tracking-wider uppercase">
+                    📱 REMOTE CONTROLLER MODE
+                </span>
+                <div id="ctrl-room-id" class="text-xs text-slate-400 mt-2">เชื่อมต่อกับห้อง: <span class="text-yellow-400 font-bold">----</span></div>
+            </div>
+
+            <!-- Active Player Card Header -->
+            <div class="w-full bg-slate-900/90 p-5 rounded-2xl border border-slate-700 text-center relative shadow-inner">
+                <div id="ctrl-player-avatar" class="text-6xl my-2 animate-bounce-short">🍺</div>
+                <div id="ctrl-player-name" class="text-2xl font-extrabold text-yellow-400 truncate">รอเริ่มเกม...</div>
+                <div id="ctrl-turn-info" class="text-xs text-slate-300 font-semibold mt-1">คิวเล่นปัจจุบัน</div>
+            </div>
+
+            <!-- Dice Roll Trigger Button -->
+            <div class="w-full my-4">
+                <div id="ctrl-status-text" class="text-xs font-bold text-slate-300 mb-3 min-h-[18px]">
+                    กดปุ่มด้านล่างเพื่อสั่งทอยลูกเต๋าบนจอกระดาน!
+                </div>
+                <button id="btn-remote-roll" onclick="sendRemoteRollCommand()" class="w-full py-6 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-2xl tracking-wider shadow-2xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-dice text-3xl"></i>
+                    <span>กดทอยลูกเต๋า!</span>
+                </button>
+            </div>
+
+            <div class="w-full text-center border-t border-slate-800 pt-3">
+                <button onclick="location.reload()" class="text-xs text-slate-400 hover:text-rose-400 underline">
+                    ออกจากโหมดรีโมท
+                </button>
+            </div>
+        </section>
+
         <!-- MAIN GAME SCREEN -->
         <section id="game-screen" class="hidden w-full flex-col items-center justify-center space-y-3">
             
@@ -337,9 +402,8 @@
                     <!-- Board Tiles and Center Hub rendered via JavaScript -->
                 </div>
 
-                <!-- FOCUS/CARD VIEW MODE (Mobile alternative) -->
+                <!-- FOCUS/CARD VIEW MODE -->
                 <div id="board-focus-mode" class="hidden w-full flex-col space-y-3 p-2">
-                    <!-- Active Player Card Header -->
                     <div class="bg-slate-900/90 p-4 rounded-2xl border border-yellow-500/40 text-center relative">
                         <div id="focus-player-avatar" class="text-5xl my-1">🍺</div>
                         <div id="focus-player-name" class="text-xl font-extrabold text-yellow-400">ผู้เล่น 1</div>
@@ -348,7 +412,6 @@
                         </div>
                     </div>
 
-                    <!-- Dice Control Box for Focus Mode -->
                     <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-center flex flex-col items-center">
                         <div id="focus-dice-display" class="flex items-center justify-center gap-2 my-2">
                             <div class="dice-3d">1</div>
@@ -362,13 +425,11 @@
                         </button>
                     </div>
 
-                    <!-- Nearby Tile Track -->
                     <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                             <i class="fa-solid fa-route text-yellow-400 mr-1"></i> เส้นทางช่องถัดไป
                         </div>
                         <div id="focus-tile-track" class="flex items-center gap-2 overflow-x-auto pb-1">
-                            <!-- Populated via JS -->
                         </div>
                     </div>
                 </div>
@@ -380,10 +441,7 @@
                     <span><i class="fa-solid fa-layer-group text-yellow-400 mr-1"></i> สถานะนักดื่มรอบวง (คลิกเพื่อดูสรุป)</span>
                     <span id="total-laps-stat" class="text-yellow-400 font-bold">รอบวงรวม: 0</span>
                 </div>
-                
-                <!-- Horizontal Scrollable Player Badges -->
                 <div id="roster-bar" class="flex items-center gap-2 overflow-x-auto pb-1">
-                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
@@ -396,31 +454,26 @@
             <div class="absolute -right-8 -top-8 w-28 h-28 bg-yellow-500/20 rounded-full blur-2xl"></div>
             <div class="absolute -left-8 -bottom-8 w-28 h-28 bg-amber-500/20 rounded-full blur-2xl"></div>
 
-            <!-- Active Player Badge -->
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800 border border-slate-700 mb-3 shadow-md">
                 <span id="modal-player-avatar" class="text-xl">🍺</span>
                 <span id="modal-player-name" class="font-extrabold text-xs sm:text-sm text-yellow-400">ผู้เล่น 1</span>
                 <span class="text-[11px] text-slate-400">ตกที่ช่อง</span>
             </div>
 
-            <!-- Tile Main Icon -->
             <div id="modal-tile-icon" class="text-5xl sm:text-6xl my-1 animate-bounce-short">
                 🍻
             </div>
 
-            <!-- Tile Title -->
             <h3 id="modal-tile-title" class="text-lg sm:text-2xl font-black text-white tracking-wide my-1">
                 ตั้งวง (ชนแก้ว)
             </h3>
 
-            <!-- Tile Description -->
             <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 my-3 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
                 <p id="modal-tile-desc">
                     คำสั่งประจำช่องนี้จะปรากฏที่นี่...
                 </p>
             </div>
 
-            <!-- Modal Action Button -->
             <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition">
                 จัดไป! (ส่งคิวต่อ)
             </button>
@@ -441,7 +494,6 @@
             </div>
 
             <div id="stats-list-container" class="space-y-2 overflow-y-auto flex-grow pr-1">
-                <!-- Populated via JS -->
             </div>
 
             <div class="mt-3 pt-2 border-t border-slate-800 text-center">
@@ -595,7 +647,6 @@
             "เจ้าพ่อช็อต", "ยกลืมบ้าน", "ละมุนลิ้น", "ยอดนักดื่ม"
         ];
 
-        // MAP 1 DATA (35 TILES ON 10x10 GRID PERIMETER)
         const MAP_1_DATA = {
             id: 1,
             name: "สายแข็ง นักดื่ม",
@@ -608,7 +659,7 @@
                 "4. ให้คนแพ้ทำอะไรตกลงกันเอง"
             ],
             tiles: [
-                { title: "จุดเริ่มต้น: ตั้งวง (ชนแก้ว)", icon: "🍻", type: "start", desc: "เริ่มต้นความบันเทิง! ชนแก้วพร้อมกันทุกคน แล้วดื่มคนละ 1 จิบ!" }, // 0
+                { title: "จุดเริ่มต้น: ตั้งวง (ชนแก้ว)", icon: "🍻", type: "start", desc: "เริ่มต้นความบันเทิง! ชนแก้วพร้อมกันทุกคน แล้วดื่มคนละ 1 จิบ!" },
                 { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "สั่งคนซ้ายมือจัดไป 1 ช็อตเน้นๆ!" },
                 { title: "ดื่ม 3 ช็อต", icon: "🥃", type: "drink", desc: "จัดหนัก! คุณต้องดื่มเอง 3 ช็อต!" },
                 { title: "กินกับแกล้ม 1 คำ", icon: "🍖", type: "snack", desc: "พักคอแป๊บ! ตักกับแกล้มกิน 1 คำโตๆ" },
@@ -617,7 +668,7 @@
                 { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👉", type: "command", desc: "ใช้อำนาจที่มี! เลือกเพื่อน 1 คนดื่มหมดแก้ว!" },
                 { title: "ดื่มหมดแก้ว", icon: "🍺", type: "heavy", desc: "ใจต้องนิ่ง! ดื่มให้หมดแก้วตรงหน้า!" },
                 { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตพอให้ชุ่มคอ" },
-                { title: "มุมขวาบน: คนข้างขวา ดื่ม 2 ช็อต", icon: "👉", type: "corner", desc: "มุมสั่งการ! ชี้ไปทางขวา คนข้างขวาจัดไป 2 ช็อต!" }, // 9
+                { title: "มุมขวาบน: คนข้างขวา ดื่ม 2 ช็อต", icon: "👉", type: "corner", desc: "มุมสั่งการ! ชี้ไปทางขวา คนข้างขวาจัดไป 2 ช็อต!" },
                 { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👑", type: "command", desc: "เลือกเป้าหมายเลย! สั่งใครก็ได้ยกหมดแก้ว!" },
                 { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "คนซ้ายมือเตรียมตัว... จัดไป 1 ช็อต!" },
                 { title: "ดื่ม 3 ช็อต", icon: "🔥", type: "heavy", desc: "สายแข็งตัวจริง! จัดไป 3 ช็อตเต็มๆ!" },
@@ -625,7 +676,7 @@
                 { title: "จิบเบาๆ", icon: "🥂", type: "sip", desc: "จิบเบาๆ พอได้รสชาติ" },
                 { title: "ชงเหล้าให้เพื่อนรอบวง", icon: "🍾", type: "serve", desc: "รับบทเด็กชง! เติมเครื่องดื่มให้เพื่อนทุกคนรอบวง" },
                 { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อต" },
-                { title: "มุมขวาบน: อยากทำอะไรก็ทำ..ตามใจ", icon: "🎉", type: "corner", desc: "มุมสิทธิ์พิเศษ! สั่งอะไรก็ได้ 1 อย่าง (หรือสั่งเพื่อนตามใจคุณ)" }, // 17
+                { title: "มุมขวาบน: อยากทำอะไรก็ทำ..ตามใจ", icon: "🎉", type: "corner", desc: "มุมสิทธิ์พิเศษ! สั่งอะไรก็ได้ 1 อย่าง (หรือสั่งเพื่อนตามใจคุณ)" },
                 { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตสบายๆ" },
                 { title: "ดื่ม 1 ช็อต", icon: "🥃", type: "drink", desc: "จัดไป 1 ช็อตเน้นๆ" },
                 { title: "ดื่มรอบวง", icon: "🍻", type: "group", desc: "ชนแก้วรอบวง! ยกพร้อมกันทุกคน!" },
@@ -635,7 +686,7 @@
                 { title: "ดื่ม 3 ช็อต", icon: "💥", type: "heavy", desc: "โดนหนัก! ดื่มเอง 3 ช็อต!" },
                 { title: "ให้คนข้างซ้ายดื่ม 1 ช็อต", icon: "👈", type: "action", desc: "คนซ้ายมือรับโชคไป 1 ช็อต" },
                 { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อต" },
-                { title: "มุมขวาล่าง: สั่งใครก็ได้ ดื่ม 2 ช็อต", icon: "🎯", type: "corner", desc: "มุมสั่งการ! ชี้ตัวเพื่อน 1 คน ดื่มเน้นๆ 2 ช็อต!" }, // 27
+                { title: "มุมขวาล่าง: สั่งใครก็ได้ ดื่ม 2 ช็อต", icon: "🎯", type: "corner", desc: "มุมสั่งการ! ชี้ตัวเพื่อน 1 คน ดื่มเน้นๆ 2 ช็อต!" },
                 { title: "จิบเบาๆ", icon: "🥂", type: "sip", desc: "จิบ 1 ทีพอหล่อๆ" },
                 { title: "ชงเหล้าให้เพื่อนรอบวง", icon: "🍾", type: "serve", desc: "บาร์เทนเดอร์จำเป็น! ชงเครื่องดื่มบริการเพื่อนรอบวง" },
                 { title: "เสียภาษี(ค่าเหล้า) 20 บาท", icon: "💸", type: "tax", desc: "จ่ายค่าน้ำแข็ง/ค่าเหล้า 20 บาท เข้ากองกลาง!" },
@@ -646,7 +697,6 @@
             ]
         };
 
-        // MAP 2 DATA (28 TILES ON 8x8 GRID PERIMETER)
         const MAP_2_DATA = {
             id: 2,
             name: "สายแข็ง จิบเบียร์",
@@ -659,21 +709,21 @@
                 "4. รินเบียร์หกยกครึ่งแก้ว"
             ],
             tiles: [
-                { title: "เริ่มเกมส์ ชนแก้ว ยกหมดแก้ว", icon: "🍻", type: "start", desc: "เริ่มเปิดวงเบียร์! ชนแก้วร่วมกันแล้วยกหมดแก้วแรก!" }, // 0
+                { title: "เริ่มเกมส์ ชนแก้ว ยกหมดแก้ว", icon: "🍻", type: "start", desc: "เริ่มเปิดวงเบียร์! ชนแก้วร่วมกันแล้วยกหมดแก้วแรก!" },
                 { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "วาร์ปไปข้างหน้า! เดินเพิ่มทันที 3 ช่อง", autoMove: 3 },
                 { title: "รินเบียร์รอบวง", icon: "🍺", type: "serve", desc: "เด็กเชียร์เบียร์! เดินรินเบียร์ให้เพื่อนๆ ทุกคนในวง" },
                 { title: "สิทธิ์พิเศษพัก 1 ตา", icon: "🛑", type: "skip", desc: "ได้พักคอ! สิทธิ์พักผ่อน ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
                 { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "ส่งแก้วให้คนซ้ายมือ ดื่มเบียร์ 1 อึกใหญ่!" },
                 { title: "ให้คนขวามือดื่ม", icon: "👉", type: "action", desc: "ส่งแก้วให้คนขวามือ ดื่มเบียร์ 1 อึกใหญ่!" },
                 { title: "เรียกใครก็ได้ดื่มแทน", icon: "🤝", type: "command", desc: "หาตัวแทน! เลือกเพื่อน 1 คนมาดื่มแทนคุณในตานี้" },
-                { title: "มุมซ้ายบน: เติมน้ำแข็งให้ทุกคน", icon: "🧊", type: "corner", desc: "มุมบริการ! คอยเติมน้ำแข็งใส่แก้วให้ทุกคนรอบวง" }, // 7
+                { title: "มุมซ้ายบน: เติมน้ำแข็งให้ทุกคน", icon: "🧊", type: "corner", desc: "มุมบริการ! คอยเติมน้ำแข็งใส่แก้วให้ทุกคนรอบวง" },
                 { title: "ตักกับแกล้ม 1 คำ", icon: "🥜", type: "snack", desc: "ตักกับแกล้มอร่อยๆ กิน 1 คำ" },
                 { title: "เลือกเพื่อนดื่มด้วย 3 คน", icon: "👨‍👩‍👧‍👦", type: "group", desc: "ไม่เหงาแน่นอน! เลือกเพื่อน 3 คนยกแก้วดื่มพร้อมกัน" },
                 { title: "ผู้หญิงดื่มรอบวง", icon: "👩", type: "group", desc: "สาวๆ สดใส! สาวๆ ทุกคนในวงยกดื่มพร้อมกัน 1 จิบ" },
                 { title: "ยกหมดแก้ว", icon: "🍺", type: "heavy", desc: "สายเพรียว! ยกเบียร์ให้หมดแก้วเลย" },
                 { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "สปีดแรง! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
                 { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "จัดไป! คนซ้ายมือดื่มเบียร์ 1 อึกใหญ่" },
-                { title: "มุมขวาบน: พัก 2 ตา", icon: "😴", type: "corner", desc: "มุมสลบแป๊บ! ได้พักผ่อนข้ามการทอยลูกเต๋า 2 ตาติด!", skipTurns: 2 }, // 14
+                { title: "มุมขวาบน: พัก 2 ตา", icon: "😴", type: "corner", desc: "มุมสลบแป๊บ! ได้พักผ่อนข้ามการทอยลูกเต๋า 2 ตาติด!", skipTurns: 2 },
                 { title: "ผู้ชายหมดแก้วรอบวง", icon: "👨", type: "group", desc: "หนุ่มๆ สายแข็ง! ผู้ชายทุกคนยกหมดแก้วพร้อมกัน!" },
                 { title: "อยากกินอะไรกินได้เลย", icon: "🍕", type: "snack", desc: "เวลาของกิน! เลือกกินกับแกล้มอะไรก็ได้ตามใจชอบ" },
                 { title: "สมทบค่าเบียร์ 1 ขวด", icon: "🍾", type: "tax", desc: "สายเปย์! ออกค่าเบียร์เพิ่ม 1 ขวด" },
@@ -681,7 +731,7 @@
                 { title: "รินเบียร์ให้เพื่อนๆ รอบวง", icon: "🍺", type: "serve", desc: "เด็กชงเบียร์ประจำวง! รินเบียร์เติมให้เพื่อนทุกคน" },
                 { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "พุ่งทะยาน! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
                 { title: "เลือกเพื่อนดื่มด้วย 1 คน", icon: "🍻", type: "group", desc: "หาคู่ชน! เลือกเพื่อน 1 คนยกแก้วดื่มไปด้วยกัน" },
-                { title: "มุมขวาล่าง: เสียเบียร์ 2 ขวด กินกับแกล้ม 2 คำ", icon: "🍺", type: "corner", desc: "มุมรับบทหนัก! เสียเบียร์ 2 ขวด และตักกับแกล้มกิน 2 คำ" }, // 22
+                { title: "มุมขวาล่าง: เสียเบียร์ 2 ขวด กินกับแกล้ม 2 คำ", icon: "🍺", type: "corner", desc: "มุมรับบทหนัก! เสียเบียร์ 2 ขวด และตักกับแกล้มกิน 2 คำ" },
                 { title: "ดื่มครึ่งแก้ว", icon: "🍷", type: "sip", desc: "ครึ่งแก้วพอดีๆ ดื่มเลย!" },
                 { title: "สมทบค่าเบียร์ 1 ขวด", icon: "💰", type: "tax", desc: "สมทบกองกลาง! สัญญาว่าจะจ่ายค่าเบียร์เพิ่ม 1 ขวด" },
                 { title: "ให้คนก่อนหน้าดื่มแทน", icon: "🔙", type: "command", desc: "ย้อนศร! ให้คนเล่นคนก่อนหน้าดื่มแทนคุณ" },
@@ -690,41 +740,30 @@
             ]
         };
 
-        /* ==========================================================================
-           3. PERIMETER GRID COORDINATES CALCULATION
-           ========================================================================== */
         function getMap1Coordinates() {
-            // 35 tiles on 10 cols x 10 rows perimeter ring
             const coords = [];
-            // Top Row RIGHT: Row 1, Cols 1..10 (10 tiles, 0..9)
             for (let c = 1; c <= 10; c++) coords.push({ r: 1, c: c });
-            // Right Col DOWN: Rows 2..9, Col 10 (8 tiles, 10..17)
             for (let r = 2; r <= 9; r++) coords.push({ r: r, c: 10 });
-            // Bottom Row LEFT: Row 10, Cols 10..1 (10 tiles, 18..27)
             for (let c = 10; c >= 1; c--) coords.push({ r: 10, c: c });
-            // Left Col UP: Rows 9..2, Col 1 (7 tiles, 28..34)
             for (let r = 9; r >= 2; r--) coords.push({ r: r, c: 1 });
-            return coords; // Total = 35
+            return coords;
         }
 
         function getMap2Coordinates() {
-            // 28 tiles on 8 cols x 8 rows perimeter ring
             const coords = [];
-            // Top Row RIGHT: Row 1, Cols 1..8 (8 tiles, 0..7)
             for (let c = 1; c <= 8; c++) coords.push({ r: 1, c: c });
-            // Right Col DOWN: Rows 2..7, Col 8 (6 tiles, 8..13)
             for (let r = 2; r <= 7; r++) coords.push({ r: r, c: 8 });
-            // Bottom Row LEFT: Row 8, Cols 8..1 (8 tiles, 14..21)
             for (let c = 8; c >= 1; c--) coords.push({ r: 8, c: c });
-            // Left Col UP: Rows 7..2, Col 1 (6 tiles, 22..27)
             for (let r = 7; r >= 2; r--) coords.push({ r: r, c: 1 });
-            return coords; // Total = 28
+            return coords;
         }
 
         /* ==========================================================================
-           4. GAME STATE MANAGEMENT
+           3. GAME STATE & DUAL SCREEN PEERJS LOGIC
            ========================================================================== */
         let gameState = {
+            playMode: 'host', // 'host' or 'single' or 'remote'
+            roomCode: '',
             playerCount: 4,
             diceCount: 1,
             selectedThemeId: 1,
@@ -735,15 +774,170 @@
             pendingAutoMove: 0,
             history: [],
             totalRoundCounter: 0,
-            viewMode: 'grid' // 'grid' or 'focus'
+            viewMode: 'grid'
         };
+
+        let peer = null;
+        let peerConn = null;
 
         window.onload = function() {
             renderPlayerSetupRows(4);
             selectDiceCount(1);
             selectTheme(1);
+
+            // Check URL parameters for remote auto-connect mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomParam = urlParams.get('room');
+            if (roomParam) {
+                initRemoteControllerMode(roomParam);
+            } else {
+                initHostPeerServer();
+            }
         };
 
+        function selectPlayMode(mode) {
+            gameState.playMode = mode;
+            const btnHost = document.getElementById("mode-btn-host");
+            const btnSingle = document.getElementById("mode-btn-single");
+            const qrBox = document.getElementById("host-qr-box");
+
+            if (mode === 'host') {
+                btnHost.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-3";
+                btnSingle.className = "p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-3 hover:border-slate-700";
+                qrBox.classList.remove("hidden");
+                document.getElementById("header-mode-title").innerText = "HOST SCREEN EDITION";
+            } else {
+                btnSingle.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-3";
+                btnHost.className = "p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-3 hover:border-slate-700";
+                qrBox.classList.add("hidden");
+                document.getElementById("header-mode-title").innerText = "HOT-SEAT SINGLE SCREEN";
+            }
+        }
+
+        function initHostPeerServer() {
+            const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
+            gameState.roomCode = randomCode;
+            document.getElementById("room-code-display").innerText = randomCode;
+
+            const peerId = `drink-game-room-${randomCode}`;
+            peer = new Peer(peerId);
+
+            peer.on('open', (id) => {
+                document.getElementById("remote-conn-status").innerText = "🟢 พร้อมเชื่อมต่อ! รอเครื่องที่ 2 สแกน...";
+                
+                // Generate QR Code with absolute URL including ?room=XXXX
+                const currentUrl = window.location.href.split('?')[0];
+                const connectUrl = `${currentUrl}?room=${randomCode}`;
+                
+                const qrContainer = document.getElementById("qrcode");
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: connectUrl,
+                    width: 84,
+                    height: 84,
+                    colorDark : "#0f172a",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            });
+
+            peer.on('connection', (conn) => {
+                peerConn = conn;
+                document.getElementById("remote-conn-status").innerText = "🎉 เชื่อมต่อรีโมททอยลูกเต๋าสมบูรณ์!";
+                logHistory("📱 รีโมทกดทอยเชื่อมต่อกับจอกระดานเรียบร้อยแล้ว!");
+
+                conn.on('data', (data) => {
+                    if (data && data.action === 'ROLL_DICE') {
+                        handleRollDice();
+                    }
+                });
+
+                // Send current player info immediately
+                broadcastStateToRemote();
+            });
+
+            peer.on('error', (err) => {
+                console.warn("PeerJS connection retry:", err);
+            });
+        }
+
+        function initRemoteControllerMode(roomCode) {
+            gameState.playMode = 'remote';
+            gameState.roomCode = roomCode;
+
+            document.getElementById("setup-screen").classList.add("hidden");
+            document.getElementById("controller-screen").classList.remove("hidden");
+            document.getElementById("controller-screen").classList.add("flex");
+            document.getElementById("ctrl-room-id").innerHTML = `เชื่อมต่อกับห้อง: <span class="text-yellow-400 font-bold">#${roomCode}</span>`;
+
+            peer = new Peer();
+            peer.on('open', () => {
+                const hostPeerId = `drink-game-room-${roomCode}`;
+                peerConn = peer.connect(hostPeerId);
+
+                peerConn.on('open', () => {
+                    document.getElementById("ctrl-status-text").innerText = "🟢 เชื่อมต่อกับกระดานสำเร็จ! พร้อมทอยลูกเต๋าแล้ว";
+                });
+
+                peerConn.on('data', (data) => {
+                    if (data && data.type === 'STATE_UPDATE') {
+                        updateRemoteControllerUI(data);
+                    }
+                });
+
+                peerConn.on('close', () => {
+                    document.getElementById("ctrl-status-text").innerText = "🔴 การเชื่อมต่อหลุด กรุณารีเฟรชหน้าเว็บ";
+                });
+            });
+        }
+
+        function broadcastStateToRemote() {
+            if (peerConn && peerConn.open) {
+                const player = gameState.players[gameState.currentPlayerIdx];
+                peerConn.send({
+                    type: 'STATE_UPDATE',
+                    playerIdx: gameState.currentPlayerIdx,
+                    totalPlayers: gameState.players.length,
+                    playerName: player ? player.name : '',
+                    playerAvatar: player ? player.avatar : '🍺',
+                    isRolling: gameState.isRolling,
+                    skipTurns: player ? player.skipTurns : 0
+                });
+            }
+        }
+
+        function updateRemoteControllerUI(data) {
+            document.getElementById("ctrl-player-avatar").innerText = data.playerAvatar;
+            document.getElementById("ctrl-player-name").innerText = data.playerName;
+            document.getElementById("ctrl-turn-info").innerText = `คิวที่ ${data.playerIdx + 1} จากทั้งหมด ${data.totalPlayers} คน`;
+
+            const rollBtn = document.getElementById("btn-remote-roll");
+            if (data.isRolling) {
+                rollBtn.disabled = true;
+                rollBtn.classList.add("opacity-50");
+                document.getElementById("ctrl-status-text").innerText = "🎲 กำลังทอยลูกเต๋าบนจอกระดาน...";
+            } else if (data.skipTurns > 0) {
+                rollBtn.disabled = false;
+                rollBtn.classList.remove("opacity-50");
+                document.getElementById("ctrl-status-text").innerText = `😴 พักผ่อน (กดเพื่อรับทราบข้ามตา)`;
+            } else {
+                rollBtn.disabled = false;
+                rollBtn.classList.remove("opacity-50");
+                document.getElementById("ctrl-status-text").innerText = `กดปุ่มด้านล่างเพื่อสั่งทอยลูกเต๋าบนจอกระดาน!`;
+            }
+        }
+
+        function sendRemoteRollCommand() {
+            if (peerConn && peerConn.open) {
+                peerConn.send({ action: 'ROLL_DICE' });
+                document.getElementById("btn-remote-roll").disabled = true;
+                document.getElementById("ctrl-status-text").innerText = "⏳ ส่งคำสั่งทอยลูกเต๋าแล้ว...";
+            }
+        }
+
+        /* ==========================================================================
+           4. SETUP & GAME CONTROLS
+           ========================================================================== */
         function updatePlayerCount(val) {
             const count = parseInt(val);
             gameState.playerCount = count;
@@ -833,7 +1027,6 @@
             soundFX.init();
             soundFX.playLand();
 
-            // Collect player profiles
             gameState.players = [];
             for (let i = 0; i < gameState.playerCount; i++) {
                 const nameInput = document.getElementById(`p-name-${i}`).value.trim();
@@ -855,7 +1048,6 @@
             gameState.history = [];
             gameState.totalRoundCounter = 0;
 
-            // Switch Screen Views safely
             document.getElementById("setup-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("hidden");
             document.getElementById("game-screen").classList.add("flex");
@@ -874,8 +1066,9 @@
             renderFullGridBoard();
             updateTurnUI();
             updateRosterBar();
+            broadcastStateToRemote();
             
-            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน พร้อมส่งแก้วเล่นบนจอนี้!`);
+            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน!`);
         }
 
         function renderFullGridBoard() {
@@ -887,7 +1080,6 @@
 
             gridContainer.className = (map.id === 1) ? "w-full grid-map1 border border-slate-800/80 rounded-2xl p-1 bg-slate-950/60" : "w-full grid-map2 border border-amber-900/80 rounded-2xl p-1 bg-stone-950/60";
 
-            // 1. Render All Perimeter Tiles
             map.tiles.forEach((tile, idx) => {
                 const coord = coords[idx];
                 const isCorner = tile.type === 'corner' || tile.type === 'start';
@@ -917,7 +1109,6 @@
                         ${tile.title.replace(/^มุม[^\s]+:\s*/, '')}
                     </div>
                     
-                    <!-- Player Tokens inside Tile -->
                     <div id="tile-tokens-${idx}" class="w-full flex flex-wrap items-center justify-center gap-0.5 mt-0.5 min-h-[14px]">
                     </div>
                 `;
@@ -925,13 +1116,11 @@
                 gridContainer.appendChild(tileEl);
             });
 
-            // 2. Render Native Grid Spanning Center Hub
             const centerHub = document.createElement("div");
             centerHub.id = "center-hub-panel";
             centerHub.className = (map.id === 1) ? "center-hub-map1 rounded-2xl glass-panel p-2.5 sm:p-4 flex flex-col justify-between items-center text-center shadow-2xl z-10 border border-slate-700/80 overflow-y-auto" : "center-hub-map2 rounded-2xl glass-panel-amber p-2.5 sm:p-4 flex flex-col justify-between items-center text-center shadow-2xl z-10 border border-amber-700/80 overflow-y-auto";
 
             centerHub.innerHTML = `
-                <!-- Current Turn Banner -->
                 <div class="w-full flex items-center justify-between border-b border-slate-800/80 pb-2">
                     <div class="flex items-center gap-2">
                         <div id="current-player-avatar-box" class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-slate-800 border-2 border-yellow-400 flex items-center justify-center text-xl sm:text-2xl shadow-md animate-bounce-short">
@@ -948,20 +1137,18 @@
                         </div>
                     </div>
 
-                    <!-- Status Badge -->
                     <div id="current-player-status" class="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] sm:text-xs font-bold text-slate-300">
                         🎲 รอทอยลูกเต๋า
                     </div>
                 </div>
 
-                <!-- Dice & Roll Button Hub -->
                 <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
                     <div id="dice-display-box" class="flex items-center justify-center gap-2 my-1 min-h-[50px]">
                         <div class="dice-3d">1</div>
                     </div>
 
                     <div id="roll-result-text" class="text-xs sm:text-sm font-extrabold text-slate-300 min-h-[18px]">
-                        กดปุ่มทอยลูกเต๋าแล้วส่งแก้ว!
+                        กดปุ่มทอยลูกเต๋าหรือใช้รีโมทกด!
                     </div>
 
                     <button id="btn-roll-dice" onclick="handleRollDice()" class="mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
@@ -970,9 +1157,7 @@
                     </button>
                 </div>
 
-                <!-- Bottom Center Rules & History -->
                 <div class="w-full space-y-1.5 mt-auto">
-                    <!-- Map Rules -->
                     <div class="bg-slate-950/80 p-2 rounded-xl border border-yellow-500/30 text-left text-[9px] sm:text-xs">
                         <div class="font-extrabold text-yellow-400 uppercase tracking-wider mb-0.5 flex items-center justify-between">
                             <span><i class="fa-solid fa-gavel mr-1"></i> กฎเหล็กประจำด่าน</span>
@@ -983,7 +1168,6 @@
                         </ol>
                     </div>
 
-                    <!-- History Log -->
                     <div class="bg-slate-950/60 p-1.5 rounded-xl border border-slate-800 text-left">
                         <div class="text-[9px] font-bold text-slate-400 mb-0.5 flex items-center justify-between">
                             <span><i class="fa-solid fa-clock-rotate-left mr-1"></i> บันทึกเหตุการณ์</span>
@@ -1088,7 +1272,6 @@
         function updateTurnUI() {
             const player = gameState.players[gameState.currentPlayerIdx];
             
-            // Grid Hub Updates
             const avBox = document.getElementById("current-player-avatar-box");
             if (avBox) avBox.innerText = player.avatar;
             
@@ -1127,6 +1310,7 @@
 
             updateRosterBar();
             updateFocusViewTrack();
+            broadcastStateToRemote();
         }
 
         function updateRosterBar() {
@@ -1136,7 +1320,6 @@
             gameState.players.forEach((p, idx) => {
                 const isCurrent = idx === gameState.currentPlayerIdx;
                 const badge = document.createElement("div");
-                const currentTile = gameState.activeMap.tiles[p.position];
                 
                 let bgClass = isCurrent 
                     ? "bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-400 ring-1 ring-yellow-400/50" 
@@ -1161,14 +1344,13 @@
         }
 
         /* ==========================================================================
-           6. DICE ROLLING & STEP MECHANICS
+           6. DICE ROLLING MECHANICS
            ========================================================================== */
         function handleRollDice() {
             if (gameState.isRolling) return;
 
             const player = gameState.players[gameState.currentPlayerIdx];
 
-            // Handle resting players
             if (player.skipTurns > 0) {
                 soundFX.playSkip();
                 player.skipTurns--;
@@ -1185,6 +1367,8 @@
             }
 
             gameState.isRolling = true;
+            broadcastStateToRemote();
+
             if (document.getElementById("btn-roll-dice")) document.getElementById("btn-roll-dice").disabled = true;
             if (document.getElementById("btn-roll-dice-focus")) document.getElementById("btn-roll-dice-focus").disabled = true;
 
@@ -1310,7 +1494,7 @@
         }
 
         /* ==========================================================================
-           7. LANDING MODAL & ACTION DISPATCH
+           7. MODALS & TURN MANAGEMENT
            ========================================================================== */
         function handleLandedTile(player) {
             soundFX.playLand();
