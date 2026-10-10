@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Protected & Strict Turn Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Real Online Room Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">STRICT TURN AUTHORITY EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">REAL ONLINE ROOM EDITION</p>
             </div>
         </div>
 
@@ -235,10 +235,10 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> ล็อกปุ่มทอยลูกเต๋าตรงตามคิวของผู้เล่น
+                    <i class="fa-solid fa-users-gear mr-1"></i> โหมดสร้างห้องออนไลน์และรอผู้เล่นจริง
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">ตั้งชื่อกลุ่ม / เลือกห้อง และลุยความสนุกได้เลย!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">ตั้งชื่อตัวละคร / เลือกห้อง แล้วชวนเพื่อนออนไลน์เข้ามาจอยได้เลย!</p>
             </div>
 
             <div class="space-y-5">
@@ -316,9 +316,9 @@
                     <div id="joined-players-box" class="mt-4 pt-3 border-t border-slate-800/80">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-user-check"></i> ผู้เล่นในห้องขณะนี้ (<span id="joined-count">1</span>/<span id="joined-max">4</span> คน)
+                                <i class="fa-solid fa-user-check"></i> รายชื่อเพื่อนที่อยู่ในห้องขณะนี้ (<span id="joined-count">1</span>/<span id="joined-max">4</span> คน)
                             </span>
-                            <span class="text-[10px] text-slate-400 italic">อัปเดตชื่อสดๆ ทันที</span>
+                            <span class="text-[10px] text-slate-400 italic">อัปเดตอัตโนมัติเมื่อมีคน Join</span>
                         </div>
                         <div id="joined-players-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             <!-- Dynamic cards of connected players -->
@@ -421,7 +421,7 @@
 
                 <!-- START GAME BUTTON -->
                 <div class="pt-1">
-                    <button type="button" onclick="startGame()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2">
+                    <button type="button" id="btn-start-game" onclick="startGame()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer">
                         <span>เริ่มเกมลุยวงเหล้าออนไลน์!</span>
                         <i class="fa-solid fa-play"></i>
                     </button>
@@ -765,12 +765,9 @@
         const MQTT_TOPIC_QUERY = "drinking-game-v2/lobby/query";
 
         window.onload = function() {
-            renderPlayerSetupRows(4);
             selectDiceCount(1);
             selectTheme(1);
-
             initMqttLobbyDiscovery();
-            renderSetupJoinedPlayers();
 
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
@@ -966,6 +963,8 @@
 
             if (hostPingInterval) { clearInterval(hostPingInterval); hostPingInterval = null; }
 
+            renderPlayerSetupRows();
+
             if (mode === 'online_host') {
                 btnHost.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 qrBox.classList.remove("hidden");
@@ -975,38 +974,40 @@
                 btnJoin.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 joinBox.classList.remove("hidden");
                 document.getElementById("header-mode-title").innerText = "ONLINE JOINER + VIDEO";
+                gameState.players = [];
+                renderSetupJoinedPlayers();
             } else {
                 btnSingle.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 document.getElementById("header-mode-title").innerText = "PASS & PLAY SINGLE DEVICE";
             }
+
+            updateStartGameButtonUI();
         }
 
-        // --- REAL-TIME PLAYER NAME & AVATAR EDIT LISTENERS ---
-        function updatePlayerName(idx, val) {
-            const cleanName = val.trim() || `ผู้เล่น ${idx + 1}`;
-            if (!gameState.players[idx]) {
-                gameState.players[idx] = {
-                    id: idx, name: cleanName, avatar: "🍺",
-                    position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
-                };
+        function updateStartGameButtonUI() {
+            const btn = document.getElementById("btn-start-game");
+            if (!btn) return;
+            if (gameState.playMode === 'online_join') {
+                btn.disabled = true;
+                btn.className = "w-full py-3.5 sm:py-4 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-base sm:text-xl border border-slate-700 cursor-not-allowed flex items-center justify-center gap-2";
+                btn.innerHTML = `<span>⏳ รอ Host กดเริ่มเกม...</span>`;
             } else {
-                gameState.players[idx].name = cleanName;
+                btn.disabled = false;
+                btn.className = "w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer";
+                btn.innerHTML = `<span>เริ่มเกมลุยวงเหล้าออนไลน์!</span> <i class="fa-solid fa-play"></i>`;
             }
+        }
 
-            renderSetupJoinedPlayers();
-            if (gameState.isHost) {
+        function updateMyProfile() {
+            const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value.trim() : "";
+            const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
+            
+            if (gameState.playMode === 'online_host' && gameState.players[0]) {
+                gameState.players[0].name = myName || "Host";
+                gameState.players[0].avatar = myAvatar;
+                renderSetupJoinedPlayers();
                 broadcastStateToAll();
                 broadcastRoomAnnouncement();
-            }
-        }
-
-        function updatePlayerAvatar(idx, val) {
-            if (gameState.players[idx]) {
-                gameState.players[idx].avatar = val;
-            }
-            renderSetupJoinedPlayers();
-            if (gameState.isHost) {
-                broadcastStateToAll();
             }
         }
 
@@ -1021,6 +1022,7 @@
             const myName = myNameInput ? myNameInput.value.trim() : "Host";
             const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
             
+            // Online Host contains ONLY Host initially
             gameState.players = [{
                 id: 0, name: myName || "Host", avatar: myAvatar, peerId: '',
                 position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
@@ -1124,7 +1126,18 @@
                 gameState.currentPlayerIdx = data.currentPlayerIdx;
                 gameState.isRolling = data.isRolling;
                 gameState.totalRoundCounter = data.totalRoundCounter;
+
                 renderSetupJoinedPlayers();
+
+                if (data.isGaming && !document.getElementById("setup-screen").classList.contains("hidden")) {
+                    document.getElementById("setup-screen").classList.add("hidden");
+                    document.getElementById("game-screen").classList.remove("hidden");
+                    document.getElementById("game-screen").classList.add("flex");
+                    document.getElementById("btn-view-stats").classList.remove("hidden");
+                    document.getElementById("btn-reset-game").classList.remove("hidden");
+                    renderFullGridBoard();
+                }
+
                 updateTurnUI();
                 updatePlayerTokensPosition();
             } else if (data.type === 'REQ_ROLL_DICE' && gameState.isHost) {
@@ -1152,13 +1165,14 @@
             }
         }
 
-        function broadcastStateToAll() {
+        function broadcastStateToAll(isGamingOverride = false) {
             const statePayload = {
                 type: 'SYNC_STATE',
                 players: gameState.players,
                 currentPlayerIdx: gameState.currentPlayerIdx,
                 isRolling: gameState.isRolling,
-                totalRoundCounter: gameState.totalRoundCounter
+                totalRoundCounter: gameState.totalRoundCounter,
+                isGaming: isGamingOverride || document.getElementById("game-screen").classList.contains("flex")
             };
 
             connections.forEach(conn => {
@@ -1263,46 +1277,61 @@
             gameState.playerCount = count;
             document.getElementById("player-count-range").value = count;
             document.getElementById("player-count-display").innerText = `${count} คน`;
-            renderPlayerSetupRows(count);
+            renderPlayerSetupRows();
             renderSetupJoinedPlayers();
             broadcastRoomAnnouncement();
         }
 
-        function renderPlayerSetupRows(count) {
+        function renderPlayerSetupRows() {
             const container = document.getElementById("player-setup-list");
+            if (!container) return;
             container.innerHTML = "";
 
-            for (let i = 0; i < count; i++) {
-                const defaultAvatar = AVATAR_LIST[i % AVATAR_LIST.length];
-                const defaultName = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
-
+            if (gameState.playMode === 'online_host' || gameState.playMode === 'online_join') {
+                const defaultAvatar = AVATAR_LIST[0];
+                const defaultName = (gameState.playMode === 'online_host') ? "Host" : "ผู้เล่นออนไลน์";
                 const row = document.createElement("div");
-                row.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-slate-800";
+                row.className = "flex items-center gap-2 bg-slate-900/90 p-2.5 rounded-xl border border-yellow-500/40";
                 row.innerHTML = `
-                    <div class="w-6 text-center font-black text-xs text-yellow-400">#${i + 1}</div>
-                    <select id="p-avatar-${i}" onchange="updatePlayerAvatar(${i}, this.value)" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
-                        ${AVATAR_LIST.map((emoji) => `<option value="${emoji}" ${emoji === defaultAvatar ? 'selected' : ''}>${emoji}</option>`).join('')}
+                    <div class="w-24 font-black text-xs text-yellow-400">โปรไฟล์ของคุณ</div>
+                    <select id="p-avatar-0" onchange="updateMyProfile()" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
+                        ${AVATAR_LIST.map((emoji) => `<option value="${emoji}">${emoji}</option>`).join('')}
                     </select>
-                    <input type="text" id="p-name-${i}" value="${defaultName}" oninput="updatePlayerName(${i}, this.value)" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
+                    <input type="text" id="p-name-0" value="${defaultName}" oninput="updateMyProfile()" placeholder="กรอกชื่อของคุณ" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
                 `;
                 container.appendChild(row);
+            } else {
+                const count = gameState.playerCount;
+                for (let i = 0; i < count; i++) {
+                    const defaultAvatar = AVATAR_LIST[i % AVATAR_LIST.length];
+                    const defaultName = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
 
-                if (!gameState.players[i]) {
-                    gameState.players[i] = {
-                        id: i, name: defaultName, avatar: defaultAvatar,
-                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
-                    };
+                    const row = document.createElement("div");
+                    row.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-slate-800";
+                    row.innerHTML = `
+                        <div class="w-6 text-center font-black text-xs text-yellow-400">#${i + 1}</div>
+                        <select id="p-avatar-${i}" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
+                            ${AVATAR_LIST.map((emoji) => `<option value="${emoji}" ${emoji === defaultAvatar ? 'selected' : ''}>${emoji}</option>`).join('')}
+                        </select>
+                        <input type="text" id="p-name-${i}" value="${defaultName}" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
+                    `;
+                    container.appendChild(row);
                 }
             }
         }
 
         function autoFillPlayerNames() {
-            const count = gameState.playerCount;
-            for (let i = 0; i < count; i++) {
-                const nameInput = document.getElementById(`p-name-${i}`);
+            if (gameState.playMode === 'online_host' || gameState.playMode === 'online_join') {
+                const nameInput = document.getElementById("p-name-0");
                 if (nameInput) {
-                    nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
-                    updatePlayerName(i, nameInput.value);
+                    nameInput.value = DEFAULT_NAMES[Math.floor(Math.random() * DEFAULT_NAMES.length)];
+                    updateMyProfile();
+                }
+            } else {
+                const count = gameState.playerCount;
+                for (let i = 0; i < count; i++) {
+                    const nameInput = document.getElementById(`p-name-${i}`);
+                    if (nameInput) nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
                 }
             }
         }
@@ -1341,17 +1370,24 @@
         }
 
         function startGame() {
+            if (gameState.playMode === 'online_join') return;
+
             soundFX.init(); soundFX.playLand();
 
             if (gameState.playMode === 'single') {
                 gameState.players = [];
                 for (let i = 0; i < gameState.playerCount; i++) {
-                    const nameInput = document.getElementById(`p-name-${i}`).value.trim();
-                    const avatarSel = document.getElementById(`p-avatar-${i}`).value;
+                    const nameInput = document.getElementById(`p-name-${i}`) ? document.getElementById(`p-name-${i}`).value.trim() : "";
+                    const avatarSel = document.getElementById(`p-avatar-${i}`) ? document.getElementById(`p-avatar-${i}`).value : "🍺";
                     gameState.players.push({
                         id: i, name: nameInput || `ผู้เล่น ${i + 1}`, avatar: avatarSel,
                         position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
                     });
+                }
+            } else if (gameState.playMode === 'online_host') {
+                if (gameState.players.length < 1) {
+                    alert("ยังไม่มีผู้เล่นในห้อง!");
+                    return;
                 }
             }
 
@@ -1369,7 +1405,7 @@
             renderFullGridBoard();
             updateTurnUI();
             updateRosterBar();
-            broadcastStateToAll();
+            broadcastStateToAll(true);
             broadcastRoomAnnouncement();
 
             logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน!`);
