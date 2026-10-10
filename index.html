@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">REAL ONLINE ROOM EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">STRICT TURN AUTHORITY EDITION</p>
             </div>
         </div>
 
@@ -534,7 +534,7 @@
             <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 my-3 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
                 <p id="modal-tile-desc">คำสั่งประจำช่องนี้จะปรากฏที่นี่...</p>
             </div>
-            <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition">
+            <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition cursor-pointer">
                 จัดไป! (ส่งคิวต่อ)
             </button>
         </div>
@@ -1165,6 +1165,16 @@
                 }
             } else if (data.type === 'TRIGGER_ROLL' && !gameState.isHost) {
                 handleRollDice(data.rolls);
+            } else if (data.type === 'REQ_FINISH_TURN' && gameState.isHost) {
+                // ตรวจสอบว่าเป็นคำสั่งจากผู้เล่นที่เป็นคิวจริงหรือไม่
+                const activePlayer = gameState.players[gameState.currentPlayerIdx];
+                if (activePlayer && (activePlayer.peerId === data.peerId || !activePlayer.peerId)) {
+                    document.getElementById("tile-modal").classList.add("hidden");
+                    advanceTurn();
+                    broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+                }
+            } else if (data.type === 'CLOSE_TILE_MODAL') {
+                document.getElementById("tile-modal").classList.add("hidden");
             } else if (data.type === 'JOIN_ROOM' && gameState.isHost) {
                 if (gameState.players.length < gameState.playerCount) {
                     const newIdx = gameState.players.length;
@@ -1693,7 +1703,7 @@
 
                 if (player.position === 0) {
                     player.laps = (player.laps || 0) + 1;
-                    player.drinksCount = (player.drinksCount || 0) + 1; // ชนแก้วครบรอบ +1 ดื่ม
+                    player.drinksCount = (player.drinksCount || 0) + 1;
                     gameState.totalRoundCounter++;
                     document.getElementById("total-laps-stat").innerText = `รอบวงรวม: ${gameState.totalRoundCounter}`;
                     logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง (+1 ดื่ม)!`);
@@ -1716,7 +1726,6 @@
             const map = gameState.activeMap;
             const tile = map.tiles[player.position];
 
-            // คำนวณจำนวนดื่มตามคำสั่งช่อง
             let addDrinks = 0;
             const title = tile.title || "";
             if (title.includes("3 ช็อต")) addDrinks = 3;
@@ -1741,13 +1750,38 @@
             document.getElementById("modal-tile-title").innerText = tile.title;
             document.getElementById("modal-tile-desc").innerText = tile.desc;
 
+            const confirmBtn = document.getElementById("modal-confirm-btn");
+            const myTurn = isMyTurn();
+
+            if (myTurn) {
+                confirmBtn.disabled = false;
+                confirmBtn.className = "w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition cursor-pointer";
+                confirmBtn.innerHTML = `จัดไป! (ส่งคิวต่อ)`;
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.className = "w-full py-3 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-sm sm:text-base tracking-wide border border-slate-700 opacity-70 cursor-not-allowed";
+                confirmBtn.innerHTML = `⏳ รอ ${player.name} กดจบเทิร์น...`;
+            }
+
             document.getElementById("tile-modal").classList.remove("hidden");
         }
 
         function closeTileModal() {
+            if (!isMyTurn()) return;
+
             document.getElementById("tile-modal").classList.add("hidden");
+
             if (gameState.isHost) {
                 advanceTurn();
+                broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+            } else {
+                // เครื่องลูกส่งสัญญาณขอจบเทิร์นไปยัง Host
+                if (connections[0] && connections[0].open) {
+                    connections[0].send({
+                        type: 'REQ_FINISH_TURN',
+                        peerId: gameState.myPeerId
+                    });
+                }
             }
         }
 
@@ -1809,7 +1843,6 @@
         function confirmReturnToLobby() {
             closeLobbyConfirmModal();
             
-            // ปิดสตรีมกล้อง/ไมค์ถ้าเปิดไว้
             if (localMediaStream) {
                 localMediaStream.getTracks().forEach(track => track.stop());
                 localMediaStream = null;
@@ -1818,24 +1851,20 @@
             const localVid = document.getElementById("local-video");
             if (localVid) localVid.srcObject = null;
 
-            // ปิดการเชื่อมต่อ PeerJS
             if (peer) {
                 peer.destroy();
                 peer = null;
             }
             connections = [];
 
-            // ซ่อนปุ่มบน Header
             document.getElementById("btn-view-stats").classList.add("hidden");
             document.getElementById("btn-return-lobby").classList.add("hidden");
             document.getElementById("btn-reset-game").classList.add("hidden");
 
-            // สลับการแสดงผลกลับสู่หน้า Setup
             document.getElementById("game-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("flex");
             document.getElementById("setup-screen").classList.remove("hidden");
 
-            // รีเซ็ตโหมดเริ่มต้น
             selectPlayMode('online_host');
         }
 
