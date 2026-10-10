@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Online Multiplayer & Video Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Real Online Room Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -14,6 +14,8 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- MQTT.js for Real-time Room Discovery Lobby -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -190,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">ONLINE MULTIPLAYER & VIDEO</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">REAL ONLINE ROOM EDITION</p>
             </div>
         </div>
 
@@ -211,10 +213,6 @@
                 <span class="hidden sm:inline">สนับสนุน</span>
             </button>
 
-            <button id="btn-toggle-view" onclick="toggleViewMode()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs font-bold flex items-center gap-1">
-                <i id="view-icon" class="fa-solid fa-table-cells-large"></i>
-                <span id="view-label">มุมมองการ์ด</span>
-            </button>
             <button id="btn-sound-toggle" onclick="toggleSound()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs font-bold flex items-center gap-1">
                 <i id="sound-icon" class="fa-solid fa-volume-high"></i>
                 <span class="hidden sm:inline">เสียง</span>
@@ -222,6 +220,11 @@
             <button id="btn-view-stats" onclick="openStatsModal()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition border border-slate-700/70 flex items-center gap-1">
                 <i class="fa-solid fa-trophy text-yellow-400"></i>
                 <span class="hidden sm:inline">ลำดับ</span>
+            </button>
+            <!-- LOBBY RETURN BUTTON -->
+            <button id="btn-return-lobby" onclick="openLobbyConfirmModal()" class="hidden p-2 sm:px-3 sm:py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 transition border border-amber-500/40 text-xs font-bold flex items-center gap-1">
+                <i class="fa-solid fa-house text-yellow-400"></i>
+                <span class="hidden sm:inline">กลับ Lobby</span>
             </button>
             <button id="btn-reset-game" onclick="openConfirmModal()" class="hidden p-2 sm:px-3 sm:py-2 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 transition border border-rose-800/60 text-xs font-bold flex items-center gap-1">
                 <i class="fa-solid fa-rotate-left"></i>
@@ -237,10 +240,10 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-globe mr-1"></i> รองรับการเล่นออนไลน์ต่างสถานที่ + เห็นหน้ากันสดๆ
+                    <i class="fa-solid fa-users-gear mr-1"></i> โหมดสร้างห้องออนไลน์และรอผู้เล่นจริง
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกโหมดการเล่น สร้างหรือเข้าร่วมห้องปาร์ตี้!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">ตั้งชื่อตัวละคร / เลือกห้อง แล้วชวนเพื่อนออนไลน์เข้ามาจอยได้เลย!</p>
             </div>
 
             <div class="space-y-5">
@@ -253,15 +256,15 @@
                         <button type="button" onclick="selectPlayMode('online_host')" id="mode-btn-online-host" class="p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2">
                             <div class="text-2xl">🌐</div>
                             <div>
-                                <div class="text-xs sm:text-sm font-bold text-yellow-400">สร้างห้องออนไลน์ (Host)</div>
-                                <div class="text-[10px] text-slate-300 font-normal">เล่นกับเพื่อนต่างสถานที่ + กล้อง</div>
+                                <div class="text-xs sm:text-sm font-bold text-yellow-400">สร้างห้องใหม่ (Host)</div>
+                                <div class="text-[10px] text-slate-300 font-normal">เปิดห้องรอเพื่อนออนไลน์เข้ามาเล่น</div>
                             </div>
                         </button>
                         <button type="button" onclick="selectPlayMode('online_join')" id="mode-btn-online-join" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700">
                             <div class="text-2xl">🔗</div>
                             <div>
                                 <div class="text-xs sm:text-sm font-bold text-white">จอยห้องเพื่อน (Join)</div>
-                                <div class="text-[10px] text-slate-400 font-normal">กรอกรหัสห้องเพื่อร่วมเล่น</div>
+                                <div class="text-[10px] text-slate-400 font-normal">เลือกห้องออนไลน์และใส่รหัสเข้า</div>
                             </div>
                         </button>
                         <button type="button" onclick="selectPlayMode('single')" id="mode-btn-single" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700">
@@ -277,15 +280,15 @@
                     <div id="host-qr-box" class="mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 flex flex-col sm:flex-row items-center gap-4">
                         <div id="qrcode" class="bg-white p-2 rounded-lg flex-shrink-0"></div>
                         <div class="text-center sm:text-left space-y-1">
-                            <div class="text-xs text-yellow-400 font-bold">ส่งลิงก์ หรือ ให้เพื่อนสแกนเพื่อเข้าห้องนี้</div>
-                            <div class="text-xs text-slate-300">รหัสห้องเล่นเกมของคุณ: <span id="room-code-display" class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded font-black text-sm">----</span></div>
+                            <div class="text-xs text-yellow-400 font-bold">ส่งลิงก์ หรือ แจ้งรหัส 4 หลักให้เพื่อนเข้าห้อง</div>
+                            <div class="text-xs text-slate-300">รหัสผ่านสำหรับเข้าห้องของคุณ: <span id="room-code-display" class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded font-black text-sm tracking-wider">----</span></div>
                             <div id="remote-conn-status" class="text-[11px] text-slate-400 italic">⏳ กำลังสร้างห้องออนไลน์...</div>
                         </div>
                     </div>
 
                     <!-- Online Room Join Input Box -->
                     <div id="join-room-box" class="hidden mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 space-y-2">
-                        <label class="block text-xs font-bold text-yellow-400">กรอกรหัสห้อง 4 หลักจากเพื่อนที่เป็น Host</label>
+                        <label class="block text-xs font-bold text-yellow-400">กรอกรหัสห้อง 4 หลักจาก Host เพื่อเข้าร่วม</label>
                         <div class="flex gap-2">
                             <input type="text" id="input-join-room-code" placeholder="เช่น 1234" maxlength="4" class="px-3 py-2 bg-slate-800 text-white rounded-xl font-bold border border-slate-700 text-center tracking-widest text-lg w-32 focus:outline-none focus:border-yellow-400">
                             <button type="button" onclick="joinOnlineRoom()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition">
@@ -294,6 +297,38 @@
                         </div>
                         <div id="join-status-text" class="text-[11px] text-slate-400">กรอกรหัสแล้วกดปุ่มเพื่อเข้าร่วม</div>
                     </div>
+
+                    <!-- LIVE ACTIVE ROOMS BROWSER -->
+                    <div class="mt-4 pt-3 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <i class="fa-solid fa-server text-yellow-400"></i> รายการห้องออนไลน์สดๆ (Active Public Rooms)
+                            </label>
+                            <button type="button" onclick="requestLobbyRefresh()" class="text-xs text-yellow-400 hover:text-yellow-300 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-right"></i> รีเฟรชรายการ
+                            </button>
+                        </div>
+
+                        <div id="public-room-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <div class="text-xs text-slate-500 italic text-center py-3 bg-slate-950/50 rounded-xl border border-slate-800/50">
+                                ⏳ กำลังค้นหาห้องออนไลน์ในระบบ...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIVE JOINED PLAYERS IN ROOM -->
+                    <div id="joined-players-box" class="mt-4 pt-3 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-check"></i> รายชื่อเพื่อนที่อยู่ในห้องขณะนี้ (<span id="joined-count">1</span>/<span id="joined-max">4</span> คน)
+                            </span>
+                            <span class="text-[10px] text-slate-400 italic">อัปเดตอัตโนมัติเมื่อมีคน Join</span>
+                        </div>
+                        <div id="joined-players-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <!-- Dynamic cards of connected players -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- STEP 1: Player Count & Dice Setup -->
@@ -301,7 +336,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-300">
-                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นในวง
+                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นสูงสุดในห้อง
                             </label>
                             <span id="player-count-display" class="text-yellow-400 font-extrabold text-base">4 คน</span>
                         </div>
@@ -391,7 +426,7 @@
 
                 <!-- START GAME BUTTON -->
                 <div class="pt-1">
-                    <button type="button" onclick="startGame()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2">
+                    <button type="button" id="btn-start-game" onclick="startGame()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer">
                         <span>เริ่มเกมลุยวงเหล้าออนไลน์!</span>
                         <i class="fa-solid fa-play"></i>
                     </button>
@@ -437,6 +472,28 @@
             </div>
         </section>
     </main>
+
+    <!-- PASSCODE MODAL FOR ROOM JOIN -->
+    <div id="passcode-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-sm glass-panel rounded-3xl p-5 text-center border-2 border-yellow-400 shadow-2xl animate-modal-pop relative">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-500/20 text-yellow-400 border border-yellow-400/40 flex items-center justify-center text-2xl mx-auto mb-2">
+                🔒
+            </div>
+            <h3 class="text-lg font-black text-white mb-1">กรอกรหัสผ่านเพื่อเข้าร่วม</h3>
+            <p id="passcode-host-name" class="text-xs text-yellow-400 font-bold mb-3">ห้องของ Host</p>
+            
+            <input type="text" id="modal-passcode-input" maxlength="4" placeholder="กรอกรหัส 4 หลัก" class="w-full py-3 bg-slate-900 text-yellow-400 font-black text-center text-2xl tracking-widest rounded-2xl border border-yellow-500/50 focus:outline-none focus:border-yellow-400 mb-4">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="closePasscodeModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    ยกเลิก
+                </button>
+                <button type="button" onclick="submitPasscodeJoin()" class="py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-xs transition shadow-lg shadow-yellow-500/20">
+                    ยืนยันเข้าห้อง
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- DONATE MODAL -->
     <div id="donate-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
@@ -489,7 +546,7 @@
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-trophy text-yellow-400 text-lg"></i>
-                    <h3 class="text-base font-extrabold text-white">ตารางสรุปผลนักดื่ม</h3>
+                    <h3 class="text-base font-extrabold text-white">ตารางสรุปผลและรายงานจำนวนดื่ม</h3>
                 </div>
                 <button onclick="closeStatsModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark"></i>
@@ -500,6 +557,19 @@
                 <button onclick="closeStatsModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
                     ปิดหน้าต่าง
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETURN LOBBY CONFIRM MODAL -->
+    <div id="lobby-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-sm glass-panel rounded-3xl p-5 text-center border border-amber-500/80 shadow-2xl animate-modal-pop">
+            <div class="text-4xl my-2">🏠</div>
+            <h3 class="text-lg font-extrabold text-white mb-2">ต้องการย้อนกลับไปหน้า Lobby?</h3>
+            <p class="text-xs text-slate-300 mb-4">การออกจากห้องเล่นจะยุติเกมปัจจุบัน และกลับไปหน้าตั้งค่าสร้าง/จอยห้อง</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeLobbyConfirmModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">ยกเลิก</button>
+                <button onclick="confirmReturnToLobby()" class="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition">ยืนยันกลับ Lobby</button>
             </div>
         </div>
     </div>
@@ -694,32 +764,200 @@
             currentPlayerIdx: 0,
             activeMap: MAP_1_DATA,
             isRolling: false,
-            pendingAutoMove: 0,
             history: [],
-            totalRoundCounter: 0,
-            viewMode: 'grid'
+            totalRoundCounter: 0
         };
 
         let peer = null;
-        let connections = []; // Data connections to other players
+        let connections = []; // PeerJS Data connections
         let localMediaStream = null;
         let isCamOn = false;
         let isMicOn = false;
 
+        // --- MQTT PUBLIC ROOMS LOBBY DISCOVERY ---
+        let mqttClient = null;
+        const activeRoomsMap = new Map();
+        let hostPingInterval = null;
+
+        const MQTT_TOPIC_ANNOUNCE = "drinking-game-v2/lobby/announcements";
+        const MQTT_TOPIC_QUERY = "drinking-game-v2/lobby/query";
+
         window.onload = function() {
-            renderPlayerSetupRows(4);
             selectDiceCount(1);
             selectTheme(1);
+            initMqttLobbyDiscovery();
 
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
             if (roomParam) {
-                selectPlayMode('online_join');
-                document.getElementById("input-join-room-code").value = roomParam;
+                openPasscodeModal("ห้องจากแชร์ลิงก์");
             } else {
                 selectPlayMode('online_host');
             }
+
+            setInterval(cleanExpiredRooms, 4000);
         };
+
+        function initMqttLobbyDiscovery() {
+            try {
+                mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+                    clientId: 'drink_client_' + Math.random().toString(16).substr(2, 8),
+                    keepalive: 30
+                });
+
+                mqttClient.on('connect', () => {
+                    mqttClient.subscribe(MQTT_TOPIC_ANNOUNCE);
+                    mqttClient.subscribe(MQTT_TOPIC_QUERY);
+                    requestLobbyRefresh();
+                });
+
+                mqttClient.on('message', (topic, message) => {
+                    try {
+                        const data = JSON.parse(message.toString());
+                        if (topic === MQTT_TOPIC_ANNOUNCE && data.roomCode) {
+                            data.lastSeen = Date.now();
+                            activeRoomsMap.set(data.roomCode, data);
+                            renderActivePublicRooms();
+                        } else if (topic === MQTT_TOPIC_QUERY && gameState.isHost && gameState.roomCode) {
+                            broadcastRoomAnnouncement();
+                        }
+                    } catch (e) { }
+                });
+            } catch (err) {
+                console.warn("MQTT discovery unavailable:", err);
+            }
+        }
+
+        function broadcastRoomAnnouncement() {
+            if (!mqttClient || !mqttClient.connected || !gameState.isHost || !gameState.roomCode) return;
+            const myName = (gameState.players[0] && gameState.players[0].name) ? gameState.players[0].name : "Host";
+            const payload = {
+                roomCode: gameState.roomCode,
+                hostName: myName,
+                currentPlayers: gameState.players.length > 0 ? gameState.players.length : 1,
+                maxPlayers: gameState.playerCount,
+                mapName: gameState.activeMap.name,
+                isGaming: document.getElementById("game-screen").classList.contains("flex")
+            };
+            mqttClient.publish(MQTT_TOPIC_ANNOUNCE, JSON.stringify(payload));
+        }
+
+        function requestLobbyRefresh() {
+            if (mqttClient && mqttClient.connected) {
+                mqttClient.publish(MQTT_TOPIC_QUERY, JSON.stringify({ action: 'GET_ROOMS' }));
+            }
+        }
+
+        function cleanExpiredRooms() {
+            const now = Date.now();
+            let changed = false;
+            activeRoomsMap.forEach((info, code) => {
+                if (now - info.lastSeen > 8000) {
+                    activeRoomsMap.delete(code);
+                    changed = true;
+                }
+            });
+            if (changed) renderActivePublicRooms();
+        }
+
+        function renderActivePublicRooms() {
+            const container = document.getElementById("public-room-list");
+            if (!container) return;
+
+            if (activeRoomsMap.size === 0) {
+                container.innerHTML = `
+                    <div class="text-xs text-slate-500 italic text-center py-3 bg-slate-950/50 rounded-xl border border-slate-800/50">
+                        ยังไม่พบห้องออนไลน์ในระบบ คุณสามารถสร้างห้องใหม่เป็น Host คนแรกได้เลย!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = "";
+            activeRoomsMap.forEach((room) => {
+                const isFull = room.currentPlayers >= room.maxPlayers;
+                const card = document.createElement("div");
+                card.className = "flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-yellow-500/50 transition";
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-400 font-bold flex items-center justify-center text-sm border border-yellow-500/30">
+                            🏠
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <span>ห้องของ ${room.hostName}</span>
+                                ${room.isGaming ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 rounded">กำลังเล่นอยู่</span>' : '<span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 rounded">รอผู้เล่น</span>'}
+                            </div>
+                            <div class="text-[10px] text-slate-400">
+                                ด่าน: ${room.mapName}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold ${isFull ? 'text-rose-400' : 'text-yellow-400'}">
+                            <i class="fa-solid fa-users text-[10px]"></i> ${room.currentPlayers}/${room.maxPlayers}
+                        </span>
+                        <button type="button" onclick="openPasscodeModal('${room.hostName}')" ${isFull ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg ${isFull ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black hover:brightness-110 active:scale-95'} text-xs transition">
+                            ${isFull ? 'เต็มแล้ว' : 'เข้าร่วม (Join)'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openPasscodeModal(hostName) {
+            document.getElementById("passcode-host-name").innerText = `ห้องของ: ${hostName}`;
+            document.getElementById("modal-passcode-input").value = "";
+            document.getElementById("passcode-modal").classList.remove("hidden");
+            document.getElementById("modal-passcode-input").focus();
+        }
+
+        function closePasscodeModal() {
+            document.getElementById("passcode-modal").classList.add("hidden");
+        }
+
+        function submitPasscodeJoin() {
+            const code = document.getElementById("modal-passcode-input").value.trim();
+            if (!code || code.length < 4) {
+                alert("กรุณากรอกรหัสผ่าน 4 หลักให้ครบถ้วน");
+                return;
+            }
+            closePasscodeModal();
+            selectPlayMode('online_join');
+            document.getElementById("input-join-room-code").value = code;
+            joinOnlineRoom();
+        }
+
+        function renderSetupJoinedPlayers() {
+            const listEl = document.getElementById("joined-players-list");
+            const countEl = document.getElementById("joined-count");
+            const maxEl = document.getElementById("joined-max");
+            if (!listEl) return;
+
+            countEl.innerText = gameState.players.length;
+            maxEl.innerText = gameState.playerCount;
+
+            listEl.innerHTML = "";
+            if (gameState.players.length === 0) {
+                listEl.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-2">ยังไม่มีใครเข้ามาในห้อง</div>`;
+                return;
+            }
+
+            gameState.players.forEach((p, idx) => {
+                const card = document.createElement("div");
+                card.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-yellow-500/30";
+                card.innerHTML = `
+                    <span class="text-xl">${p.avatar}</span>
+                    <div class="truncate">
+                        <div class="text-xs font-bold text-white truncate">${p.name}</div>
+                        <div class="text-[9px] text-yellow-400">${idx === 0 ? '👑 เจ้าของห้อง (Host)' : '🟢 เข้าร่วมแล้ว'}</div>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        }
 
         function openDonateModal() { document.getElementById("donate-modal").classList.remove("hidden"); }
         function closeDonateModal() { document.getElementById("donate-modal").classList.add("hidden"); }
@@ -741,6 +979,10 @@
             qrBox.classList.add("hidden");
             joinBox.classList.add("hidden");
 
+            if (hostPingInterval) { clearInterval(hostPingInterval); hostPingInterval = null; }
+
+            renderPlayerSetupRows();
+
             if (mode === 'online_host') {
                 btnHost.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 qrBox.classList.remove("hidden");
@@ -750,9 +992,40 @@
                 btnJoin.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 joinBox.classList.remove("hidden");
                 document.getElementById("header-mode-title").innerText = "ONLINE JOINER + VIDEO";
+                gameState.players = [];
+                renderSetupJoinedPlayers();
             } else {
                 btnSingle.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 document.getElementById("header-mode-title").innerText = "PASS & PLAY SINGLE DEVICE";
+            }
+
+            updateStartGameButtonUI();
+        }
+
+        function updateStartGameButtonUI() {
+            const btn = document.getElementById("btn-start-game");
+            if (!btn) return;
+            if (gameState.playMode === 'online_join') {
+                btn.disabled = true;
+                btn.className = "w-full py-3.5 sm:py-4 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-base sm:text-xl border border-slate-700 cursor-not-allowed flex items-center justify-center gap-2";
+                btn.innerHTML = `<span>⏳ รอ Host กดเริ่มเกม...</span>`;
+            } else {
+                btn.disabled = false;
+                btn.className = "w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer";
+                btn.innerHTML = `<span>เริ่มเกมลุยวงเหล้าออนไลน์!</span> <i class="fa-solid fa-play"></i>`;
+            }
+        }
+
+        function updateMyProfile() {
+            const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value.trim() : "";
+            const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
+            
+            if (gameState.playMode === 'online_host' && gameState.players[0]) {
+                gameState.players[0].name = myName || "Host";
+                gameState.players[0].avatar = myAvatar;
+                renderSetupJoinedPlayers();
+                broadcastStateToAll();
+                broadcastRoomAnnouncement();
             }
         }
 
@@ -763,12 +1036,24 @@
             gameState.roomCode = randomCode;
             document.getElementById("room-code-display").innerText = randomCode;
 
+            const myNameInput = document.getElementById("p-name-0");
+            const myName = myNameInput ? myNameInput.value.trim() : "Host";
+            const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
+            
+            gameState.players = [{
+                id: 0, name: myName || "Host", avatar: myAvatar, peerId: '',
+                position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+            }];
+            renderSetupJoinedPlayers();
+
             const peerId = `drink-room-${randomCode}-host`;
             peer = new Peer(peerId);
 
             peer.on('open', (id) => {
                 gameState.myPeerId = id;
-                document.getElementById("remote-conn-status").innerText = "🟢 ห้องออนไลน์พร้อมใช้งาน! รอเพื่อนเชื่อมต่อ...";
+                if (gameState.players[0]) gameState.players[0].peerId = id;
+
+                document.getElementById("remote-conn-status").innerText = "🟢 ห้องออนไลน์พร้อมใช้งาน! แจ้งรหัส 4 หลักให้เพื่อนเข้าได้เลย";
                 
                 const currentUrl = window.location.href.split('?')[0];
                 const connectUrl = `${currentUrl}?room=${randomCode}`;
@@ -779,11 +1064,14 @@
                     text: connectUrl, width: 84, height: 84,
                     colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.L
                 });
+
+                broadcastRoomAnnouncement();
+                hostPingInterval = setInterval(broadcastRoomAnnouncement, 3000);
             });
 
             peer.on('connection', (conn) => {
                 connections.push(conn);
-                document.getElementById("remote-conn-status").innerText = `🎉 เพื่อนร่วมห้องเชื่อมต่อแล้ว (${connections.length} คน)`;
+                document.getElementById("remote-conn-status").innerText = `🎉 มีเพื่อนเข้ามาเชื่อมต่อแล้ว (${connections.length} คน)`;
 
                 conn.on('data', (data) => {
                     handleIncomingNetworkData(data, conn);
@@ -803,6 +1091,8 @@
             gameState.roomCode = roomCode;
             if (peer) peer.destroy();
 
+            document.getElementById("join-status-text").innerHTML = "⏳ กำลังเชื่อมต่อกับห้องออนไลน์...";
+
             peer = new Peer();
             peer.on('open', (id) => {
                 gameState.myPeerId = id;
@@ -811,14 +1101,14 @@
 
                 conn.on('open', () => {
                     connections = [conn];
-                    document.getElementById("join-status-text").innerHTML = "🟢 เชื่อมต่อเข้าห้องเล่นเกมออนไลน์สำเร็จ!";
-                    // Send my join request
-                    const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "ผู้เล่นออนไลน์";
+                    document.getElementById("join-status-text").innerHTML = "🟢 เชื่อมต่อเข้าห้องออนไลน์สำเร็จ!";
+                    const myNameInput = document.getElementById("p-name-0");
+                    const myName = myNameInput ? myNameInput.value.trim() : "ผู้เล่นออนไลน์";
                     const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
                     
                     conn.send({
                         type: 'JOIN_ROOM',
-                        name: myName,
+                        name: myName || "ผู้เล่นออนไลน์",
                         avatar: myAvatar,
                         peerId: id
                     });
@@ -829,7 +1119,7 @@
                 });
 
                 conn.on('error', (err) => {
-                    document.getElementById("join-status-text").innerHTML = "🔴 ไม่พบห้องเล่นเกม กรุณาตรวจสอบรหัสห้อง";
+                    document.getElementById("join-status-text").innerHTML = "🔴 ไม่พบห้อง หรือรหัสผ่านไม่ถูกต้อง";
                 });
             });
 
@@ -849,17 +1139,33 @@
             if (!data) return;
 
             if (data.type === 'SYNC_STATE') {
-                // Client receives full synced state from Host
                 gameState.players = data.players;
                 gameState.currentPlayerIdx = data.currentPlayerIdx;
                 gameState.isRolling = data.isRolling;
                 gameState.totalRoundCounter = data.totalRoundCounter;
+
+                renderSetupJoinedPlayers();
+
+                if (data.isGaming && !document.getElementById("setup-screen").classList.contains("hidden")) {
+                    document.getElementById("setup-screen").classList.add("hidden");
+                    document.getElementById("game-screen").classList.remove("hidden");
+                    document.getElementById("game-screen").classList.add("flex");
+                    document.getElementById("btn-view-stats").classList.remove("hidden");
+                    document.getElementById("btn-return-lobby").classList.remove("hidden");
+                    document.getElementById("btn-reset-game").classList.remove("hidden");
+                    renderFullGridBoard();
+                }
+
                 updateTurnUI();
                 updatePlayerTokensPosition();
-            } else if (data.type === 'ROLL_DICE_CMD') {
-                handleRollDice();
+            } else if (data.type === 'REQ_ROLL_DICE' && gameState.isHost) {
+                const activePlayer = gameState.players[gameState.currentPlayerIdx];
+                if (activePlayer && (activePlayer.peerId === data.peerId || data.peerId)) {
+                    handleRollDice();
+                }
+            } else if (data.type === 'TRIGGER_ROLL' && !gameState.isHost) {
+                handleRollDice(data.rolls);
             } else if (data.type === 'JOIN_ROOM' && gameState.isHost) {
-                // Add joined player to roster
                 if (gameState.players.length < gameState.playerCount) {
                     const newIdx = gameState.players.length;
                     gameState.players.push({
@@ -867,30 +1173,34 @@
                         name: data.name || `ผู้เล่น ${newIdx + 1}`,
                         avatar: data.avatar || "🍺",
                         peerId: data.peerId,
-                        position: 0,
-                        laps: 0,
-                        skipTurns: 0,
-                        consecutiveDoubles: 0,
-                        drinksCount: 0,
-                        totalSteps: 0
+                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
                     });
+                    renderSetupJoinedPlayers();
                     broadcastStateToAll();
+                    broadcastRoomAnnouncement();
                     logHistory(`👥 [${data.name}] เข้าร่วมห้องเล่นเกม!`);
                 }
             }
         }
 
-        function broadcastStateToAll() {
+        function broadcastStateToAll(isGamingOverride = false) {
             const statePayload = {
                 type: 'SYNC_STATE',
                 players: gameState.players,
                 currentPlayerIdx: gameState.currentPlayerIdx,
                 isRolling: gameState.isRolling,
-                totalRoundCounter: gameState.totalRoundCounter
+                totalRoundCounter: gameState.totalRoundCounter,
+                isGaming: isGamingOverride || document.getElementById("game-screen").classList.contains("flex")
             };
 
             connections.forEach(conn => {
                 if (conn && conn.open) conn.send(statePayload);
+            });
+        }
+
+        function broadcastToAll(dataPayload) {
+            connections.forEach(conn => {
+                if (conn && conn.open) conn.send(dataPayload);
             });
         }
 
@@ -909,7 +1219,6 @@
                     btnIcon.className = "fa-solid fa-video text-green-400";
                     btnLabel.innerText = "เปิดอยู่";
 
-                    // Call all connected remote peers to send video stream
                     connections.forEach(conn => {
                         if (conn.peer) {
                             const call = peer.call(conn.peer, localMediaStream);
@@ -968,41 +1277,80 @@
             }
         }
 
-        // --- GAMEPLAY CONTROLS & UI ---
+        // --- GAMEPLAY CONTROLS & TURN CHECKING ---
+        function isMyTurn() {
+            if (gameState.playMode === 'single') return true;
+            const activePlayer = gameState.players[gameState.currentPlayerIdx];
+            if (!activePlayer) return false;
+
+            if (gameState.isHost) {
+                return activePlayer.peerId === gameState.myPeerId || gameState.currentPlayerIdx === 0;
+            } else {
+                return activePlayer.peerId === gameState.myPeerId;
+            }
+        }
+
         function updatePlayerCount(val) {
             const count = parseInt(val);
             gameState.playerCount = count;
             document.getElementById("player-count-range").value = count;
             document.getElementById("player-count-display").innerText = `${count} คน`;
-            renderPlayerSetupRows(count);
+            renderPlayerSetupRows();
+            renderSetupJoinedPlayers();
+            broadcastRoomAnnouncement();
         }
 
-        function renderPlayerSetupRows(count) {
+        function renderPlayerSetupRows() {
             const container = document.getElementById("player-setup-list");
+            if (!container) return;
             container.innerHTML = "";
 
-            for (let i = 0; i < count; i++) {
-                const defaultAvatar = AVATAR_LIST[i % AVATAR_LIST.length];
-                const defaultName = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
-
+            if (gameState.playMode === 'online_host' || gameState.playMode === 'online_join') {
+                const defaultAvatar = AVATAR_LIST[0];
+                const defaultName = (gameState.playMode === 'online_host') ? "Host" : "ผู้เล่นออนไลน์";
                 const row = document.createElement("div");
-                row.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-slate-800";
+                row.className = "flex items-center gap-2 bg-slate-900/90 p-2.5 rounded-xl border border-yellow-500/40";
                 row.innerHTML = `
-                    <div class="w-6 text-center font-black text-xs text-yellow-400">#${i + 1}</div>
-                    <select id="p-avatar-${i}" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
-                        ${AVATAR_LIST.map((emoji) => `<option value="${emoji}" ${emoji === defaultAvatar ? 'selected' : ''}>${emoji}</option>`).join('')}
+                    <div class="w-24 font-black text-xs text-yellow-400">โปรไฟล์ของคุณ</div>
+                    <select id="p-avatar-0" onchange="updateMyProfile()" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
+                        ${AVATAR_LIST.map((emoji) => `<option value="${emoji}">${emoji}</option>`).join('')}
                     </select>
-                    <input type="text" id="p-name-${i}" value="${defaultName}" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
+                    <input type="text" id="p-name-0" value="${defaultName}" oninput="updateMyProfile()" placeholder="กรอกชื่อของคุณ" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
                 `;
                 container.appendChild(row);
+            } else {
+                const count = gameState.playerCount;
+                for (let i = 0; i < count; i++) {
+                    const defaultAvatar = AVATAR_LIST[i % AVATAR_LIST.length];
+                    const defaultName = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
+
+                    const row = document.createElement("div");
+                    row.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-slate-800";
+                    row.innerHTML = `
+                        <div class="w-6 text-center font-black text-xs text-yellow-400">#${i + 1}</div>
+                        <select id="p-avatar-${i}" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
+                            ${AVATAR_LIST.map((emoji) => `<option value="${emoji}" ${emoji === defaultAvatar ? 'selected' : ''}>${emoji}</option>`).join('')}
+                        </select>
+                        <input type="text" id="p-name-${i}" value="${defaultName}" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
+                    `;
+                    container.appendChild(row);
+                }
             }
         }
 
         function autoFillPlayerNames() {
-            const count = gameState.playerCount;
-            for (let i = 0; i < count; i++) {
-                const nameInput = document.getElementById(`p-name-${i}`);
-                if (nameInput) nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
+            if (gameState.playMode === 'online_host' || gameState.playMode === 'online_join') {
+                const nameInput = document.getElementById("p-name-0");
+                if (nameInput) {
+                    nameInput.value = DEFAULT_NAMES[Math.floor(Math.random() * DEFAULT_NAMES.length)];
+                    updateMyProfile();
+                }
+            } else {
+                const count = gameState.playerCount;
+                for (let i = 0; i < count; i++) {
+                    const nameInput = document.getElementById(`p-name-${i}`);
+                    if (nameInput) nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
+                }
             }
         }
 
@@ -1036,20 +1384,28 @@
                 check1.className = "w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold"; check1.innerText = "";
                 check2.className = "w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-xs font-bold shadow"; check2.innerText = "✓";
             }
+            broadcastRoomAnnouncement();
         }
 
         function startGame() {
+            if (gameState.playMode === 'online_join') return;
+
             soundFX.init(); soundFX.playLand();
 
-            if (gameState.players.length === 0 || gameState.playMode === 'single') {
+            if (gameState.playMode === 'single') {
                 gameState.players = [];
                 for (let i = 0; i < gameState.playerCount; i++) {
-                    const nameInput = document.getElementById(`p-name-${i}`).value.trim();
-                    const avatarSel = document.getElementById(`p-avatar-${i}`).value;
+                    const nameInput = document.getElementById(`p-name-${i}`) ? document.getElementById(`p-name-${i}`).value.trim() : "";
+                    const avatarSel = document.getElementById(`p-avatar-${i}`) ? document.getElementById(`p-avatar-${i}`).value : "🍺";
                     gameState.players.push({
                         id: i, name: nameInput || `ผู้เล่น ${i + 1}`, avatar: avatarSel,
                         position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
                     });
+                }
+            } else if (gameState.playMode === 'online_host') {
+                if (gameState.players.length < 1) {
+                    alert("ยังไม่มีผู้เล่นในห้อง!");
+                    return;
                 }
             }
 
@@ -1061,16 +1417,17 @@
             document.getElementById("game-screen").classList.remove("hidden");
             document.getElementById("game-screen").classList.add("flex");
 
-            document.getElementById("btn-toggle-view").classList.remove("hidden");
             document.getElementById("btn-view-stats").classList.remove("hidden");
+            document.getElementById("btn-return-lobby").classList.remove("hidden");
             document.getElementById("btn-reset-game").classList.remove("hidden");
 
             renderFullGridBoard();
             updateTurnUI();
             updateRosterBar();
-            broadcastStateToAll();
+            broadcastStateToAll(true);
+            broadcastRoomAnnouncement();
 
-            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่นออนไลน์ ${gameState.players.length} คน!`);
+            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน!`);
         }
 
         function renderFullGridBoard() {
@@ -1116,7 +1473,7 @@
                         <div id="current-player-avatar-box" class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-slate-800 border-2 border-yellow-400 flex items-center justify-center text-xl sm:text-2xl shadow-md animate-bounce-short">🍺</div>
                         <div class="text-left">
                             <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
-                                <span>ถึงคิวของคุณแล้ว!</span>
+                                <span id="turn-title-label">ถึงคิวทอยลูกเต๋า!</span>
                                 <span id="turn-sequence-tag" class="text-[9px] bg-yellow-500/20 text-yellow-300 px-1 py-0.2 rounded font-extrabold">คิวที่ 1/4</span>
                             </div>
                             <div id="current-player-name" class="text-xs sm:text-base font-black text-yellow-400 truncate max-w-[120px] sm:max-w-[200px]">ผู้เล่น 1</div>
@@ -1130,7 +1487,7 @@
                         <div class="dice-3d">1</div>
                     </div>
                     <div id="roll-result-text" class="text-xs sm:text-sm font-extrabold text-slate-300 min-h-[18px]">กดปุ่มทอยลูกเต๋าเพื่อเดิน!</div>
-                    <button id="btn-roll-dice" onclick="handleRollDice()" class="mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
+                    <button id="btn-roll-dice" onclick="requestRollDice()" class="mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
                         <i class="fa-solid fa-dice-five text-base sm:text-lg"></i>
                         <span>ทอยลูกเต๋า</span>
                     </button>
@@ -1189,6 +1546,32 @@
             document.getElementById("current-player-name").innerText = player.name;
             document.getElementById("turn-sequence-tag").innerText = `คิวที่ ${gameState.currentPlayerIdx + 1}/${gameState.players.length}`;
 
+            const rollBtn = document.getElementById("btn-roll-dice");
+            const statusTag = document.getElementById("current-player-status");
+            const titleLabel = document.getElementById("turn-title-label");
+            const myTurn = isMyTurn();
+
+            if (rollBtn) {
+                if (gameState.isRolling) {
+                    rollBtn.disabled = true;
+                    rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-xs sm:text-base border border-slate-700 opacity-60 cursor-not-allowed flex items-center gap-2";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>กำลังทอยลูกเต๋า...</span>`;
+                    if (statusTag) statusTag.innerText = "🎲 กำลังหมุน...";
+                } else if (myTurn) {
+                    rollBtn.disabled = false;
+                    rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2 cursor-pointer animate-pulse";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-dice-five text-base sm:text-lg"></i> <span>ถึงตาคุณแล้ว! ทอยลูกเต๋า</span>`;
+                    if (statusTag) statusTag.innerText = "👉 ตาคุณแล้ว!";
+                    if (titleLabel) titleLabel.innerText = "ถึงตาของคุณแล้ว!";
+                } else {
+                    rollBtn.disabled = true;
+                    rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-slate-800/90 text-slate-400 font-extrabold text-xs sm:text-base border border-slate-700/80 opacity-70 cursor-not-allowed flex items-center gap-2";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> <span>รอ ${player.name} ทอยลูกเต๋า...</span>`;
+                    if (statusTag) statusTag.innerText = `⏳ ตาของ ${player.name}`;
+                    if (titleLabel) titleLabel.innerText = `กำลังรอผู้เล่นทอย...`;
+                }
+            }
+
             updateRosterBar();
         }
 
@@ -1206,36 +1589,70 @@
                     <span class="text-base sm:text-lg">${p.avatar}</span>
                     <div class="text-left">
                         <div class="text-[10px] font-extrabold ${isCurrent ? 'text-yellow-400' : 'text-slate-200'} truncate max-w-[85px]">${p.name}</div>
-                        <div class="text-[9px] text-slate-400">ช่อง #${p.position}</div>
+                        <div class="text-[9px] text-amber-400 font-bold">🍺 ${p.drinksCount || 0} ดื่ม (ช่อง #${p.position})</div>
                     </div>
                 `;
                 container.appendChild(badge);
             });
         }
 
-        function handleRollDice() {
+        function requestRollDice() {
+            if (gameState.isRolling) return;
+            if (!isMyTurn()) {
+                alert("ยังไม่ถึงตาของคุณ! กรุณารอเพื่อนทอยก่อนนะครับ");
+                return;
+            }
+
+            if (gameState.isHost) {
+                handleRollDice();
+            } else {
+                if (connections[0] && connections[0].open) {
+                    connections[0].send({
+                        type: 'REQ_ROLL_DICE',
+                        peerId: gameState.myPeerId
+                    });
+                }
+            }
+        }
+
+        function handleRollDice(forcedRolls = null) {
             if (gameState.isRolling) return;
             gameState.isRolling = true;
-            broadcastStateToAll();
 
-            soundFX.playRoll();
-            let rolls = [];
-            let ticks = 0;
-            const diceBox = document.getElementById("dice-display-box");
-
-            if (diceBox) diceBox.classList.add("animate-dice-shake");
-
-            const interval = setInterval(() => {
+            let rolls = forcedRolls;
+            if (!rolls) {
                 rolls = [];
                 for (let d = 0; d < gameState.diceCount; d++) {
                     rolls.push(Math.floor(Math.random() * 6) + 1);
                 }
-                renderDiceFaces(rolls);
+            }
+
+            if (gameState.isHost) {
+                broadcastToAll({
+                    type: 'TRIGGER_ROLL',
+                    rolls: rolls
+                });
+            }
+
+            updateTurnUI();
+            soundFX.playRoll();
+
+            let ticks = 0;
+            const diceBox = document.getElementById("dice-display-box");
+            if (diceBox) diceBox.classList.add("animate-dice-shake");
+
+            const interval = setInterval(() => {
+                let tempRolls = [];
+                for (let d = 0; d < gameState.diceCount; d++) {
+                    tempRolls.push(Math.floor(Math.random() * 6) + 1);
+                }
+                renderDiceFaces(tempRolls);
                 ticks++;
 
                 if (ticks >= 8) {
                     clearInterval(interval);
                     if (diceBox) diceBox.classList.remove("animate-dice-shake");
+                    renderDiceFaces(rolls);
                     finalizeDiceRoll(rolls);
                 }
             }, 75);
@@ -1260,7 +1677,9 @@
             animatePlayerSteps(player, sum, () => {
                 gameState.isRolling = false;
                 handleLandedTile(player);
-                broadcastStateToAll();
+                if (gameState.isHost) {
+                    broadcastStateToAll();
+                }
             });
         }
 
@@ -1270,13 +1689,14 @@
 
             const stepTimer = setInterval(() => {
                 player.position = (player.position + 1) % totalTiles;
-                player.totalSteps++;
+                player.totalSteps = (player.totalSteps || 0) + 1;
 
                 if (player.position === 0) {
-                    player.laps++;
+                    player.laps = (player.laps || 0) + 1;
+                    player.drinksCount = (player.drinksCount || 0) + 1; // ชนแก้วครบรอบ +1 ดื่ม
                     gameState.totalRoundCounter++;
                     document.getElementById("total-laps-stat").innerText = `รอบวงรวม: ${gameState.totalRoundCounter}`;
-                    logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง!`);
+                    logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง (+1 ดื่ม)!`);
                 }
 
                 soundFX.playStep();
@@ -1296,6 +1716,20 @@
             const map = gameState.activeMap;
             const tile = map.tiles[player.position];
 
+            // คำนวณจำนวนดื่มตามคำสั่งช่อง
+            let addDrinks = 0;
+            const title = tile.title || "";
+            if (title.includes("3 ช็อต")) addDrinks = 3;
+            else if (title.includes("2 ช็อต") || title.includes("2 ขวด")) addDrinks = 2;
+            else if (title.includes("1 ช็อต") || title.includes("1 ขวด")) addDrinks = 1;
+            else if (title.includes("ครึ่ง")) addDrinks = 0.5;
+            else if (title.includes("หมดแก้ว")) addDrinks = 2;
+            else if (tile.type === 'drink' || tile.type === 'sip' || tile.type === 'action' || tile.type === 'start' || tile.type === 'group') addDrinks = 1;
+
+            if (addDrinks > 0) {
+                player.drinksCount = (player.drinksCount || 0) + addDrinks;
+            }
+
             logHistory(`📌 [${player.name}] ตกช่อง #${player.position} "${tile.title}"`);
             openTileModal(player, tile);
         }
@@ -1312,7 +1746,9 @@
 
         function closeTileModal() {
             document.getElementById("tile-modal").classList.add("hidden");
-            advanceTurn();
+            if (gameState.isHost) {
+                advanceTurn();
+            }
         }
 
         function advanceTurn() {
@@ -1334,18 +1770,23 @@
         function openStatsModal() {
             const container = document.getElementById("stats-list-container");
             container.innerHTML = "";
-            const sorted = [...gameState.players].sort((a, b) => b.drinksCount - a.drinksCount);
+            const sorted = [...gameState.players].sort((a, b) => (b.drinksCount || 0) - (a.drinksCount || 0));
 
             sorted.forEach((p, idx) => {
                 const item = document.createElement("div");
-                item.className = "flex items-center justify-between bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800";
+                item.className = "flex items-center justify-between bg-slate-900/90 p-3 rounded-2xl border border-slate-800 hover:border-yellow-500/40 transition";
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5">
-                        <span class="font-extrabold text-xs text-yellow-400 w-4">#${idx + 1}</span>
-                        <span class="text-xl sm:text-2xl">${p.avatar}</span>
+                        <span class="font-black text-sm text-yellow-400 w-5">#${idx + 1}</span>
+                        <span class="text-2xl">${p.avatar}</span>
                         <div>
                             <div class="font-extrabold text-white text-xs sm:text-sm truncate max-w-[130px]">${p.name}</div>
-                            <div class="text-[10px] text-slate-400">เดิน ${p.totalSteps} ช่อง (${p.laps} รอบ)</div>
+                            <div class="text-[10px] text-slate-400">เดิน ${p.totalSteps || 0} ช่อง (${p.laps || 0} รอบ)</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs sm:text-sm font-black text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/30">
+                            🍺 ${p.drinksCount || 0} ดื่ม
                         </div>
                     </div>
                 `;
@@ -1355,13 +1796,55 @@
         }
 
         function closeStatsModal() { document.getElementById("stats-modal").classList.add("hidden"); }
+
+        // --- LOBBY RETURN CONTROLS ---
+        function openLobbyConfirmModal() {
+            document.getElementById("lobby-confirm-modal").classList.remove("hidden");
+        }
+
+        function closeLobbyConfirmModal() {
+            document.getElementById("lobby-confirm-modal").classList.add("hidden");
+        }
+
+        function confirmReturnToLobby() {
+            closeLobbyConfirmModal();
+            
+            // ปิดสตรีมกล้อง/ไมค์ถ้าเปิดไว้
+            if (localMediaStream) {
+                localMediaStream.getTracks().forEach(track => track.stop());
+                localMediaStream = null;
+                isCamOn = false;
+            }
+            const localVid = document.getElementById("local-video");
+            if (localVid) localVid.srcObject = null;
+
+            // ปิดการเชื่อมต่อ PeerJS
+            if (peer) {
+                peer.destroy();
+                peer = null;
+            }
+            connections = [];
+
+            // ซ่อนปุ่มบน Header
+            document.getElementById("btn-view-stats").classList.add("hidden");
+            document.getElementById("btn-return-lobby").classList.add("hidden");
+            document.getElementById("btn-reset-game").classList.add("hidden");
+
+            // สลับการแสดงผลกลับสู่หน้า Setup
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("flex");
+            document.getElementById("setup-screen").classList.remove("hidden");
+
+            // รีเซ็ตโหมดเริ่มต้น
+            selectPlayMode('online_host');
+        }
+
         function openConfirmModal() { document.getElementById("confirm-modal").classList.remove("hidden"); }
         function closeConfirmModal() { document.getElementById("confirm-modal").classList.add("hidden"); }
 
         function resetGameToSetup() {
             closeConfirmModal();
-            document.getElementById("game-screen").classList.add("hidden");
-            document.getElementById("setup-screen").classList.remove("hidden");
+            confirmReturnToLobby();
         }
     </script>
 </body>
