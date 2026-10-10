@@ -180,6 +180,13 @@
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2">
+            <!-- DONATE BUTTON -->
+            <button id="btn-donate" onclick="openDonateModal()" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white transition border border-pink-400/50 text-xs font-bold flex items-center gap-1 shadow-md shadow-pink-500/20">
+                <i class="fa-solid fa-heart text-white animate-pulse"></i>
+                <span class="hidden sm:inline">สนับสนุน</span>
+                <span class="sm:hidden">Donate</span>
+            </button>
+
             <button id="btn-toggle-view" onclick="toggleViewMode()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs font-bold flex items-center gap-1">
                 <i id="view-icon" class="fa-solid fa-table-cells-large"></i>
                 <span id="view-label">มุมมองการ์ด</span>
@@ -366,14 +373,12 @@
                 <div id="ctrl-room-id" class="text-xs text-slate-400 mt-2">เชื่อมต่อกับห้อง: <span class="text-yellow-400 font-bold">----</span></div>
             </div>
 
-            <!-- Active Player Card Header -->
             <div class="w-full bg-slate-900/90 p-5 rounded-2xl border border-slate-700 text-center relative shadow-inner">
                 <div id="ctrl-player-avatar" class="text-6xl my-2 animate-bounce-short">🍺</div>
                 <div id="ctrl-player-name" class="text-2xl font-extrabold text-yellow-400 truncate">รอเริ่มเกม...</div>
                 <div id="ctrl-turn-info" class="text-xs text-slate-300 font-semibold mt-1">คิวเล่นปัจจุบัน</div>
             </div>
 
-            <!-- Dice Roll Trigger Button -->
             <div class="w-full my-4">
                 <div id="ctrl-status-text" class="text-xs font-bold text-slate-300 mb-3 min-h-[18px]">
                     กดปุ่มด้านล่างเพื่อสั่งทอยลูกเต๋าบนจอกระดาน!
@@ -393,16 +398,11 @@
 
         <!-- MAIN GAME SCREEN -->
         <section id="game-screen" class="hidden w-full flex-col items-center justify-center space-y-3">
-            
-            <!-- OUTER BOARD CONTAINER (GRID VIEW MODE) -->
             <div id="board-container-wrapper" class="w-full glass-panel rounded-3xl p-2 sm:p-3 shadow-2xl relative border border-slate-800 transition-all duration-300">
-                
-                <!-- DYNAMIC GRID BOARD (Perimeter + Embedded Center Hub) -->
                 <div id="board-grid" class="w-full aspect-square md:aspect-[16/11] min-h-[480px] max-h-[78vh] relative">
-                    <!-- Board Tiles and Center Hub rendered via JavaScript -->
+                    <!-- Board Tiles and Center Hub -->
                 </div>
 
-                <!-- FOCUS/CARD VIEW MODE -->
                 <div id="board-focus-mode" class="hidden w-full flex-col space-y-3 p-2">
                     <div class="bg-slate-900/90 p-4 rounded-2xl border border-yellow-500/40 text-center relative">
                         <div id="focus-player-avatar" class="text-5xl my-1">🍺</div>
@@ -435,7 +435,6 @@
                 </div>
             </div>
 
-            <!-- PASS-AND-PLAY ROSTER SUMMARY BAR -->
             <div class="w-full glass-panel rounded-2xl p-2 sm:p-3 border border-slate-800">
                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
                     <span><i class="fa-solid fa-layer-group text-yellow-400 mr-1"></i> สถานะนักดื่มรอบวง (คลิกเพื่อดูสรุป)</span>
@@ -444,9 +443,43 @@
                 <div id="roster-bar" class="flex items-center gap-2 overflow-x-auto pb-1">
                 </div>
             </div>
-
         </section>
     </main>
+
+    <!-- DONATE MODAL -->
+    <div id="donate-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-sm glass-panel rounded-3xl p-5 border-2 border-pink-500 shadow-2xl animate-modal-pop relative text-center">
+            <button onclick="closeDonateModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 text-xs font-bold mb-3">
+                <i class="fa-solid fa-heart text-pink-400"></i> สนับสนุนผู้พัฒนาเกม
+            </div>
+
+            <h3 class="text-lg font-extrabold text-white mb-1">เลี้ยงเครื่องดื่ม / กับแกล้ม 🍺</h3>
+            <p class="text-xs text-slate-300 mb-3">สแกน QR Code ผ่านแอปธนาคารเพื่อสนับสนุนค่าน้ำแข็งและพัฒนาเกม</p>
+
+            <!-- QR Code Display Image -->
+            <div class="bg-white p-2.5 rounded-2xl shadow-xl border-2 border-slate-200 inline-block mb-3 max-w-[260px]">
+                <img src="image.png" alt="Thai QR Payment - นาย โรจน์ประเสริฐ เสริมสุข" class="w-full h-auto rounded-xl">
+            </div>
+
+            <div class="text-xs text-slate-300 space-y-1 bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 text-left">
+                <div class="font-bold text-yellow-400 flex items-center justify-between">
+                    <span>ชื่อบัญชี:</span>
+                    <span class="text-slate-100">นาย โรจน์ประเสริฐ เสริมสุข</span>
+                </div>
+                <div class="text-[11px] text-slate-400 text-center pt-1 border-t border-slate-800/80">
+                    ขอบคุณทุกการสนับสนุนครับ! ❤️
+                </div>
+            </div>
+
+            <button onclick="closeDonateModal()" class="w-full mt-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
+                ปิดหน้าต่าง
+            </button>
+        </div>
+    </div>
 
     <!-- TILE ACTION MODAL -->
     <div id="tile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
@@ -522,9 +555,6 @@
     </div>
 
     <script>
-        /* ==========================================================================
-           1. WEB AUDIO SYNTHESIZER SOUND ENGINE
-           ========================================================================== */
         class SoundEngine {
             constructor() {
                 this.ctx = null;
@@ -631,9 +661,6 @@
             }
         }
 
-        /* ==========================================================================
-           2. DATASETS & MAP DEFINITIONS
-           ========================================================================== */
         const AVATAR_LIST = [
             "🍺", "🥂", "🍹", "🍷", "🍾", "🍻", "🥃", "🍸", "👑", "🦁",
             "🐯", "🐼", "🦄", "🐲", "👺", "🤡", "👻", "🤖", "👽", "🎃"
@@ -758,11 +785,8 @@
             return coords;
         }
 
-        /* ==========================================================================
-           3. GAME STATE & DUAL SCREEN PEERJS LOGIC
-           ========================================================================== */
         let gameState = {
-            playMode: 'host', // 'host' or 'single' or 'remote'
+            playMode: 'host',
             roomCode: '',
             playerCount: 4,
             diceCount: 1,
@@ -785,7 +809,6 @@
             selectDiceCount(1);
             selectTheme(1);
 
-            // Check URL parameters for remote auto-connect mode
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
             if (roomParam) {
@@ -794,6 +817,14 @@
                 initHostPeerServer();
             }
         };
+
+        function openDonateModal() {
+            document.getElementById("donate-modal").classList.remove("hidden");
+        }
+
+        function closeDonateModal() {
+            document.getElementById("donate-modal").classList.add("hidden");
+        }
 
         function selectPlayMode(mode) {
             gameState.playMode = mode;
@@ -825,7 +856,6 @@
             peer.on('open', (id) => {
                 document.getElementById("remote-conn-status").innerText = "🟢 พร้อมเชื่อมต่อ! รอเครื่องที่ 2 สแกน...";
                 
-                // Generate QR Code with absolute URL including ?room=XXXX
                 const currentUrl = window.location.href.split('?')[0];
                 const connectUrl = `${currentUrl}?room=${randomCode}`;
                 
@@ -852,7 +882,6 @@
                     }
                 });
 
-                // Send current player info immediately
                 broadcastStateToRemote();
             });
 
@@ -935,9 +964,6 @@
             }
         }
 
-        /* ==========================================================================
-           4. SETUP & GAME CONTROLS
-           ========================================================================== */
         function updatePlayerCount(val) {
             const count = parseInt(val);
             gameState.playerCount = count;
@@ -1020,9 +1046,6 @@
             }
         }
 
-        /* ==========================================================================
-           5. GAME START & BOARD GENERATION
-           ========================================================================== */
         function startGame() {
             soundFX.init();
             soundFX.playLand();
@@ -1343,9 +1366,6 @@
             });
         }
 
-        /* ==========================================================================
-           6. DICE ROLLING MECHANICS
-           ========================================================================== */
         function handleRollDice() {
             if (gameState.isRolling) return;
 
@@ -1493,9 +1513,6 @@
             }, 200);
         }
 
-        /* ==========================================================================
-           7. MODALS & TURN MANAGEMENT
-           ========================================================================== */
         function handleLandedTile(player) {
             soundFX.playLand();
             const map = gameState.activeMap;
