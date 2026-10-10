@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Online Multiplayer & Video Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Active Room Browser Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -14,6 +14,8 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- MQTT.js for Real-time Room Discovery Lobby -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -190,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">ONLINE MULTIPLAYER & VIDEO</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">ACTIVE ROOM BROWSER</p>
             </div>
         </div>
 
@@ -211,10 +213,6 @@
                 <span class="hidden sm:inline">สนับสนุน</span>
             </button>
 
-            <button id="btn-toggle-view" onclick="toggleViewMode()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs font-bold flex items-center gap-1">
-                <i id="view-icon" class="fa-solid fa-table-cells-large"></i>
-                <span id="view-label">มุมมองการ์ด</span>
-            </button>
             <button id="btn-sound-toggle" onclick="toggleSound()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition border border-slate-700/70 text-xs font-bold flex items-center gap-1">
                 <i id="sound-icon" class="fa-solid fa-volume-high"></i>
                 <span class="hidden sm:inline">เสียง</span>
@@ -237,10 +235,10 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-globe mr-1"></i> รองรับการเล่นออนไลน์ต่างสถานที่ + เห็นหน้ากันสดๆ
+                    <i class="fa-solid fa-globe mr-1"></i> ค้นหาห้องออนไลน์สดๆ + เห็นหน้าเปิดกล้อง
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกโหมดการเล่น สร้างหรือเข้าร่วมห้องปาร์ตี้!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกห้องที่มีผู้เล่นออนไลน์อยู่ หรือสร้างห้องใหม่ได้เลย!</p>
             </div>
 
             <div class="space-y-5">
@@ -253,15 +251,15 @@
                         <button type="button" onclick="selectPlayMode('online_host')" id="mode-btn-online-host" class="p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2">
                             <div class="text-2xl">🌐</div>
                             <div>
-                                <div class="text-xs sm:text-sm font-bold text-yellow-400">สร้างห้องออนไลน์ (Host)</div>
-                                <div class="text-[10px] text-slate-300 font-normal">เล่นกับเพื่อนต่างสถานที่ + กล้อง</div>
+                                <div class="text-xs sm:text-sm font-bold text-yellow-400">สร้างห้องใหม่ (Host)</div>
+                                <div class="text-[10px] text-slate-300 font-normal">เปิดห้องรอเพื่อนออนไลน์เข้ามาเล่น</div>
                             </div>
                         </button>
                         <button type="button" onclick="selectPlayMode('online_join')" id="mode-btn-online-join" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700">
                             <div class="text-2xl">🔗</div>
                             <div>
                                 <div class="text-xs sm:text-sm font-bold text-white">จอยห้องเพื่อน (Join)</div>
-                                <div class="text-[10px] text-slate-400 font-normal">กรอกรหัสห้องเพื่อร่วมเล่น</div>
+                                <div class="text-[10px] text-slate-400 font-normal">เลือกห้องออนไลน์หรือกรอกรหัส</div>
                             </div>
                         </button>
                         <button type="button" onclick="selectPlayMode('single')" id="mode-btn-single" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700">
@@ -285,7 +283,7 @@
 
                     <!-- Online Room Join Input Box -->
                     <div id="join-room-box" class="hidden mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 space-y-2">
-                        <label class="block text-xs font-bold text-yellow-400">กรอกรหัสห้อง 4 หลักจากเพื่อนที่เป็น Host</label>
+                        <label class="block text-xs font-bold text-yellow-400">กรอกรหัสห้อง 4 หลักจากเพื่อน หรือคลิกเลือกจากรายการห้องด้านล่าง</label>
                         <div class="flex gap-2">
                             <input type="text" id="input-join-room-code" placeholder="เช่น 1234" maxlength="4" class="px-3 py-2 bg-slate-800 text-white rounded-xl font-bold border border-slate-700 text-center tracking-widest text-lg w-32 focus:outline-none focus:border-yellow-400">
                             <button type="button" onclick="joinOnlineRoom()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition">
@@ -294,6 +292,25 @@
                         </div>
                         <div id="join-status-text" class="text-[11px] text-slate-400">กรอกรหัสแล้วกดปุ่มเพื่อเข้าร่วม</div>
                     </div>
+
+                    <!-- LIVE ACTIVE ROOMS BROWSER -->
+                    <div class="mt-4 pt-3 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <i class="fa-solid fa-server text-yellow-400"></i> รายการห้องออนไลน์ที่เปิดอยู่สดๆ (Active Public Rooms)
+                            </label>
+                            <button type="button" onclick="requestLobbyRefresh()" class="text-xs text-yellow-400 hover:text-yellow-300 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-right"></i> รีเฟรชรายการ
+                            </button>
+                        </div>
+
+                        <div id="public-room-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <div class="text-xs text-slate-500 italic text-center py-3 bg-slate-950/50 rounded-xl border border-slate-800/50">
+                                ⏳ กำลังค้นหาห้องออนไลน์ในระบบ...
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- STEP 1: Player Count & Dice Setup -->
@@ -301,7 +318,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-300">
-                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นในวง
+                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นในห้อง
                             </label>
                             <span id="player-count-display" class="text-yellow-400 font-extrabold text-base">4 คน</span>
                         </div>
@@ -696,20 +713,29 @@
             isRolling: false,
             pendingAutoMove: 0,
             history: [],
-            totalRoundCounter: 0,
-            viewMode: 'grid'
+            totalRoundCounter: 0
         };
 
         let peer = null;
-        let connections = []; // Data connections to other players
+        let connections = []; // PeerJS Data connections
         let localMediaStream = null;
         let isCamOn = false;
         let isMicOn = false;
+
+        // --- MQTT PUBLIC ROOMS LOBBY DISCOVERY ---
+        let mqttClient = null;
+        const activeRoomsMap = new Map(); // roomCode -> roomInfo object
+        let hostPingInterval = null;
+
+        const MQTT_TOPIC_ANNOUNCE = "drinking-game-v2/lobby/announcements";
+        const MQTT_TOPIC_QUERY = "drinking-game-v2/lobby/query";
 
         window.onload = function() {
             renderPlayerSetupRows(4);
             selectDiceCount(1);
             selectTheme(1);
+
+            initMqttLobbyDiscovery();
 
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
@@ -719,7 +745,125 @@
             } else {
                 selectPlayMode('online_host');
             }
+
+            // Cleanup offline rooms every 4 seconds
+            setInterval(cleanExpiredRooms, 4000);
         };
+
+        function initMqttLobbyDiscovery() {
+            try {
+                mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+                    clientId: 'drink_client_' + Math.random().toString(16).substr(2, 8),
+                    keepalive: 30
+                });
+
+                mqttClient.on('connect', () => {
+                    mqttClient.subscribe(MQTT_TOPIC_ANNOUNCE);
+                    mqttClient.subscribe(MQTT_TOPIC_QUERY);
+                    requestLobbyRefresh();
+                });
+
+                mqttClient.on('message', (topic, message) => {
+                    try {
+                        const data = JSON.parse(message.toString());
+                        if (topic === MQTT_TOPIC_ANNOUNCE && data.roomCode) {
+                            data.lastSeen = Date.now();
+                            activeRoomsMap.set(data.roomCode, data);
+                            renderActivePublicRooms();
+                        } else if (topic === MQTT_TOPIC_QUERY && gameState.isHost && gameState.roomCode) {
+                            broadcastRoomAnnouncement();
+                        }
+                    } catch (e) { }
+                });
+            } catch (err) {
+                console.warn("MQTT discovery unavailable:", err);
+            }
+        }
+
+        function broadcastRoomAnnouncement() {
+            if (!mqttClient || !mqttClient.connected || !gameState.isHost || !gameState.roomCode) return;
+            const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "Host";
+            const payload = {
+                roomCode: gameState.roomCode,
+                hostName: myName || "Host",
+                currentPlayers: gameState.players.length > 0 ? gameState.players.length : 1,
+                maxPlayers: gameState.playerCount,
+                mapName: gameState.activeMap.name,
+                isGaming: document.getElementById("game-screen").classList.contains("flex")
+            };
+            mqttClient.publish(MQTT_TOPIC_ANNOUNCE, JSON.stringify(payload));
+        }
+
+        function requestLobbyRefresh() {
+            if (mqttClient && mqttClient.connected) {
+                mqttClient.publish(MQTT_TOPIC_QUERY, JSON.stringify({ action: 'GET_ROOMS' }));
+            }
+        }
+
+        function cleanExpiredRooms() {
+            const now = Date.now();
+            let changed = false;
+            activeRoomsMap.forEach((info, code) => {
+                if (now - info.lastSeen > 8000) { // 8s timeout
+                    activeRoomsMap.delete(code);
+                    changed = true;
+                }
+            });
+            if (changed) renderActivePublicRooms();
+        }
+
+        function renderActivePublicRooms() {
+            const container = document.getElementById("public-room-list");
+            if (!container) return;
+
+            if (activeRoomsMap.size === 0) {
+                container.innerHTML = `
+                    <div class="text-xs text-slate-500 italic text-center py-3 bg-slate-950/50 rounded-xl border border-slate-800/50">
+                        ยังไม่พบห้องออนไลน์ในระบบ คุณสามารถสร้างห้องใหม่คนแรกได้เลย!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = "";
+            activeRoomsMap.forEach((room) => {
+                const isFull = room.currentPlayers >= room.maxPlayers;
+                const card = document.createElement("div");
+                card.className = "flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-yellow-500/50 transition";
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-yellow-500/20 text-yellow-400 font-black px-2.5 py-1 rounded-lg text-xs border border-yellow-500/30">
+                            #${room.roomCode}
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <span>ห้องของ ${room.hostName}</span>
+                                ${room.isGaming ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 rounded">กำลังเล่นอยู่</span>' : '<span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 rounded">รอผู้เล่น</span>'}
+                            </div>
+                            <div class="text-[10px] text-slate-400">
+                                ด่าน: ${room.mapName}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold ${isFull ? 'text-rose-400' : 'text-yellow-400'}">
+                            <i class="fa-solid fa-users text-[10px]"></i> ${room.currentPlayers}/${room.maxPlayers}
+                        </span>
+                        <button type="button" onclick="quickJoinRoom('${room.roomCode}')" ${isFull ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg ${isFull ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black hover:brightness-110 active:scale-95'} text-xs transition">
+                            ${isFull ? 'เต็มแล้ว' : 'เข้าร่วม (Join)'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function quickJoinRoom(roomCode) {
+            selectPlayMode('online_join');
+            document.getElementById("input-join-room-code").value = roomCode;
+            joinOnlineRoom();
+        }
 
         function openDonateModal() { document.getElementById("donate-modal").classList.remove("hidden"); }
         function closeDonateModal() { document.getElementById("donate-modal").classList.add("hidden"); }
@@ -740,6 +884,8 @@
 
             qrBox.classList.add("hidden");
             joinBox.classList.add("hidden");
+
+            if (hostPingInterval) { clearInterval(hostPingInterval); hostPingInterval = null; }
 
             if (mode === 'online_host') {
                 btnHost.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
@@ -779,6 +925,10 @@
                     text: connectUrl, width: 84, height: 84,
                     colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.L
                 });
+
+                // Start periodic ping to MQTT public lobby
+                broadcastRoomAnnouncement();
+                hostPingInterval = setInterval(broadcastRoomAnnouncement, 3000);
             });
 
             peer.on('connection', (conn) => {
@@ -803,6 +953,8 @@
             gameState.roomCode = roomCode;
             if (peer) peer.destroy();
 
+            document.getElementById("join-status-text").innerHTML = "⏳ กำลังเชื่อมต่อกับห้อง #" + roomCode + "...";
+
             peer = new Peer();
             peer.on('open', (id) => {
                 gameState.myPeerId = id;
@@ -812,7 +964,6 @@
                 conn.on('open', () => {
                     connections = [conn];
                     document.getElementById("join-status-text").innerHTML = "🟢 เชื่อมต่อเข้าห้องเล่นเกมออนไลน์สำเร็จ!";
-                    // Send my join request
                     const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "ผู้เล่นออนไลน์";
                     const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
                     
@@ -829,7 +980,7 @@
                 });
 
                 conn.on('error', (err) => {
-                    document.getElementById("join-status-text").innerHTML = "🔴 ไม่พบห้องเล่นเกม กรุณาตรวจสอบรหัสห้อง";
+                    document.getElementById("join-status-text").innerHTML = "🔴 ไม่พบห้องเล่นเกม กรุณาตรวจสอบรหัสห้องอีกครั้ง";
                 });
             });
 
@@ -849,7 +1000,6 @@
             if (!data) return;
 
             if (data.type === 'SYNC_STATE') {
-                // Client receives full synced state from Host
                 gameState.players = data.players;
                 gameState.currentPlayerIdx = data.currentPlayerIdx;
                 gameState.isRolling = data.isRolling;
@@ -859,7 +1009,6 @@
             } else if (data.type === 'ROLL_DICE_CMD') {
                 handleRollDice();
             } else if (data.type === 'JOIN_ROOM' && gameState.isHost) {
-                // Add joined player to roster
                 if (gameState.players.length < gameState.playerCount) {
                     const newIdx = gameState.players.length;
                     gameState.players.push({
@@ -867,14 +1016,10 @@
                         name: data.name || `ผู้เล่น ${newIdx + 1}`,
                         avatar: data.avatar || "🍺",
                         peerId: data.peerId,
-                        position: 0,
-                        laps: 0,
-                        skipTurns: 0,
-                        consecutiveDoubles: 0,
-                        drinksCount: 0,
-                        totalSteps: 0
+                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
                     });
                     broadcastStateToAll();
+                    broadcastRoomAnnouncement();
                     logHistory(`👥 [${data.name}] เข้าร่วมห้องเล่นเกม!`);
                 }
             }
@@ -909,7 +1054,6 @@
                     btnIcon.className = "fa-solid fa-video text-green-400";
                     btnLabel.innerText = "เปิดอยู่";
 
-                    // Call all connected remote peers to send video stream
                     connections.forEach(conn => {
                         if (conn.peer) {
                             const call = peer.call(conn.peer, localMediaStream);
@@ -975,6 +1119,7 @@
             document.getElementById("player-count-range").value = count;
             document.getElementById("player-count-display").innerText = `${count} คน`;
             renderPlayerSetupRows(count);
+            broadcastRoomAnnouncement();
         }
 
         function renderPlayerSetupRows(count) {
@@ -1036,6 +1181,7 @@
                 check1.className = "w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold"; check1.innerText = "";
                 check2.className = "w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-xs font-bold shadow"; check2.innerText = "✓";
             }
+            broadcastRoomAnnouncement();
         }
 
         function startGame() {
@@ -1061,7 +1207,6 @@
             document.getElementById("game-screen").classList.remove("hidden");
             document.getElementById("game-screen").classList.add("flex");
 
-            document.getElementById("btn-toggle-view").classList.remove("hidden");
             document.getElementById("btn-view-stats").classList.remove("hidden");
             document.getElementById("btn-reset-game").classList.remove("hidden");
 
@@ -1069,6 +1214,7 @@
             updateTurnUI();
             updateRosterBar();
             broadcastStateToAll();
+            broadcastRoomAnnouncement();
 
             logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่นออนไลน์ ${gameState.players.length} คน!`);
         }
