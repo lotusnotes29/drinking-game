@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">ACTIVE ROOM BROWSER</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">PROTECTED ROOM EDITION</p>
             </div>
         </div>
 
@@ -235,10 +235,10 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-globe mr-1"></i> ค้นหาห้องออนไลน์สดๆ + เห็นหน้าเปิดกล้อง
+                    <i class="fa-solid fa-lock mr-1"></i> ระบบห้องออนไลน์แบบใส่รหัสผ่านเพื่อเข้าร่วม
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกห้องที่มีผู้เล่นออนไลน์อยู่ หรือสร้างห้องใหม่ได้เลย!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกห้องออนไลน์จากรายการ ใส่รหัส 4 หลักเพื่อเข้าร่วมได้เลย!</p>
             </div>
 
             <div class="space-y-5">
@@ -259,7 +259,7 @@
                             <div class="text-2xl">🔗</div>
                             <div>
                                 <div class="text-xs sm:text-sm font-bold text-white">จอยห้องเพื่อน (Join)</div>
-                                <div class="text-[10px] text-slate-400 font-normal">เลือกห้องออนไลน์หรือกรอกรหัส</div>
+                                <div class="text-[10px] text-slate-400 font-normal">เลือกห้องออนไลน์และใส่รหัสเข้า</div>
                             </div>
                         </button>
                         <button type="button" onclick="selectPlayMode('single')" id="mode-btn-single" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700">
@@ -275,15 +275,15 @@
                     <div id="host-qr-box" class="mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 flex flex-col sm:flex-row items-center gap-4">
                         <div id="qrcode" class="bg-white p-2 rounded-lg flex-shrink-0"></div>
                         <div class="text-center sm:text-left space-y-1">
-                            <div class="text-xs text-yellow-400 font-bold">ส่งลิงก์ หรือ ให้เพื่อนสแกนเพื่อเข้าห้องนี้</div>
-                            <div class="text-xs text-slate-300">รหัสห้องเล่นเกมของคุณ: <span id="room-code-display" class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded font-black text-sm">----</span></div>
+                            <div class="text-xs text-yellow-400 font-bold">ส่งลิงก์ หรือ แจ้งรหัส 4 หลักให้เพื่อนเข้าห้อง</div>
+                            <div class="text-xs text-slate-300">รหัสผ่านสำหรับเข้าห้องของคุณ: <span id="room-code-display" class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded font-black text-sm tracking-wider">----</span></div>
                             <div id="remote-conn-status" class="text-[11px] text-slate-400 italic">⏳ กำลังสร้างห้องออนไลน์...</div>
                         </div>
                     </div>
 
                     <!-- Online Room Join Input Box -->
                     <div id="join-room-box" class="hidden mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 space-y-2">
-                        <label class="block text-xs font-bold text-yellow-400">กรอกรหัสห้อง 4 หลักจากเพื่อน หรือคลิกเลือกจากรายการห้องด้านล่าง</label>
+                        <label class="block text-xs font-bold text-yellow-400">กรอกรหัสห้อง 4 หลักจาก Host เพื่อเข้าร่วม</label>
                         <div class="flex gap-2">
                             <input type="text" id="input-join-room-code" placeholder="เช่น 1234" maxlength="4" class="px-3 py-2 bg-slate-800 text-white rounded-xl font-bold border border-slate-700 text-center tracking-widest text-lg w-32 focus:outline-none focus:border-yellow-400">
                             <button type="button" onclick="joinOnlineRoom()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition">
@@ -293,12 +293,12 @@
                         <div id="join-status-text" class="text-[11px] text-slate-400">กรอกรหัสแล้วกดปุ่มเพื่อเข้าร่วม</div>
                     </div>
 
-                    <!-- LIVE ACTIVE ROOMS BROWSER -->
+                    <!-- LIVE ACTIVE ROOMS BROWSER (NO PASSCODE SHOWN) -->
                     <div class="mt-4 pt-3 border-t border-slate-800/80">
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <i class="fa-solid fa-server text-yellow-400"></i> รายการห้องออนไลน์ที่เปิดอยู่สดๆ (Active Public Rooms)
+                                <i class="fa-solid fa-server text-yellow-400"></i> รายการห้องออนไลน์สดๆ (Active Public Rooms)
                             </label>
                             <button type="button" onclick="requestLobbyRefresh()" class="text-xs text-yellow-400 hover:text-yellow-300 font-semibold flex items-center gap-1">
                                 <i class="fa-solid fa-rotate-right"></i> รีเฟรชรายการ
@@ -311,6 +311,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- LIVE JOINED PLAYERS IN ROOM (HOST VIEW) -->
+                    <div id="joined-players-box" class="mt-4 pt-3 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-check"></i> ผู้เล่นในห้องขณะนี้ (<span id="joined-count">1</span>/<span id="joined-max">4</span> คน)
+                            </span>
+                            <span class="text-[10px] text-slate-400 italic">อัปเดตอัตโนมัติเมื่อมีคน join</span>
+                        </div>
+                        <div id="joined-players-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <!-- Dynamic cards of connected players -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- STEP 1: Player Count & Dice Setup -->
@@ -318,7 +331,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-300">
-                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นในห้อง
+                                <i class="fa-solid fa-users text-yellow-400 mr-1"></i> จำนวนผู้เล่นสูงสุดในห้อง
                             </label>
                             <span id="player-count-display" class="text-yellow-400 font-extrabold text-base">4 คน</span>
                         </div>
@@ -454,6 +467,28 @@
             </div>
         </section>
     </main>
+
+    <!-- PASSCODE MODAL FOR ROOM JOIN -->
+    <div id="passcode-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-sm glass-panel rounded-3xl p-5 text-center border-2 border-yellow-400 shadow-2xl animate-modal-pop relative">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-500/20 text-yellow-400 border border-yellow-400/40 flex items-center justify-center text-2xl mx-auto mb-2">
+                🔒
+            </div>
+            <h3 class="text-lg font-black text-white mb-1">กรอกรหัสผ่านเพื่อเข้าร่วม</h3>
+            <p id="passcode-host-name" class="text-xs text-yellow-400 font-bold mb-3">ห้องของ Host</p>
+            
+            <input type="text" id="modal-passcode-input" maxlength="4" placeholder="กรอกรหัส 4 หลัก" class="w-full py-3 bg-slate-900 text-yellow-400 font-black text-center text-2xl tracking-widest rounded-2xl border border-yellow-500/50 focus:outline-none focus:border-yellow-400 mb-4">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="closePasscodeModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    ยกเลิก
+                </button>
+                <button type="button" onclick="submitPasscodeJoin()" class="py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-xs transition shadow-lg shadow-yellow-500/20">
+                    ยืนยันเข้าห้อง
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- DONATE MODAL -->
     <div id="donate-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
@@ -736,17 +771,16 @@
             selectTheme(1);
 
             initMqttLobbyDiscovery();
+            renderSetupJoinedPlayers();
 
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
             if (roomParam) {
-                selectPlayMode('online_join');
-                document.getElementById("input-join-room-code").value = roomParam;
+                openPasscodeModal("ห้องจากแชร์ลิงก์");
             } else {
                 selectPlayMode('online_host');
             }
 
-            // Cleanup offline rooms every 4 seconds
             setInterval(cleanExpiredRooms, 4000);
         };
 
@@ -804,7 +838,7 @@
             const now = Date.now();
             let changed = false;
             activeRoomsMap.forEach((info, code) => {
-                if (now - info.lastSeen > 8000) { // 8s timeout
+                if (now - info.lastSeen > 8000) {
                     activeRoomsMap.delete(code);
                     changed = true;
                 }
@@ -812,6 +846,7 @@
             if (changed) renderActivePublicRooms();
         }
 
+        // RENDER ACTIVE ROOMS (WITHOUT SHOWING ROOM CODE PASSPHRASE)
         function renderActivePublicRooms() {
             const container = document.getElementById("public-room-list");
             if (!container) return;
@@ -819,7 +854,7 @@
             if (activeRoomsMap.size === 0) {
                 container.innerHTML = `
                     <div class="text-xs text-slate-500 italic text-center py-3 bg-slate-950/50 rounded-xl border border-slate-800/50">
-                        ยังไม่พบห้องออนไลน์ในระบบ คุณสามารถสร้างห้องใหม่คนแรกได้เลย!
+                        ยังไม่พบห้องออนไลน์ในระบบ คุณสามารถสร้างห้องใหม่เป็น Host คนแรกได้เลย!
                     </div>
                 `;
                 return;
@@ -833,8 +868,8 @@
                 
                 card.innerHTML = `
                     <div class="flex items-center gap-2.5">
-                        <div class="bg-yellow-500/20 text-yellow-400 font-black px-2.5 py-1 rounded-lg text-xs border border-yellow-500/30">
-                            #${room.roomCode}
+                        <div class="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-400 font-bold flex items-center justify-center text-sm border border-yellow-500/30">
+                            🏠
                         </div>
                         <div>
                             <div class="text-xs font-bold text-white flex items-center gap-1.5">
@@ -850,7 +885,7 @@
                         <span class="text-xs font-bold ${isFull ? 'text-rose-400' : 'text-yellow-400'}">
                             <i class="fa-solid fa-users text-[10px]"></i> ${room.currentPlayers}/${room.maxPlayers}
                         </span>
-                        <button type="button" onclick="quickJoinRoom('${room.roomCode}')" ${isFull ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg ${isFull ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black hover:brightness-110 active:scale-95'} text-xs transition">
+                        <button type="button" onclick="openPasscodeModal('${room.hostName}')" ${isFull ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg ${isFull ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black hover:brightness-110 active:scale-95'} text-xs transition">
                             ${isFull ? 'เต็มแล้ว' : 'เข้าร่วม (Join)'}
                         </button>
                     </div>
@@ -859,10 +894,58 @@
             });
         }
 
-        function quickJoinRoom(roomCode) {
+        // PASSCODE MODAL LOGIC FOR JOINING
+        function openPasscodeModal(hostName) {
+            document.getElementById("passcode-host-name").innerText = `ห้องของ: ${hostName}`;
+            document.getElementById("modal-passcode-input").value = "";
+            document.getElementById("passcode-modal").classList.remove("hidden");
+            document.getElementById("modal-passcode-input").focus();
+        }
+
+        function closePasscodeModal() {
+            document.getElementById("passcode-modal").classList.add("hidden");
+        }
+
+        function submitPasscodeJoin() {
+            const code = document.getElementById("modal-passcode-input").value.trim();
+            if (!code || code.length < 4) {
+                alert("กรุณากรอกรหัสผ่าน 4 หลักให้ครบถ้วน");
+                return;
+            }
+            closePasscodeModal();
             selectPlayMode('online_join');
-            document.getElementById("input-join-room-code").value = roomCode;
+            document.getElementById("input-join-room-code").value = code;
             joinOnlineRoom();
+        }
+
+        // RENDER LIVE JOINED PLAYERS IN SETUP SCREEN
+        function renderSetupJoinedPlayers() {
+            const listEl = document.getElementById("joined-players-list");
+            const countEl = document.getElementById("joined-count");
+            const maxEl = document.getElementById("joined-max");
+            if (!listEl) return;
+
+            countEl.innerText = gameState.players.length;
+            maxEl.innerText = gameState.playerCount;
+
+            listEl.innerHTML = "";
+            if (gameState.players.length === 0) {
+                listEl.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-2">ยังไม่มีใครเข้ามาในห้อง</div>`;
+                return;
+            }
+
+            gameState.players.forEach((p, idx) => {
+                const card = document.createElement("div");
+                card.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-yellow-500/30";
+                card.innerHTML = `
+                    <span class="text-xl">${p.avatar}</span>
+                    <div class="truncate">
+                        <div class="text-xs font-bold text-white truncate">${p.name}</div>
+                        <div class="text-[9px] text-yellow-400">${idx === 0 ? '👑 เจ้าของห้อง (Host)' : '🟢 เข้าร่วมแล้ว'}</div>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
         }
 
         function openDonateModal() { document.getElementById("donate-modal").classList.remove("hidden"); }
@@ -909,12 +992,21 @@
             gameState.roomCode = randomCode;
             document.getElementById("room-code-display").innerText = randomCode;
 
+            // Host initialize players roster with self
+            const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "Host";
+            const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
+            gameState.players = [{
+                id: 0, name: myName, avatar: myAvatar,
+                position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+            }];
+            renderSetupJoinedPlayers();
+
             const peerId = `drink-room-${randomCode}-host`;
             peer = new Peer(peerId);
 
             peer.on('open', (id) => {
                 gameState.myPeerId = id;
-                document.getElementById("remote-conn-status").innerText = "🟢 ห้องออนไลน์พร้อมใช้งาน! รอเพื่อนเชื่อมต่อ...";
+                document.getElementById("remote-conn-status").innerText = "🟢 ห้องออนไลน์พร้อมใช้งาน! แจ้งรหัส 4 หลักให้เพื่อนเข้าได้เลย";
                 
                 const currentUrl = window.location.href.split('?')[0];
                 const connectUrl = `${currentUrl}?room=${randomCode}`;
@@ -926,14 +1018,13 @@
                     colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.L
                 });
 
-                // Start periodic ping to MQTT public lobby
                 broadcastRoomAnnouncement();
                 hostPingInterval = setInterval(broadcastRoomAnnouncement, 3000);
             });
 
             peer.on('connection', (conn) => {
                 connections.push(conn);
-                document.getElementById("remote-conn-status").innerText = `🎉 เพื่อนร่วมห้องเชื่อมต่อแล้ว (${connections.length} คน)`;
+                document.getElementById("remote-conn-status").innerText = `🎉 มีเพื่อนเข้ามาเชื่อมต่อแล้ว (${connections.length} คน)`;
 
                 conn.on('data', (data) => {
                     handleIncomingNetworkData(data, conn);
@@ -953,7 +1044,7 @@
             gameState.roomCode = roomCode;
             if (peer) peer.destroy();
 
-            document.getElementById("join-status-text").innerHTML = "⏳ กำลังเชื่อมต่อกับห้อง #" + roomCode + "...";
+            document.getElementById("join-status-text").innerHTML = "⏳ กำลังเชื่อมต่อกับห้องออนไลน์...";
 
             peer = new Peer();
             peer.on('open', (id) => {
@@ -963,7 +1054,7 @@
 
                 conn.on('open', () => {
                     connections = [conn];
-                    document.getElementById("join-status-text").innerHTML = "🟢 เชื่อมต่อเข้าห้องเล่นเกมออนไลน์สำเร็จ!";
+                    document.getElementById("join-status-text").innerHTML = "🟢 เชื่อมต่อเข้าห้องออนไลน์สำเร็จ!";
                     const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "ผู้เล่นออนไลน์";
                     const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
                     
@@ -980,7 +1071,7 @@
                 });
 
                 conn.on('error', (err) => {
-                    document.getElementById("join-status-text").innerHTML = "🔴 ไม่พบห้องเล่นเกม กรุณาตรวจสอบรหัสห้องอีกครั้ง";
+                    document.getElementById("join-status-text").innerHTML = "🔴 ไม่พบห้อง หรือรหัสผ่านไม่ถูกต้อง";
                 });
             });
 
@@ -1004,6 +1095,7 @@
                 gameState.currentPlayerIdx = data.currentPlayerIdx;
                 gameState.isRolling = data.isRolling;
                 gameState.totalRoundCounter = data.totalRoundCounter;
+                renderSetupJoinedPlayers();
                 updateTurnUI();
                 updatePlayerTokensPosition();
             } else if (data.type === 'ROLL_DICE_CMD') {
@@ -1018,6 +1110,7 @@
                         peerId: data.peerId,
                         position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
                     });
+                    renderSetupJoinedPlayers();
                     broadcastStateToAll();
                     broadcastRoomAnnouncement();
                     logHistory(`👥 [${data.name}] เข้าร่วมห้องเล่นเกม!`);
@@ -1119,6 +1212,7 @@
             document.getElementById("player-count-range").value = count;
             document.getElementById("player-count-display").innerText = `${count} คน`;
             renderPlayerSetupRows(count);
+            renderSetupJoinedPlayers();
             broadcastRoomAnnouncement();
         }
 
