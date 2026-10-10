@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Real Online Room Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Double Dice Rules Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">REAL ONLINE ROOM EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">DOUBLE DICE RULES EDITION</p>
             </div>
         </div>
 
@@ -534,7 +534,7 @@
             <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 my-3 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
                 <p id="modal-tile-desc">คำสั่งประจำช่องนี้จะปรากฏที่นี่...</p>
             </div>
-            <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition">
+            <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition cursor-pointer">
                 จัดไป! (ส่งคิวต่อ)
             </button>
         </div>
@@ -1042,7 +1042,7 @@
             
             gameState.players = [{
                 id: 0, name: myName || "Host", avatar: myAvatar, peerId: '',
-                position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+                position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0, hasExtraTurn: false
             }];
             renderSetupJoinedPlayers();
 
@@ -1165,6 +1165,23 @@
                 }
             } else if (data.type === 'TRIGGER_ROLL' && !gameState.isHost) {
                 handleRollDice(data.rolls);
+            } else if (data.type === 'REQ_FINISH_TURN' && gameState.isHost) {
+                const activePlayer = gameState.players[gameState.currentPlayerIdx];
+                if (activePlayer && (activePlayer.peerId === data.peerId || !activePlayer.peerId)) {
+                    document.getElementById("tile-modal").classList.add("hidden");
+                    if (activePlayer.hasExtraTurn) {
+                        activePlayer.hasExtraTurn = false;
+                        updateTurnUI();
+                        updatePlayerTokensPosition();
+                        broadcastStateToAll();
+                        broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+                    } else {
+                        advanceTurn();
+                        broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+                    }
+                }
+            } else if (data.type === 'CLOSE_TILE_MODAL') {
+                document.getElementById("tile-modal").classList.add("hidden");
             } else if (data.type === 'JOIN_ROOM' && gameState.isHost) {
                 if (gameState.players.length < gameState.playerCount) {
                     const newIdx = gameState.players.length;
@@ -1173,7 +1190,7 @@
                         name: data.name || `ผู้เล่น ${newIdx + 1}`,
                         avatar: data.avatar || "🍺",
                         peerId: data.peerId,
-                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0, hasExtraTurn: false
                     });
                     renderSetupJoinedPlayers();
                     broadcastStateToAll();
@@ -1399,7 +1416,7 @@
                     const avatarSel = document.getElementById(`p-avatar-${i}`) ? document.getElementById(`p-avatar-${i}`).value : "🍺";
                     gameState.players.push({
                         id: i, name: nameInput || `ผู้เล่น ${i + 1}`, avatar: avatarSel,
-                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0, hasExtraTurn: false
                     });
                 }
             } else if (gameState.playMode === 'online_host') {
@@ -1560,9 +1577,10 @@
                 } else if (myTurn) {
                     rollBtn.disabled = false;
                     rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2 cursor-pointer animate-pulse";
-                    rollBtn.innerHTML = `<i class="fa-solid fa-dice-five text-base sm:text-lg"></i> <span>ถึงตาคุณแล้ว! ทอยลูกเต๋า</span>`;
+                    const btnText = player.hasExtraTurn ? "ทอยลูกเต๋า (ได้ทอยต่ออีกตา! 🎲)" : "ถึงตาคุณแล้ว! ทอยลูกเต๋า";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-dice-five text-base sm:text-lg"></i> <span>${btnText}</span>`;
                     if (statusTag) statusTag.innerText = "👉 ตาคุณแล้ว!";
-                    if (titleLabel) titleLabel.innerText = "ถึงตาของคุณแล้ว!";
+                    if (titleLabel) titleLabel.innerText = player.hasExtraTurn ? "ได้สิทธิ์ทอยเบิ้ลเพิ่มอีกตา!" : "ถึงตาของคุณแล้ว!";
                 } else {
                     rollBtn.disabled = true;
                     rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-slate-800/90 text-slate-400 font-extrabold text-xs sm:text-base border border-slate-700/80 opacity-70 cursor-not-allowed flex items-center gap-2";
@@ -1674,9 +1692,29 @@
             const sum = rolls.reduce((a, b) => a + b, 0);
             const player = gameState.players[gameState.currentPlayerIdx];
 
+            // ตรวจสอบกฎการทอยได้เลขเบิ้ล (เฉพาะเมื่อมีลูกเต๋า 2 ลูกขึ้นไป)
+            const isDouble = (rolls.length > 1) && rolls.every(val => val === rolls[0]);
+
+            if (isDouble) {
+                player.consecutiveDoubles = (player.consecutiveDoubles || 0) + 1;
+                if (player.consecutiveDoubles >= 3) {
+                    player.drinksCount = (player.drinksCount || 0) + 1; // ลงโทษดื่มเพิ่ม 1 ช็อต
+                    player.consecutiveDoubles = 0;
+                    player.hasExtraTurn = false;
+                    player.tripleDoublePenalty = true;
+                } else {
+                    player.hasExtraTurn = true;
+                    player.tripleDoublePenalty = false;
+                }
+            } else {
+                player.consecutiveDoubles = 0;
+                player.hasExtraTurn = false;
+                player.tripleDoublePenalty = false;
+            }
+
             animatePlayerSteps(player, sum, () => {
                 gameState.isRolling = false;
-                handleLandedTile(player);
+                handleLandedTile(player, isDouble);
                 if (gameState.isHost) {
                     broadcastStateToAll();
                 }
@@ -1693,7 +1731,7 @@
 
                 if (player.position === 0) {
                     player.laps = (player.laps || 0) + 1;
-                    player.drinksCount = (player.drinksCount || 0) + 1; // ชนแก้วครบรอบ +1 ดื่ม
+                    player.drinksCount = (player.drinksCount || 0) + 1;
                     gameState.totalRoundCounter++;
                     document.getElementById("total-laps-stat").innerText = `รอบวงรวม: ${gameState.totalRoundCounter}`;
                     logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง (+1 ดื่ม)!`);
@@ -1711,12 +1749,11 @@
             }, 200);
         }
 
-        function handleLandedTile(player) {
+        function handleLandedTile(player, isDouble) {
             soundFX.playLand();
             const map = gameState.activeMap;
             const tile = map.tiles[player.position];
 
-            // คำนวณจำนวนดื่มตามคำสั่งช่อง
             let addDrinks = 0;
             const title = tile.title || "";
             if (title.includes("3 ช็อต")) addDrinks = 3;
@@ -1730,24 +1767,68 @@
                 player.drinksCount = (player.drinksCount || 0) + addDrinks;
             }
 
-            logHistory(`📌 [${player.name}] ตกช่อง #${player.position} "${tile.title}"`);
-            openTileModal(player, tile);
+            let extraNotice = "";
+            if (player.tripleDoublePenalty) {
+                extraNotice = `<div class="mt-2.5 p-2 bg-rose-500/20 border border-rose-500/50 rounded-xl text-rose-300 font-extrabold text-xs animate-pulse">⚠️ ทอยได้เลขเบิ้ลครั้งที่ 3 ติดกัน! โดนทำโทษดื่มเพิ่ม 1 ช็อต (+1) และจบเทิร์นทันที!</div>`;
+                logHistory(`🚨 [${player.name}] ทอยเบิ้ล 3 ครั้งติด! โดนดื่มเพิ่ม 1 ช็อตและจบเทิร์น!`);
+            } else if (isDouble) {
+                extraNotice = `<div class="mt-2.5 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-xl text-yellow-300 font-extrabold text-xs">🎲 ทอยได้เลขเบิ้ล (ครั้งที่ ${player.consecutiveDoubles}/3)! คุณได้รับสิทธิ์ทอยลูกเต๋าเพิ่มอีก 1 ตา!</div>`;
+                logHistory(`🎲 [${player.name}] ทอยเบิ้ล (${player.consecutiveDoubles}/3)! ได้สิทธิ์ทอยต่ออีกตา`);
+            } else {
+                logHistory(`📌 [${player.name}] ตกช่อง #${player.position} "${tile.title}"`);
+            }
+
+            openTileModal(player, tile, extraNotice);
         }
 
-        function openTileModal(player, tile) {
+        function openTileModal(player, tile, extraNotice = "") {
             document.getElementById("modal-player-avatar").innerText = player.avatar;
             document.getElementById("modal-player-name").innerText = player.name;
             document.getElementById("modal-tile-icon").innerText = tile.icon;
             document.getElementById("modal-tile-title").innerText = tile.title;
-            document.getElementById("modal-tile-desc").innerText = tile.desc;
+            document.getElementById("modal-tile-desc").innerHTML = tile.desc + (extraNotice || "");
+
+            const confirmBtn = document.getElementById("modal-confirm-btn");
+            const myTurn = isMyTurn();
+
+            if (myTurn) {
+                confirmBtn.disabled = false;
+                confirmBtn.className = "w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition cursor-pointer";
+                confirmBtn.innerHTML = player.hasExtraTurn ? `จัดไป! (ทอยเบิ้ล - ได้ทอยต่ออีกตา 🎲)` : `จัดไป! (ส่งคิวต่อ)`;
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.className = "w-full py-3 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-sm sm:text-base tracking-wide border border-slate-700 opacity-70 cursor-not-allowed";
+                confirmBtn.innerHTML = `⏳ รอ ${player.name} กดจบเทิร์น...`;
+            }
 
             document.getElementById("tile-modal").classList.remove("hidden");
         }
 
         function closeTileModal() {
+            if (!isMyTurn()) return;
+
             document.getElementById("tile-modal").classList.add("hidden");
+
             if (gameState.isHost) {
-                advanceTurn();
+                const player = gameState.players[gameState.currentPlayerIdx];
+                if (player && player.hasExtraTurn) {
+                    player.hasExtraTurn = false; // ปลดล็อกเพื่อรอผลการทอยรอบถัดไป
+                    updateTurnUI();
+                    updatePlayerTokensPosition();
+                    broadcastStateToAll();
+                    broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+                } else {
+                    advanceTurn();
+                    broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+                }
+            } else {
+                // เครื่องลูกส่งสัญญาณขอจบเทิร์นไปยัง Host
+                if (connections[0] && connections[0].open) {
+                    connections[0].send({
+                        type: 'REQ_FINISH_TURN',
+                        peerId: gameState.myPeerId
+                    });
+                }
             }
         }
 
@@ -1809,7 +1890,6 @@
         function confirmReturnToLobby() {
             closeLobbyConfirmModal();
             
-            // ปิดสตรีมกล้อง/ไมค์ถ้าเปิดไว้
             if (localMediaStream) {
                 localMediaStream.getTracks().forEach(track => track.stop());
                 localMediaStream = null;
@@ -1818,24 +1898,20 @@
             const localVid = document.getElementById("local-video");
             if (localVid) localVid.srcObject = null;
 
-            // ปิดการเชื่อมต่อ PeerJS
             if (peer) {
                 peer.destroy();
                 peer = null;
             }
             connections = [];
 
-            // ซ่อนปุ่มบน Header
             document.getElementById("btn-view-stats").classList.add("hidden");
             document.getElementById("btn-return-lobby").classList.add("hidden");
             document.getElementById("btn-reset-game").classList.add("hidden");
 
-            // สลับการแสดงผลกลับสู่หน้า Setup
             document.getElementById("game-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("flex");
             document.getElementById("setup-screen").classList.remove("hidden");
 
-            // รีเซ็ตโหมดเริ่มต้น
             selectPlayMode('online_host');
         }
 
