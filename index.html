@@ -221,6 +221,11 @@
                 <i class="fa-solid fa-trophy text-yellow-400"></i>
                 <span class="hidden sm:inline">ลำดับ</span>
             </button>
+            <!-- LOBBY RETURN BUTTON -->
+            <button id="btn-return-lobby" onclick="openLobbyConfirmModal()" class="hidden p-2 sm:px-3 sm:py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 transition border border-amber-500/40 text-xs font-bold flex items-center gap-1">
+                <i class="fa-solid fa-house text-yellow-400"></i>
+                <span class="hidden sm:inline">กลับ Lobby</span>
+            </button>
             <button id="btn-reset-game" onclick="openConfirmModal()" class="hidden p-2 sm:px-3 sm:py-2 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 transition border border-rose-800/60 text-xs font-bold flex items-center gap-1">
                 <i class="fa-solid fa-rotate-left"></i>
                 <span class="hidden sm:inline">รีเซ็ต</span>
@@ -541,7 +546,7 @@
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-trophy text-yellow-400 text-lg"></i>
-                    <h3 class="text-base font-extrabold text-white">ตารางสรุปผลนักดื่ม</h3>
+                    <h3 class="text-base font-extrabold text-white">ตารางสรุปผลและรายงานจำนวนดื่ม</h3>
                 </div>
                 <button onclick="closeStatsModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark"></i>
@@ -552,6 +557,19 @@
                 <button onclick="closeStatsModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
                     ปิดหน้าต่าง
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETURN LOBBY CONFIRM MODAL -->
+    <div id="lobby-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="w-full max-w-sm glass-panel rounded-3xl p-5 text-center border border-amber-500/80 shadow-2xl animate-modal-pop">
+            <div class="text-4xl my-2">🏠</div>
+            <h3 class="text-lg font-extrabold text-white mb-2">ต้องการย้อนกลับไปหน้า Lobby?</h3>
+            <p class="text-xs text-slate-300 mb-4">การออกจากห้องเล่นจะยุติเกมปัจจุบัน และกลับไปหน้าตั้งค่าสร้าง/จอยห้อง</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeLobbyConfirmModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">ยกเลิก</button>
+                <button onclick="confirmReturnToLobby()" class="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition">ยืนยันกลับ Lobby</button>
             </div>
         </div>
     </div>
@@ -1022,7 +1040,6 @@
             const myName = myNameInput ? myNameInput.value.trim() : "Host";
             const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
             
-            // Online Host contains ONLY Host initially
             gameState.players = [{
                 id: 0, name: myName || "Host", avatar: myAvatar, peerId: '',
                 position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
@@ -1134,6 +1151,7 @@
                     document.getElementById("game-screen").classList.remove("hidden");
                     document.getElementById("game-screen").classList.add("flex");
                     document.getElementById("btn-view-stats").classList.remove("hidden");
+                    document.getElementById("btn-return-lobby").classList.remove("hidden");
                     document.getElementById("btn-reset-game").classList.remove("hidden");
                     renderFullGridBoard();
                 }
@@ -1400,6 +1418,7 @@
             document.getElementById("game-screen").classList.add("flex");
 
             document.getElementById("btn-view-stats").classList.remove("hidden");
+            document.getElementById("btn-return-lobby").classList.remove("hidden");
             document.getElementById("btn-reset-game").classList.remove("hidden");
 
             renderFullGridBoard();
@@ -1570,7 +1589,7 @@
                     <span class="text-base sm:text-lg">${p.avatar}</span>
                     <div class="text-left">
                         <div class="text-[10px] font-extrabold ${isCurrent ? 'text-yellow-400' : 'text-slate-200'} truncate max-w-[85px]">${p.name}</div>
-                        <div class="text-[9px] text-slate-400">ช่อง #${p.position}</div>
+                        <div class="text-[9px] text-amber-400 font-bold">🍺 ${p.drinksCount || 0} ดื่ม (ช่อง #${p.position})</div>
                     </div>
                 `;
                 container.appendChild(badge);
@@ -1670,13 +1689,14 @@
 
             const stepTimer = setInterval(() => {
                 player.position = (player.position + 1) % totalTiles;
-                player.totalSteps++;
+                player.totalSteps = (player.totalSteps || 0) + 1;
 
                 if (player.position === 0) {
-                    player.laps++;
+                    player.laps = (player.laps || 0) + 1;
+                    player.drinksCount = (player.drinksCount || 0) + 1; // ชนแก้วครบรอบ +1 ดื่ม
                     gameState.totalRoundCounter++;
                     document.getElementById("total-laps-stat").innerText = `รอบวงรวม: ${gameState.totalRoundCounter}`;
-                    logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง!`);
+                    logHistory(`🏁 [${player.name}] ครบรอบที่ ${player.laps}! ชนแก้วฉลอง (+1 ดื่ม)!`);
                 }
 
                 soundFX.playStep();
@@ -1695,6 +1715,20 @@
             soundFX.playLand();
             const map = gameState.activeMap;
             const tile = map.tiles[player.position];
+
+            // คำนวณจำนวนดื่มตามคำสั่งช่อง
+            let addDrinks = 0;
+            const title = tile.title || "";
+            if (title.includes("3 ช็อต")) addDrinks = 3;
+            else if (title.includes("2 ช็อต") || title.includes("2 ขวด")) addDrinks = 2;
+            else if (title.includes("1 ช็อต") || title.includes("1 ขวด")) addDrinks = 1;
+            else if (title.includes("ครึ่ง")) addDrinks = 0.5;
+            else if (title.includes("หมดแก้ว")) addDrinks = 2;
+            else if (tile.type === 'drink' || tile.type === 'sip' || tile.type === 'action' || tile.type === 'start' || tile.type === 'group') addDrinks = 1;
+
+            if (addDrinks > 0) {
+                player.drinksCount = (player.drinksCount || 0) + addDrinks;
+            }
 
             logHistory(`📌 [${player.name}] ตกช่อง #${player.position} "${tile.title}"`);
             openTileModal(player, tile);
@@ -1736,18 +1770,23 @@
         function openStatsModal() {
             const container = document.getElementById("stats-list-container");
             container.innerHTML = "";
-            const sorted = [...gameState.players].sort((a, b) => b.drinksCount - a.drinksCount);
+            const sorted = [...gameState.players].sort((a, b) => (b.drinksCount || 0) - (a.drinksCount || 0));
 
             sorted.forEach((p, idx) => {
                 const item = document.createElement("div");
-                item.className = "flex items-center justify-between bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800";
+                item.className = "flex items-center justify-between bg-slate-900/90 p-3 rounded-2xl border border-slate-800 hover:border-yellow-500/40 transition";
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5">
-                        <span class="font-extrabold text-xs text-yellow-400 w-4">#${idx + 1}</span>
-                        <span class="text-xl sm:text-2xl">${p.avatar}</span>
+                        <span class="font-black text-sm text-yellow-400 w-5">#${idx + 1}</span>
+                        <span class="text-2xl">${p.avatar}</span>
                         <div>
                             <div class="font-extrabold text-white text-xs sm:text-sm truncate max-w-[130px]">${p.name}</div>
-                            <div class="text-[10px] text-slate-400">เดิน ${p.totalSteps} ช่อง (${p.laps} รอบ)</div>
+                            <div class="text-[10px] text-slate-400">เดิน ${p.totalSteps || 0} ช่อง (${p.laps || 0} รอบ)</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs sm:text-sm font-black text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/30">
+                            🍺 ${p.drinksCount || 0} ดื่ม
                         </div>
                     </div>
                 `;
@@ -1757,13 +1796,55 @@
         }
 
         function closeStatsModal() { document.getElementById("stats-modal").classList.add("hidden"); }
+
+        // --- LOBBY RETURN CONTROLS ---
+        function openLobbyConfirmModal() {
+            document.getElementById("lobby-confirm-modal").classList.remove("hidden");
+        }
+
+        function closeLobbyConfirmModal() {
+            document.getElementById("lobby-confirm-modal").classList.add("hidden");
+        }
+
+        function confirmReturnToLobby() {
+            closeLobbyConfirmModal();
+            
+            // ปิดสตรีมกล้อง/ไมค์ถ้าเปิดไว้
+            if (localMediaStream) {
+                localMediaStream.getTracks().forEach(track => track.stop());
+                localMediaStream = null;
+                isCamOn = false;
+            }
+            const localVid = document.getElementById("local-video");
+            if (localVid) localVid.srcObject = null;
+
+            // ปิดการเชื่อมต่อ PeerJS
+            if (peer) {
+                peer.destroy();
+                peer = null;
+            }
+            connections = [];
+
+            // ซ่อนปุ่มบน Header
+            document.getElementById("btn-view-stats").classList.add("hidden");
+            document.getElementById("btn-return-lobby").classList.add("hidden");
+            document.getElementById("btn-reset-game").classList.add("hidden");
+
+            // สลับการแสดงผลกลับสู่หน้า Setup
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("flex");
+            document.getElementById("setup-screen").classList.remove("hidden");
+
+            // รีเซ็ตโหมดเริ่มต้น
+            selectPlayMode('online_host');
+        }
+
         function openConfirmModal() { document.getElementById("confirm-modal").classList.remove("hidden"); }
         function closeConfirmModal() { document.getElementById("confirm-modal").classList.add("hidden"); }
 
         function resetGameToSetup() {
             closeConfirmModal();
-            document.getElementById("game-screen").classList.add("hidden");
-            document.getElementById("setup-screen").classList.remove("hidden");
+            confirmReturnToLobby();
         }
     </script>
 </body>
