@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Active Room Browser Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Protected & Strict Turn Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">PROTECTED ROOM EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">STRICT TURN AUTHORITY EDITION</p>
             </div>
         </div>
 
@@ -235,10 +235,10 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-lock mr-1"></i> ระบบห้องออนไลน์แบบใส่รหัสผ่านเพื่อเข้าร่วม
+                    <i class="fa-solid fa-shield-halved mr-1"></i> ล็อกปุ่มทอยลูกเต๋าตรงตามคิวของผู้เล่น
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">เลือกห้องออนไลน์จากรายการ ใส่รหัส 4 หลักเพื่อเข้าร่วมได้เลย!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">ตั้งชื่อกลุ่ม / เลือกห้อง และลุยความสนุกได้เลย!</p>
             </div>
 
             <div class="space-y-5">
@@ -293,7 +293,7 @@
                         <div id="join-status-text" class="text-[11px] text-slate-400">กรอกรหัสแล้วกดปุ่มเพื่อเข้าร่วม</div>
                     </div>
 
-                    <!-- LIVE ACTIVE ROOMS BROWSER (NO PASSCODE SHOWN) -->
+                    <!-- LIVE ACTIVE ROOMS BROWSER -->
                     <div class="mt-4 pt-3 border-t border-slate-800/80">
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
@@ -312,13 +312,13 @@
                         </div>
                     </div>
 
-                    <!-- LIVE JOINED PLAYERS IN ROOM (HOST VIEW) -->
+                    <!-- LIVE JOINED PLAYERS IN ROOM -->
                     <div id="joined-players-box" class="mt-4 pt-3 border-t border-slate-800/80">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
                                 <i class="fa-solid fa-user-check"></i> ผู้เล่นในห้องขณะนี้ (<span id="joined-count">1</span>/<span id="joined-max">4</span> คน)
                             </span>
-                            <span class="text-[10px] text-slate-400 italic">อัปเดตอัตโนมัติเมื่อมีคน join</span>
+                            <span class="text-[10px] text-slate-400 italic">อัปเดตชื่อสดๆ ทันที</span>
                         </div>
                         <div id="joined-players-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             <!-- Dynamic cards of connected players -->
@@ -746,7 +746,6 @@
             currentPlayerIdx: 0,
             activeMap: MAP_1_DATA,
             isRolling: false,
-            pendingAutoMove: 0,
             history: [],
             totalRoundCounter: 0
         };
@@ -759,7 +758,7 @@
 
         // --- MQTT PUBLIC ROOMS LOBBY DISCOVERY ---
         let mqttClient = null;
-        const activeRoomsMap = new Map(); // roomCode -> roomInfo object
+        const activeRoomsMap = new Map();
         let hostPingInterval = null;
 
         const MQTT_TOPIC_ANNOUNCE = "drinking-game-v2/lobby/announcements";
@@ -816,10 +815,10 @@
 
         function broadcastRoomAnnouncement() {
             if (!mqttClient || !mqttClient.connected || !gameState.isHost || !gameState.roomCode) return;
-            const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "Host";
+            const myName = (gameState.players[0] && gameState.players[0].name) ? gameState.players[0].name : "Host";
             const payload = {
                 roomCode: gameState.roomCode,
-                hostName: myName || "Host",
+                hostName: myName,
                 currentPlayers: gameState.players.length > 0 ? gameState.players.length : 1,
                 maxPlayers: gameState.playerCount,
                 mapName: gameState.activeMap.name,
@@ -846,7 +845,6 @@
             if (changed) renderActivePublicRooms();
         }
 
-        // RENDER ACTIVE ROOMS (WITHOUT SHOWING ROOM CODE PASSPHRASE)
         function renderActivePublicRooms() {
             const container = document.getElementById("public-room-list");
             if (!container) return;
@@ -894,7 +892,6 @@
             });
         }
 
-        // PASSCODE MODAL LOGIC FOR JOINING
         function openPasscodeModal(hostName) {
             document.getElementById("passcode-host-name").innerText = `ห้องของ: ${hostName}`;
             document.getElementById("modal-passcode-input").value = "";
@@ -918,7 +915,6 @@
             joinOnlineRoom();
         }
 
-        // RENDER LIVE JOINED PLAYERS IN SETUP SCREEN
         function renderSetupJoinedPlayers() {
             const listEl = document.getElementById("joined-players-list");
             const countEl = document.getElementById("joined-count");
@@ -985,6 +981,35 @@
             }
         }
 
+        // --- REAL-TIME PLAYER NAME & AVATAR EDIT LISTENERS ---
+        function updatePlayerName(idx, val) {
+            const cleanName = val.trim() || `ผู้เล่น ${idx + 1}`;
+            if (!gameState.players[idx]) {
+                gameState.players[idx] = {
+                    id: idx, name: cleanName, avatar: "🍺",
+                    position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+                };
+            } else {
+                gameState.players[idx].name = cleanName;
+            }
+
+            renderSetupJoinedPlayers();
+            if (gameState.isHost) {
+                broadcastStateToAll();
+                broadcastRoomAnnouncement();
+            }
+        }
+
+        function updatePlayerAvatar(idx, val) {
+            if (gameState.players[idx]) {
+                gameState.players[idx].avatar = val;
+            }
+            renderSetupJoinedPlayers();
+            if (gameState.isHost) {
+                broadcastStateToAll();
+            }
+        }
+
         // --- WEBRTC & PEERJS NETWORKING ---
         function initHostOnlineRoom() {
             if (peer) peer.destroy();
@@ -992,11 +1017,12 @@
             gameState.roomCode = randomCode;
             document.getElementById("room-code-display").innerText = randomCode;
 
-            // Host initialize players roster with self
-            const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "Host";
+            const myNameInput = document.getElementById("p-name-0");
+            const myName = myNameInput ? myNameInput.value.trim() : "Host";
             const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
+            
             gameState.players = [{
-                id: 0, name: myName, avatar: myAvatar,
+                id: 0, name: myName || "Host", avatar: myAvatar, peerId: '',
                 position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
             }];
             renderSetupJoinedPlayers();
@@ -1006,6 +1032,8 @@
 
             peer.on('open', (id) => {
                 gameState.myPeerId = id;
+                if (gameState.players[0]) gameState.players[0].peerId = id;
+
                 document.getElementById("remote-conn-status").innerText = "🟢 ห้องออนไลน์พร้อมใช้งาน! แจ้งรหัส 4 หลักให้เพื่อนเข้าได้เลย";
                 
                 const currentUrl = window.location.href.split('?')[0];
@@ -1055,12 +1083,13 @@
                 conn.on('open', () => {
                     connections = [conn];
                     document.getElementById("join-status-text").innerHTML = "🟢 เชื่อมต่อเข้าห้องออนไลน์สำเร็จ!";
-                    const myName = document.getElementById("p-name-0") ? document.getElementById("p-name-0").value : "ผู้เล่นออนไลน์";
+                    const myNameInput = document.getElementById("p-name-0");
+                    const myName = myNameInput ? myNameInput.value.trim() : "ผู้เล่นออนไลน์";
                     const myAvatar = document.getElementById("p-avatar-0") ? document.getElementById("p-avatar-0").value : "🍺";
                     
                     conn.send({
                         type: 'JOIN_ROOM',
-                        name: myName,
+                        name: myName || "ผู้เล่นออนไลน์",
                         avatar: myAvatar,
                         peerId: id
                     });
@@ -1098,8 +1127,13 @@
                 renderSetupJoinedPlayers();
                 updateTurnUI();
                 updatePlayerTokensPosition();
-            } else if (data.type === 'ROLL_DICE_CMD') {
-                handleRollDice();
+            } else if (data.type === 'REQ_ROLL_DICE' && gameState.isHost) {
+                const activePlayer = gameState.players[gameState.currentPlayerIdx];
+                if (activePlayer && (activePlayer.peerId === data.peerId || data.peerId)) {
+                    handleRollDice();
+                }
+            } else if (data.type === 'TRIGGER_ROLL' && !gameState.isHost) {
+                handleRollDice(data.rolls);
             } else if (data.type === 'JOIN_ROOM' && gameState.isHost) {
                 if (gameState.players.length < gameState.playerCount) {
                     const newIdx = gameState.players.length;
@@ -1129,6 +1163,12 @@
 
             connections.forEach(conn => {
                 if (conn && conn.open) conn.send(statePayload);
+            });
+        }
+
+        function broadcastToAll(dataPayload) {
+            connections.forEach(conn => {
+                if (conn && conn.open) conn.send(dataPayload);
             });
         }
 
@@ -1205,7 +1245,19 @@
             }
         }
 
-        // --- GAMEPLAY CONTROLS & UI ---
+        // --- GAMEPLAY CONTROLS & TURN CHECKING ---
+        function isMyTurn() {
+            if (gameState.playMode === 'single') return true;
+            const activePlayer = gameState.players[gameState.currentPlayerIdx];
+            if (!activePlayer) return false;
+
+            if (gameState.isHost) {
+                return activePlayer.peerId === gameState.myPeerId || gameState.currentPlayerIdx === 0;
+            } else {
+                return activePlayer.peerId === gameState.myPeerId;
+            }
+        }
+
         function updatePlayerCount(val) {
             const count = parseInt(val);
             gameState.playerCount = count;
@@ -1228,12 +1280,19 @@
                 row.className = "flex items-center gap-2 bg-slate-900/90 p-2 rounded-xl border border-slate-800";
                 row.innerHTML = `
                     <div class="w-6 text-center font-black text-xs text-yellow-400">#${i + 1}</div>
-                    <select id="p-avatar-${i}" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
+                    <select id="p-avatar-${i}" onchange="updatePlayerAvatar(${i}, this.value)" class="bg-slate-800 text-lg sm:text-xl border border-slate-700 text-white rounded-xl px-2 py-1 cursor-pointer">
                         ${AVATAR_LIST.map((emoji) => `<option value="${emoji}" ${emoji === defaultAvatar ? 'selected' : ''}>${emoji}</option>`).join('')}
                     </select>
-                    <input type="text" id="p-name-${i}" value="${defaultName}" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
+                    <input type="text" id="p-name-${i}" value="${defaultName}" oninput="updatePlayerName(${i}, this.value)" placeholder="ชื่อผู้เล่น ${i + 1}" maxlength="16" class="flex-grow bg-slate-800 text-slate-100 text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-700/80 focus:outline-none focus:border-yellow-400">
                 `;
                 container.appendChild(row);
+
+                if (!gameState.players[i]) {
+                    gameState.players[i] = {
+                        id: i, name: defaultName, avatar: defaultAvatar,
+                        position: 0, laps: 0, skipTurns: 0, consecutiveDoubles: 0, drinksCount: 0, totalSteps: 0
+                    };
+                }
             }
         }
 
@@ -1241,7 +1300,10 @@
             const count = gameState.playerCount;
             for (let i = 0; i < count; i++) {
                 const nameInput = document.getElementById(`p-name-${i}`);
-                if (nameInput) nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
+                if (nameInput) {
+                    nameInput.value = DEFAULT_NAMES[i] || `ผู้เล่น ${i + 1}`;
+                    updatePlayerName(i, nameInput.value);
+                }
             }
         }
 
@@ -1281,7 +1343,7 @@
         function startGame() {
             soundFX.init(); soundFX.playLand();
 
-            if (gameState.players.length === 0 || gameState.playMode === 'single') {
+            if (gameState.playMode === 'single') {
                 gameState.players = [];
                 for (let i = 0; i < gameState.playerCount; i++) {
                     const nameInput = document.getElementById(`p-name-${i}`).value.trim();
@@ -1310,7 +1372,7 @@
             broadcastStateToAll();
             broadcastRoomAnnouncement();
 
-            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่นออนไลน์ ${gameState.players.length} คน!`);
+            logHistory(`🚀 เริ่มต้นด่าน "${gameState.activeMap.name}" ผู้เล่น ${gameState.players.length} คน!`);
         }
 
         function renderFullGridBoard() {
@@ -1356,7 +1418,7 @@
                         <div id="current-player-avatar-box" class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-slate-800 border-2 border-yellow-400 flex items-center justify-center text-xl sm:text-2xl shadow-md animate-bounce-short">🍺</div>
                         <div class="text-left">
                             <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
-                                <span>ถึงคิวของคุณแล้ว!</span>
+                                <span id="turn-title-label">ถึงคิวทอยลูกเต๋า!</span>
                                 <span id="turn-sequence-tag" class="text-[9px] bg-yellow-500/20 text-yellow-300 px-1 py-0.2 rounded font-extrabold">คิวที่ 1/4</span>
                             </div>
                             <div id="current-player-name" class="text-xs sm:text-base font-black text-yellow-400 truncate max-w-[120px] sm:max-w-[200px]">ผู้เล่น 1</div>
@@ -1370,7 +1432,7 @@
                         <div class="dice-3d">1</div>
                     </div>
                     <div id="roll-result-text" class="text-xs sm:text-sm font-extrabold text-slate-300 min-h-[18px]">กดปุ่มทอยลูกเต๋าเพื่อเดิน!</div>
-                    <button id="btn-roll-dice" onclick="handleRollDice()" class="mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
+                    <button id="btn-roll-dice" onclick="requestRollDice()" class="mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
                         <i class="fa-solid fa-dice-five text-base sm:text-lg"></i>
                         <span>ทอยลูกเต๋า</span>
                     </button>
@@ -1429,6 +1491,32 @@
             document.getElementById("current-player-name").innerText = player.name;
             document.getElementById("turn-sequence-tag").innerText = `คิวที่ ${gameState.currentPlayerIdx + 1}/${gameState.players.length}`;
 
+            const rollBtn = document.getElementById("btn-roll-dice");
+            const statusTag = document.getElementById("current-player-status");
+            const titleLabel = document.getElementById("turn-title-label");
+            const myTurn = isMyTurn();
+
+            if (rollBtn) {
+                if (gameState.isRolling) {
+                    rollBtn.disabled = true;
+                    rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-xs sm:text-base border border-slate-700 opacity-60 cursor-not-allowed flex items-center gap-2";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>กำลังทอยลูกเต๋า...</span>`;
+                    if (statusTag) statusTag.innerText = "🎲 กำลังหมุน...";
+                } else if (myTurn) {
+                    rollBtn.disabled = false;
+                    rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-xs sm:text-base tracking-wide shadow-xl shadow-yellow-500/30 hover:brightness-110 active:scale-95 transition flex items-center gap-2 cursor-pointer animate-pulse";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-dice-five text-base sm:text-lg"></i> <span>ถึงตาคุณแล้ว! ทอยลูกเต๋า</span>`;
+                    if (statusTag) statusTag.innerText = "👉 ตาคุณแล้ว!";
+                    if (titleLabel) titleLabel.innerText = "ถึงตาของคุณแล้ว!";
+                } else {
+                    rollBtn.disabled = true;
+                    rollBtn.className = "mt-2 px-6 sm:px-10 py-2.5 sm:py-3 rounded-2xl bg-slate-800/90 text-slate-400 font-extrabold text-xs sm:text-base border border-slate-700/80 opacity-70 cursor-not-allowed flex items-center gap-2";
+                    rollBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> <span>รอ ${player.name} ทอยลูกเต๋า...</span>`;
+                    if (statusTag) statusTag.innerText = `⏳ ตาของ ${player.name}`;
+                    if (titleLabel) titleLabel.innerText = `กำลังรอผู้เล่นทอย...`;
+                }
+            }
+
             updateRosterBar();
         }
 
@@ -1453,29 +1541,63 @@
             });
         }
 
-        function handleRollDice() {
+        function requestRollDice() {
+            if (gameState.isRolling) return;
+            if (!isMyTurn()) {
+                alert("ยังไม่ถึงตาของคุณ! กรุณารอเพื่อนทอยก่อนนะครับ");
+                return;
+            }
+
+            if (gameState.isHost) {
+                handleRollDice();
+            } else {
+                if (connections[0] && connections[0].open) {
+                    connections[0].send({
+                        type: 'REQ_ROLL_DICE',
+                        peerId: gameState.myPeerId
+                    });
+                }
+            }
+        }
+
+        function handleRollDice(forcedRolls = null) {
             if (gameState.isRolling) return;
             gameState.isRolling = true;
-            broadcastStateToAll();
 
-            soundFX.playRoll();
-            let rolls = [];
-            let ticks = 0;
-            const diceBox = document.getElementById("dice-display-box");
-
-            if (diceBox) diceBox.classList.add("animate-dice-shake");
-
-            const interval = setInterval(() => {
+            let rolls = forcedRolls;
+            if (!rolls) {
                 rolls = [];
                 for (let d = 0; d < gameState.diceCount; d++) {
                     rolls.push(Math.floor(Math.random() * 6) + 1);
                 }
-                renderDiceFaces(rolls);
+            }
+
+            if (gameState.isHost) {
+                broadcastToAll({
+                    type: 'TRIGGER_ROLL',
+                    rolls: rolls
+                });
+            }
+
+            updateTurnUI();
+            soundFX.playRoll();
+
+            let ticks = 0;
+            const diceBox = document.getElementById("dice-display-box");
+            if (diceBox) diceBox.classList.add("animate-dice-shake");
+
+            const interval = setInterval(() => {
+                let tempRolls = [];
+                for (let d = 0; d < gameState.diceCount; d++) {
+                    tempRolls.push(Math.floor(Math.random() * 6) + 1);
+                }
+                renderDiceFaces(tempRolls);
                 ticks++;
 
                 if (ticks >= 8) {
                     clearInterval(interval);
                     if (diceBox) diceBox.classList.remove("animate-dice-shake");
+                    renderDiceFaces(rolls);
                     finalizeDiceRoll(rolls);
                 }
             }, 75);
@@ -1500,7 +1622,9 @@
             animatePlayerSteps(player, sum, () => {
                 gameState.isRolling = false;
                 handleLandedTile(player);
-                broadcastStateToAll();
+                if (gameState.isHost) {
+                    broadcastStateToAll();
+                }
             });
         }
 
@@ -1552,7 +1676,9 @@
 
         function closeTileModal() {
             document.getElementById("tile-modal").classList.add("hidden");
-            advanceTurn();
+            if (gameState.isHost) {
+                advanceTurn();
+            }
         }
 
         function advanceTurn() {
