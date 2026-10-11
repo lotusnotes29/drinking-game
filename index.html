@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Complete Rules & Dual Device Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Complete Rules & Bug Fixed Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">TARGET & DUAL DEVICE EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">TARGET & SYNC FIXED EDITION</p>
             </div>
         </div>
 
@@ -714,7 +714,7 @@
                 { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตสบายๆ" },
                 { title: "ดื่ม 1 ช็อต", icon: "🥃", type: "drink", desc: "จัดไป 1 ช็อตเน้นๆ" },
                 { title: "ดื่มรอบวง", icon: "🍻", type: "group", desc: "ชนแก้วรอบวง! ยกพร้อมกันทุกคน!" },
-                { title: "เดินไปอีก 4 ช่อง", icon: "🚀", type: "automove", desc: "โชคดีสุดๆ! เดินหน้าเพิ่มทันที 4 ช่อง!", autoMove: 4 },
+                { title: "เดินไปอีก 4 ช่อง", icon: "🚀", type: "automove", desc: "โชคดีสุดๆ! ได้เดินหน้าเพิ่มทันที 4 ช่อง!", autoMove: 4 },
                 { title: "จิบเบาๆ", icon: "🍹", type: "sip", desc: "จิบเบาๆ ชิลๆ" },
                 { title: "ให้คนข้างขวาดื่ม 1 ช็อต", icon: "👉", type: "action", desc: "หันขวาแล้วชี้! คนข้างขวาดื่ม 1 ช็อต" },
                 { title: "ดื่ม 3 ช็อต", icon: "💥", type: "heavy", desc: "โดนหนัก! ดื่มเอง 3 ช็อต!" },
@@ -736,7 +736,7 @@
             rules: ["1. ไม่เมาห้ามเลิก", "2. เลิกเล่น เสียเบียร์ 5 ขวด", "3. ลุกเข้าห้องน้ำ ยกเบียร์หมดแก้ว", "4. รินเบียร์หกยกครึ่งแก้ว"],
             tiles: [
                 { title: "เริ่มเกมส์ ชนแก้ว ยกหมดแก้ว", icon: "🍻", type: "start", desc: "เริ่มเปิดวงเบียร์! ชนแก้วร่วมกันแล้วยกหมดแก้วแรก!" },
-                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "วาร์ปไปข้างหน้า! เดินเพิ่มทันที 3 ช่อง", autoMove: 3 },
+                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "วาร์ปไปข้างหน้า! ได้เดินเพิ่มทันที 3 ช่อง", autoMove: 3 },
                 { title: "รินเบียร์รอบวง", icon: "🍺", type: "serve", desc: "เด็กเชียร์เบียร์! เดินรินเบียร์ให้เพื่อนๆ ทุกคนในวง" },
                 { title: "สิทธิ์พิเศษพัก 1 ตา", icon: "🛑", type: "skip", desc: "ได้พักคอ! สิทธิ์พักผ่อน ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
                 { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "ส่งแก้วให้คนซ้ายมือ ดื่มเบียร์ 1 อึกใหญ่!" },
@@ -747,7 +747,7 @@
                 { title: "เลือกเพื่อนดื่มด้วย 3 คน", icon: "👨‍👩‍👧‍👦", type: "group", desc: "เลือกเพื่อน 3 คนยกแก้วดื่มพร้อมกัน" },
                 { title: "ผู้หญิงดื่มรอบวง", icon: "👩", type: "group", desc: "สาวๆ สดใส! สาวๆ ทุกคนในวงยกดื่มพร้อมกัน 1 จิบ" },
                 { title: "ยกหมดแก้ว", icon: "🍺", type: "heavy", desc: "สายเพรียว! ยกเบียร์ให้หมดแก้วเลย" },
-                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "สปีดแรง! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
+                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "สปีดแรง! ได้เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
                 { title: "ให้คนซ้ายมือดื่ม", icon: "👈", type: "action", desc: "จัดไป! คนซ้ายมือดื่มเบียร์ 1 อึกใหญ่" },
                 { title: "พัก 2 ตา", icon: "😴", type: "corner", desc: "มุมสลบแป๊บ! ได้พักผ่อนข้ามการทอยลูกเต๋า 2 ตาติด!", skipTurns: 2 },
                 { title: "ผู้ชายหมดแก้วรอบวง", icon: "👨", type: "group", desc: "หนุ่มๆ สายแข็ง! ผู้ชายทุกคนยกหมดแก้วพร้อมกัน!" },
@@ -755,7 +755,7 @@
                 { title: "สมทบค่าเบียร์ 1 ขวด", icon: "🍾", type: "tax", desc: "สายเปย์! ออกค่าเบียร์เพิ่ม 1 ขวด" },
                 { title: "พัก 1 ตา", icon: "🛌", type: "skip", desc: "พักผ่อนร่าง! ข้ามการเล่นในตาถัดไป 1 ตา", skipTurns: 1 },
                 { title: "รินเบียร์ให้เพื่อนๆ รอบวง", icon: "🍺", type: "serve", desc: "เด็กชงเบียร์ประจำวง! รินเบียร์เติมให้เพื่อนทุกคน" },
-                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "พุ่งทะยาน! เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
+                { title: "เดินหน้า 3 ช่อง", icon: "🚀", type: "automove", desc: "พุ่งทะยาน! ได้เดินหน้าเพิ่มทันที 3 ช่อง", autoMove: 3 },
                 { title: "เลือกเพื่อนดื่มด้วย 1 คน", icon: "🍻", type: "group", desc: "หาคู่ชน! เลือกเพื่อน 1 คนยกแก้วดื่มไปด้วยกัน" },
                 { title: "เสียเบียร์ 2 ขวด", icon: "🍺", type: "corner", desc: "มุมรับบทหนัก! เสียเบียร์ 2 ขวด และตักกับแกล้มกิน 2 คำ" },
                 { title: "ดื่มครึ่งแก้ว", icon: "🍷", type: "sip", desc: "ครึ่งแก้วพอดีๆ ดื่มเลย!" },
@@ -800,7 +800,8 @@
             isRolling: false,
             history: [],
             totalRoundCounter: 0,
-            pendingCommandDrinks: 0
+            pendingCommandDrinks: 0,
+            pendingAutoMove: 0
         };
 
         let peer = null;
@@ -1202,6 +1203,7 @@
             if (!data) return;
 
             if (data.type === 'SYNC_STATE') {
+                const prevTurn = gameState.currentPlayerIdx;
                 gameState.players = data.players;
                 gameState.currentPlayerIdx = data.currentPlayerIdx;
                 gameState.isRolling = data.isRolling;
@@ -1219,6 +1221,11 @@
                     renderFullGridBoard();
                 }
 
+                // ปิด Modal อัตโนมัติหากเทิร์นเปลี่ยนคิวไปแล้ว
+                if (prevTurn !== data.currentPlayerIdx) {
+                    document.getElementById("tile-modal").classList.add("hidden");
+                }
+
                 updateTurnUI();
                 updatePlayerTokensPosition();
             } else if (data.type === 'REQ_ROLL_DICE' && gameState.isHost) {
@@ -1231,27 +1238,7 @@
             } else if (data.type === 'REQ_FINISH_TURN' && gameState.isHost) {
                 const activePlayer = gameState.players[gameState.currentPlayerIdx];
                 if (activePlayer && (activePlayer.peerId === data.peerId || !activePlayer.peerId)) {
-                    // หากมีการเลือกเป้าหมายให้ดื่ม
-                    if (data.targetPlayerId !== undefined && data.targetPlayerId !== null) {
-                        const targetPlayer = gameState.players[data.targetPlayerId];
-                        const drinkAdd = data.drinksCount || 1;
-                        if (targetPlayer) {
-                            targetPlayer.drinksCount = (targetPlayer.drinksCount || 0) + drinkAdd;
-                            logHistory(`🎯 [${activePlayer.name}] สั่งให้ [${targetPlayer.name}] ดื่ม +${drinkAdd}!`);
-                        }
-                    }
-
-                    document.getElementById("tile-modal").classList.add("hidden");
-                    if (activePlayer.hasExtraTurn) {
-                        activePlayer.hasExtraTurn = false;
-                        updateTurnUI();
-                        updatePlayerTokensPosition();
-                        broadcastStateToAll();
-                        broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
-                    } else {
-                        advanceTurn();
-                        broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
-                    }
+                    processTurnCompletion(data.targetPlayerId, data.drinksCount);
                 }
             } else if (data.type === 'CLOSE_TILE_MODAL') {
                 document.getElementById("tile-modal").classList.add("hidden");
@@ -1832,13 +1819,19 @@
             let isCommandTile = false;
             let targetNotice = "";
             gameState.pendingCommandDrinks = 0;
+            gameState.pendingAutoMove = 0;
 
             const title = tile.title || "";
             const desc = tile.desc || "";
 
+            // 0. ตรวจสอบเงื่อนไขช่องเดินหน้าต่อ (Auto-Move / ช่องวาร์ป)
+            if (tile.type === 'automove' || tile.autoMove) {
+                gameState.pendingAutoMove = tile.autoMove || 3;
+                targetNotice = `<div class="mt-2.5 p-2 bg-cyan-500/20 border border-cyan-500/50 rounded-xl text-cyan-300 font-extrabold text-xs animate-pulse">🚀 วาร์ปพุ่งทะยาน! ได้รับสิทธิ์เดินหน้าต่ออีก ${gameState.pendingAutoMove} ช่องทันที!</div>`;
+                logHistory(`🚀 [${player.name}] ตกช่องวาร์ป! เตรียมเดินหน้าต่ออีก ${gameState.pendingAutoMove} ช่อง`);
+            }
             // 1. ตรวจสอบเงื่อนไขทิศทางตามเข็มนาฬิกา (คนข้างขวา / คนข้างซ้าย)
-            if (title.includes("คนข้างขวา") || desc.includes("คนข้างขวา") || title.includes("คนขวามือ")) {
-                // คนข้างขวาตามเข็มนาฬิกา = ผู้เล่นก่อนหน้า (Previous Player)
+            else if (title.includes("คนข้างขวา") || desc.includes("คนข้างขวา") || title.includes("คนขวามือ")) {
                 const rightIdx = (gameState.currentPlayerIdx - 1 + totalP) % totalP;
                 const rightPlayer = gameState.players[rightIdx];
                 let drinkQty = title.includes("2 ช็อต") ? 2 : 1;
@@ -1846,7 +1839,6 @@
                 targetNotice = `<div class="mt-2.5 p-2 bg-amber-500/20 border border-amber-500/50 rounded-xl text-amber-300 font-extrabold text-xs">👉 คนข้างขวาของคุณ (ผู้เล่นก่อนหน้า) คือ <b>[${rightPlayer.name}]</b> โดนจัดไป +${drinkQty} ดื่ม!</div>`;
                 logHistory(`👉 [${player.name}] สั่งคนข้างขวา [${rightPlayer.name}] ดื่ม +${drinkQty}!`);
             } else if (title.includes("คนข้างซ้าย") || desc.includes("คนข้างซ้าย") || title.includes("คนซ้ายมือ")) {
-                // คนข้างซ้ายตามเข็มนาฬิกา = ผู้เล่นคนถัดไป (Next Player)
                 const leftIdx = (gameState.currentPlayerIdx + 1) % totalP;
                 const leftPlayer = gameState.players[leftIdx];
                 let drinkQty = title.includes("2 ช็อต") ? 2 : 1;
@@ -1921,7 +1913,13 @@
             if (myTurn) {
                 confirmBtn.disabled = false;
                 confirmBtn.className = "w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition cursor-pointer";
-                confirmBtn.innerHTML = player.hasExtraTurn ? `จัดไป! (ทอยเบิ้ล - ได้ทอยต่ออีกตา 🎲)` : `จัดไป! (ส่งคิวต่อ)`;
+                if (gameState.pendingAutoMove > 0) {
+                    confirmBtn.innerHTML = `ลุยต่อ! (เดินหน้าอีก ${gameState.pendingAutoMove} ช่อง 🚀)`;
+                } else if (player.hasExtraTurn) {
+                    confirmBtn.innerHTML = `จัดไป! (ทอยเบิ้ล - ได้ทอยต่ออีกตา 🎲)`;
+                } else {
+                    confirmBtn.innerHTML = `จัดไป! (ส่งคิวต่อ)`;
+                }
             } else {
                 confirmBtn.disabled = true;
                 confirmBtn.className = "w-full py-3 rounded-2xl bg-slate-800 text-slate-500 font-extrabold text-sm sm:text-base tracking-wide border border-slate-700 opacity-70 cursor-not-allowed";
@@ -1946,28 +1944,8 @@
             document.getElementById("tile-modal").classList.add("hidden");
 
             if (gameState.isHost) {
-                const activePlayer = gameState.players[gameState.currentPlayerIdx];
-                if (chosenTargetId !== null && !isNaN(chosenTargetId)) {
-                    const targetPlayer = gameState.players[chosenTargetId];
-                    const qty = gameState.pendingCommandDrinks || 1;
-                    if (targetPlayer) {
-                        targetPlayer.drinksCount = (targetPlayer.drinksCount || 0) + qty;
-                        logHistory(`🎯 [${activePlayer.name}] เลือกสั่ง [${targetPlayer.name}] ดื่ม +${qty}!`);
-                    }
-                }
-
-                if (activePlayer && activePlayer.hasExtraTurn) {
-                    activePlayer.hasExtraTurn = false;
-                    updateTurnUI();
-                    updatePlayerTokensPosition();
-                    broadcastStateToAll();
-                    broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
-                } else {
-                    advanceTurn();
-                    broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
-                }
+                processTurnCompletion(chosenTargetId, gameState.pendingCommandDrinks);
             } else {
-                // เครื่องลูกส่งสัญญาณขอจบเทิร์นไปยัง Host พร้อมข้อมูลผู้เล่นที่เลือกให้ดื่ม
                 if (connections[0] && connections[0].open) {
                     connections[0].send({
                         type: 'REQ_FINISH_TURN',
@@ -1976,6 +1954,50 @@
                         drinksCount: gameState.pendingCommandDrinks || 1
                     });
                 }
+            }
+        }
+
+        function processTurnCompletion(targetPlayerId, customDrinksCount = null) {
+            const activePlayer = gameState.players[gameState.currentPlayerIdx];
+            if (!activePlayer) return;
+
+            // ปิด Modal ที่หน้าจอ Host / จอหลักเสมอ
+            document.getElementById("tile-modal").classList.add("hidden");
+
+            // 1. จัดการเพิ่มจำนวนดื่มให้ผู้เล่นเป้าหมาย (ถ้ามี)
+            if (targetPlayerId !== null && targetPlayerId !== undefined && !isNaN(targetPlayerId)) {
+                const targetPlayer = gameState.players[targetPlayerId];
+                const qty = customDrinksCount || gameState.pendingCommandDrinks || 1;
+                if (targetPlayer) {
+                    targetPlayer.drinksCount = (targetPlayer.drinksCount || 0) + qty;
+                    logHistory(`🎯 [${activePlayer.name}] เลือกสั่ง [${targetPlayer.name}] ดื่ม +${qty}!`);
+                }
+            }
+            gameState.pendingCommandDrinks = 0;
+
+            // 2. ตรวจสอบว่ามีคิวต้องเดินหน้าต่อจากช่องวาร์ป (Auto-Move) หรือไม่
+            if (gameState.pendingAutoMove > 0) {
+                const autoSteps = gameState.pendingAutoMove;
+                gameState.pendingAutoMove = 0;
+                broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+
+                animatePlayerSteps(activePlayer, autoSteps, () => {
+                    handleLandedTile(activePlayer, false);
+                    broadcastStateToAll();
+                });
+                return;
+            }
+
+            // 3. จัดการสิทธิ์ทอยเบิ้ล หรือส่งคิวต่อให้ผู้เล่นถัดไป
+            if (activePlayer.hasExtraTurn) {
+                activePlayer.hasExtraTurn = false;
+                updateTurnUI();
+                updatePlayerTokensPosition();
+                broadcastStateToAll();
+                broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
+            } else {
+                advanceTurn();
+                broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
             }
         }
 
