@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Complete Rules & Auto-Move Fixed Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Complete Rules & Bug Fixed Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">TARGET & AUTO-MOVE FIXED EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">TARGET & SYNC FIXED EDITION</p>
             </div>
         </div>
 
@@ -801,7 +801,7 @@
             history: [],
             totalRoundCounter: 0,
             pendingCommandDrinks: 0,
-            pendingAutoMove: 0 // บันทึกจำนวนช่องที่ต้องเดินต่อ (ถ้าตกช่อง automove)
+            pendingAutoMove: 0
         };
 
         let peer = null;
@@ -1203,6 +1203,7 @@
             if (!data) return;
 
             if (data.type === 'SYNC_STATE') {
+                const prevTurn = gameState.currentPlayerIdx;
                 gameState.players = data.players;
                 gameState.currentPlayerIdx = data.currentPlayerIdx;
                 gameState.isRolling = data.isRolling;
@@ -1220,6 +1221,11 @@
                     renderFullGridBoard();
                 }
 
+                // ปิด Modal อัตโนมัติหากเทิร์นเปลี่ยนคิวไปแล้ว
+                if (prevTurn !== data.currentPlayerIdx) {
+                    document.getElementById("tile-modal").classList.add("hidden");
+                }
+
                 updateTurnUI();
                 updatePlayerTokensPosition();
             } else if (data.type === 'REQ_ROLL_DICE' && gameState.isHost) {
@@ -1232,7 +1238,7 @@
             } else if (data.type === 'REQ_FINISH_TURN' && gameState.isHost) {
                 const activePlayer = gameState.players[gameState.currentPlayerIdx];
                 if (activePlayer && (activePlayer.peerId === data.peerId || !activePlayer.peerId)) {
-                    processTurnCompletion(data.targetPlayerId);
+                    processTurnCompletion(data.targetPlayerId, data.drinksCount);
                 }
             } else if (data.type === 'CLOSE_TILE_MODAL') {
                 document.getElementById("tile-modal").classList.add("hidden");
@@ -1813,7 +1819,7 @@
             let isCommandTile = false;
             let targetNotice = "";
             gameState.pendingCommandDrinks = 0;
-            gameState.pendingAutoMove = 0; // Reset autoMove
+            gameState.pendingAutoMove = 0;
 
             const title = tile.title || "";
             const desc = tile.desc || "";
@@ -1826,7 +1832,6 @@
             }
             // 1. ตรวจสอบเงื่อนไขทิศทางตามเข็มนาฬิกา (คนข้างขวา / คนข้างซ้าย)
             else if (title.includes("คนข้างขวา") || desc.includes("คนข้างขวา") || title.includes("คนขวามือ")) {
-                // คนข้างขวาตามเข็มนาฬิกา = ผู้เล่นก่อนหน้า (Previous Player)
                 const rightIdx = (gameState.currentPlayerIdx - 1 + totalP) % totalP;
                 const rightPlayer = gameState.players[rightIdx];
                 let drinkQty = title.includes("2 ช็อต") ? 2 : 1;
@@ -1834,7 +1839,6 @@
                 targetNotice = `<div class="mt-2.5 p-2 bg-amber-500/20 border border-amber-500/50 rounded-xl text-amber-300 font-extrabold text-xs">👉 คนข้างขวาของคุณ (ผู้เล่นก่อนหน้า) คือ <b>[${rightPlayer.name}]</b> โดนจัดไป +${drinkQty} ดื่ม!</div>`;
                 logHistory(`👉 [${player.name}] สั่งคนข้างขวา [${rightPlayer.name}] ดื่ม +${drinkQty}!`);
             } else if (title.includes("คนข้างซ้าย") || desc.includes("คนข้างซ้าย") || title.includes("คนซ้ายมือ")) {
-                // คนข้างซ้ายตามเข็มนาฬิกา = ผู้เล่นคนถัดไป (Next Player)
                 const leftIdx = (gameState.currentPlayerIdx + 1) % totalP;
                 const leftPlayer = gameState.players[leftIdx];
                 let drinkQty = title.includes("2 ช็อต") ? 2 : 1;
@@ -1940,9 +1944,8 @@
             document.getElementById("tile-modal").classList.add("hidden");
 
             if (gameState.isHost) {
-                processTurnCompletion(chosenTargetId);
+                processTurnCompletion(chosenTargetId, gameState.pendingCommandDrinks);
             } else {
-                // เครื่องลูกส่งสัญญาณขอจบเทิร์นไปยัง Host พร้อมข้อมูลผู้เล่นที่เลือกให้ดื่ม
                 if (connections[0] && connections[0].open) {
                     connections[0].send({
                         type: 'REQ_FINISH_TURN',
@@ -1954,14 +1957,17 @@
             }
         }
 
-        function processTurnCompletion(targetPlayerId) {
+        function processTurnCompletion(targetPlayerId, customDrinksCount = null) {
             const activePlayer = gameState.players[gameState.currentPlayerIdx];
             if (!activePlayer) return;
+
+            // ปิด Modal ที่หน้าจอ Host / จอหลักเสมอ
+            document.getElementById("tile-modal").classList.add("hidden");
 
             // 1. จัดการเพิ่มจำนวนดื่มให้ผู้เล่นเป้าหมาย (ถ้ามี)
             if (targetPlayerId !== null && targetPlayerId !== undefined && !isNaN(targetPlayerId)) {
                 const targetPlayer = gameState.players[targetPlayerId];
-                const qty = gameState.pendingCommandDrinks || 1;
+                const qty = customDrinksCount || gameState.pendingCommandDrinks || 1;
                 if (targetPlayer) {
                     targetPlayer.drinksCount = (targetPlayer.drinksCount || 0) + qty;
                     logHistory(`🎯 [${activePlayer.name}] เลือกสั่ง [${targetPlayer.name}] ดื่ม +${qty}!`);
@@ -1972,10 +1978,9 @@
             // 2. ตรวจสอบว่ามีคิวต้องเดินหน้าต่อจากช่องวาร์ป (Auto-Move) หรือไม่
             if (gameState.pendingAutoMove > 0) {
                 const autoSteps = gameState.pendingAutoMove;
-                gameState.pendingAutoMove = 0; // เคลียร์คิว
+                gameState.pendingAutoMove = 0;
                 broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
 
-                // ขับเคลื่อนอนิเมชันเดินหน้าต่อตามจำนวนช่องวาร์ป
                 animatePlayerSteps(activePlayer, autoSteps, () => {
                     handleLandedTile(activePlayer, false);
                     broadcastStateToAll();
