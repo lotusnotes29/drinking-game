@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมกระดานสายแข็งนักดื่ม - Double Dice Rules Edition</title>
+    <title>เกมกระดานสายแข็งนักดื่ม - Complete Rules & Dual Device Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Kanit -->
@@ -192,7 +192,7 @@
                 <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
                     สายแข็งนักดื่ม
                 </h1>
-                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">DOUBLE DICE RULES EDITION</p>
+                <p id="header-mode-title" class="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">TARGET & DUAL DEVICE EDITION</p>
             </div>
         </div>
 
@@ -240,10 +240,10 @@
         <section id="setup-screen" class="w-full max-w-3xl glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 my-auto">
             <div class="text-center mb-5">
                 <span class="inline-block px-3.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold tracking-wider uppercase mb-2">
-                    <i class="fa-solid fa-users-gear mr-1"></i> โหมดสร้างห้องออนไลน์และรอผู้เล่นจริง
+                    <i class="fa-solid fa-users-gear mr-1"></i> เลือกโหมดการเล่นและตั้งค่าผู้เล่น
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ตั้งค่าเกมกระดานสายแข็ง</h2>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">ตั้งชื่อตัวละคร / เลือกห้อง แล้วชวนเพื่อนออนไลน์เข้ามาจอยได้เลย!</p>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">เล่นผ่านอุปกรณ์เดียว สองอุปกรณ์ (กระดาน+รีโมท) หรือออนไลน์ข้ามบ้าน!</p>
             </div>
 
             <div class="space-y-5">
@@ -256,7 +256,7 @@
                         <button type="button" onclick="selectPlayMode('online_host')" id="mode-btn-online-host" class="p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2">
                             <div class="text-2xl">🌐</div>
                             <div>
-                                <div class="text-xs sm:text-sm font-bold text-yellow-400">สร้างห้องใหม่ (Host)</div>
+                                <div class="text-xs sm:text-sm font-bold text-yellow-400">สร้างห้องออนไลน์ (Host)</div>
                                 <div class="text-[10px] text-slate-300 font-normal">เปิดห้องรอเพื่อนออนไลน์เข้ามาเล่น</div>
                             </div>
                         </button>
@@ -270,17 +270,40 @@
                         <button type="button" onclick="selectPlayMode('single')" id="mode-btn-single" class="p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700">
                             <div class="text-2xl">📱</div>
                             <div>
-                                <div class="text-xs sm:text-sm font-bold text-white">เครื่องเดียว (Pass & Play)</div>
-                                <div class="text-[10px] text-slate-400 font-normal">วงเดียวกัน ผลัดกันกด</div>
+                                <div class="text-xs sm:text-sm font-bold text-white">โหมดเครื่องเดียว (Local)</div>
+                                <div class="text-[10px] text-slate-400 font-normal">1 Device หรือ 2 Devices (กระดาน+รีโมท)</div>
                             </div>
                         </button>
                     </div>
 
-                    <!-- Online Room Host Box -->
+                    <!-- SUB-OPTIONS FOR SINGLE DEVICE MODE -->
+                    <div id="single-submode-box" class="hidden mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40">
+                        <label class="block text-xs font-bold text-yellow-400 mb-2">
+                            <i class="fa-solid fa-mobile-screen-button mr-1"></i> เลือกรูปแบบการใช้งานโหมด Local:
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button type="button" onclick="selectSingleSubMode('1dev')" id="submode-btn-1dev" class="p-2.5 rounded-lg border border-yellow-400 bg-yellow-500/20 text-white font-bold text-xs text-left transition flex items-center gap-2">
+                                <span class="text-xl">📱</span>
+                                <div>
+                                    <div class="font-extrabold text-yellow-300">แบบ 1 Device (Pass & Play)</div>
+                                    <div class="text-[10px] text-slate-300 font-normal">แสดงกระดานและลูกเต๋าในเครื่องเดียว ผลัดกันทอย</div>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectSingleSubMode('2dev')" id="submode-btn-2dev" class="p-2.5 rounded-lg border border-slate-800 bg-slate-800/80 text-slate-300 font-bold text-xs text-left transition flex items-center gap-2 hover:border-slate-700">
+                                <span class="text-xl">📺+📱</span>
+                                <div>
+                                    <div class="font-extrabold text-white">แบบ 2 Devices (กระดาน + รีโมท)</div>
+                                    <div class="text-[10px] text-slate-400 font-normal">กระดาน 1 จอ (TV/iPad) + มือถืออีกเครื่องสแกนเป็นรีโมท</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Online Room Host / 2 Devices QR Box -->
                     <div id="host-qr-box" class="mt-3 p-3 bg-slate-950 rounded-xl border border-yellow-500/40 flex flex-col sm:flex-row items-center gap-4">
                         <div id="qrcode" class="bg-white p-2 rounded-lg flex-shrink-0"></div>
                         <div class="text-center sm:text-left space-y-1">
-                            <div class="text-xs text-yellow-400 font-bold">ส่งลิงก์ หรือ แจ้งรหัส 4 หลักให้เพื่อนเข้าห้อง</div>
+                            <div id="qr-box-title" class="text-xs text-yellow-400 font-bold">ส่งลิงก์ หรือ แจ้งรหัส 4 หลักให้เพื่อนเข้าห้อง</div>
                             <div class="text-xs text-slate-300">รหัสผ่านสำหรับเข้าห้องของคุณ: <span id="room-code-display" class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded font-black text-sm tracking-wider">----</span></div>
                             <div id="remote-conn-status" class="text-[11px] text-slate-400 italic">⏳ กำลังสร้างห้องออนไลน์...</div>
                         </div>
@@ -299,7 +322,7 @@
                     </div>
 
                     <!-- LIVE ACTIVE ROOMS BROWSER -->
-                    <div class="mt-4 pt-3 border-t border-slate-800/80">
+                    <div id="public-rooms-wrapper" class="mt-4 pt-3 border-t border-slate-800/80">
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -427,7 +450,7 @@
                 <!-- START GAME BUTTON -->
                 <div class="pt-1">
                     <button type="button" id="btn-start-game" onclick="startGame()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer">
-                        <span>เริ่มเกมลุยวงเหล้าออนไลน์!</span>
+                        <span>เริ่มเกมลุยวงเหล้า!</span>
                         <i class="fa-solid fa-play"></i>
                     </button>
                 </div>
@@ -521,7 +544,7 @@
         </div>
     </div>
 
-    <!-- TILE ACTION MODAL -->
+    <!-- TILE ACTION MODAL WITH TARGET PLAYER SELECTION -->
     <div id="tile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden">
         <div class="w-full max-w-md glass-panel rounded-3xl p-5 sm:p-6 text-center border-2 border-yellow-400 shadow-2xl animate-modal-pop relative overflow-hidden">
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800 border border-slate-700 mb-3 shadow-md">
@@ -532,7 +555,17 @@
             <div id="modal-tile-icon" class="text-5xl sm:text-6xl my-1 animate-bounce-short">🍻</div>
             <h3 id="modal-tile-title" class="text-lg sm:text-2xl font-black text-white tracking-wide my-1">ตั้งวง (ชนแก้ว)</h3>
             <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 my-3 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
-                <p id="modal-tile-desc">คำสั่งประจำช่องนี้จะปรากฏที่นี่...</p>
+                <div id="modal-tile-desc">คำสั่งประจำช่องนี้จะปรากฏที่นี่...</div>
+                
+                <!-- TARGET PLAYER SELECTOR CONTAINER (for Command tiles) -->
+                <div id="modal-target-selector-box" class="hidden mt-3 pt-3 border-t border-slate-800/80 text-left">
+                    <label class="block text-xs font-extrabold text-yellow-400 mb-1.5">
+                        <i class="fa-solid fa-bullseye mr-1"></i> เลือกเพื่อนในห้องที่โดนสั่งดื่ม:
+                    </label>
+                    <select id="select-target-player" class="w-full p-2.5 bg-slate-800 text-white font-bold text-xs sm:text-sm rounded-xl border border-yellow-500/50 focus:outline-none focus:border-yellow-400">
+                        <!-- Options generated dynamically -->
+                    </select>
+                </div>
             </div>
             <button id="modal-confirm-btn" onclick="closeTileModal()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-lg shadow-yellow-500/20 hover:brightness-110 active:scale-95 transition cursor-pointer">
                 จัดไป! (ส่งคิวต่อ)
@@ -666,7 +699,7 @@
                 { title: "กินกับแกล้ม 1 คำ", icon: "🍖", type: "snack", desc: "พักคอแป๊บ! ตักกับแกล้มกิน 1 คำโตๆ" },
                 { title: "ดื่ม 1 ช็อต", icon: "🍷", type: "drink", desc: "จัดไป 1 ช็อตเบาๆ" },
                 { title: "จิบเบาๆ", icon: "🍹", type: "sip", desc: "จิบพอกรึ่มๆ 1 จิบ" },
-                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👉", type: "command", desc: "ใช้อำนาจที่มี! เลือกเพื่อน 1 คนดื่มหมดแก้ว!" },
+                { title: "สั่งใครก็ได้ดื่มหมดแก้ว", icon: "👉", type: "command", desc: "ใช้อำนาจที่มี! เลือกเพื่อน 1 คนในห้องดื่มหมดแก้ว!" },
                 { title: "ดื่มหมดแก้ว", icon: "🍺", type: "heavy", desc: "ใจต้องนิ่ง! ดื่มให้หมดแก้วตรงหน้า!" },
                 { title: "ดื่มครึ่งช็อต", icon: "🍸", type: "sip", desc: "ครึ่งช็อตพอให้ชุ่มคอ" },
                 { title: "คนข้างขวา ดื่ม 2 ช็อต", icon: "👉", type: "corner", desc: "มุมสั่งการ! ชี้ไปทางขวา คนข้างขวาจัดไป 2 ช็อต!" },
@@ -754,6 +787,7 @@
         // --- GAME & MULTIPLAYER STATE ---
         let gameState = {
             playMode: 'online_host', // 'online_host', 'online_join', 'single'
+            singleSubMode: '1dev',  // '1dev' (Pass & Play) or '2dev' (Main Display + Mobile Remote)
             roomCode: '',
             isHost: true,
             myPeerId: '',
@@ -765,7 +799,8 @@
             activeMap: MAP_1_DATA,
             isRolling: false,
             history: [],
-            totalRoundCounter: 0
+            totalRoundCounter: 0,
+            pendingCommandDrinks: 0
         };
 
         let peer = null;
@@ -971,6 +1006,8 @@
             const btnSingle = document.getElementById("mode-btn-single");
             const qrBox = document.getElementById("host-qr-box");
             const joinBox = document.getElementById("join-room-box");
+            const submodeBox = document.getElementById("single-submode-box");
+            const publicRoomsWrapper = document.getElementById("public-rooms-wrapper");
 
             btnHost.className = "p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700";
             btnJoin.className = "p-3 rounded-xl border border-slate-800 bg-slate-800/80 text-slate-300 font-extrabold text-left transition flex items-center gap-2 hover:border-slate-700";
@@ -978,6 +1015,8 @@
 
             qrBox.classList.add("hidden");
             joinBox.classList.add("hidden");
+            submodeBox.classList.add("hidden");
+            publicRoomsWrapper.classList.remove("hidden");
 
             if (hostPingInterval) { clearInterval(hostPingInterval); hostPingInterval = null; }
 
@@ -986,6 +1025,7 @@
             if (mode === 'online_host') {
                 btnHost.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
                 qrBox.classList.remove("hidden");
+                document.getElementById("qr-box-title").innerText = "ส่งลิงก์ หรือ แจ้งรหัส 4 หลักให้เพื่อนเข้าห้อง";
                 document.getElementById("header-mode-title").innerText = "ONLINE HOST + VIDEO ROOM";
                 initHostOnlineRoom();
             } else if (mode === 'online_join') {
@@ -996,10 +1036,33 @@
                 renderSetupJoinedPlayers();
             } else {
                 btnSingle.className = "p-3 rounded-xl border border-yellow-400 bg-yellow-500/20 text-white font-extrabold text-left transition flex items-center gap-2";
-                document.getElementById("header-mode-title").innerText = "PASS & PLAY SINGLE DEVICE";
+                submodeBox.classList.remove("hidden");
+                publicRoomsWrapper.classList.add("hidden");
+                selectSingleSubMode(gameState.singleSubMode || '1dev');
             }
 
             updateStartGameButtonUI();
+        }
+
+        function selectSingleSubMode(sub) {
+            gameState.singleSubMode = sub;
+            const btn1 = document.getElementById("submode-btn-1dev");
+            const btn2 = document.getElementById("submode-btn-2dev");
+            const qrBox = document.getElementById("host-qr-box");
+
+            if (sub === '1dev') {
+                btn1.className = "p-2.5 rounded-lg border border-yellow-400 bg-yellow-500/20 text-white font-bold text-xs text-left transition flex items-center gap-2";
+                btn2.className = "p-2.5 rounded-lg border border-slate-800 bg-slate-800/80 text-slate-300 font-bold text-xs text-left transition flex items-center gap-2 hover:border-slate-700";
+                qrBox.classList.add("hidden");
+                document.getElementById("header-mode-title").innerText = "PASS & PLAY SINGLE DEVICE";
+            } else {
+                btn1.className = "p-2.5 rounded-lg border border-slate-800 bg-slate-800/80 text-slate-300 font-bold text-xs text-left transition flex items-center gap-2 hover:border-slate-700";
+                btn2.className = "p-2.5 rounded-lg border border-yellow-400 bg-yellow-500/20 text-white font-bold text-xs text-left transition flex items-center gap-2";
+                qrBox.classList.remove("hidden");
+                document.getElementById("qr-box-title").innerText = "สแกน QR Code จากมือถืออีกเครื่องเพื่อใช้เป็น 'รีโมททอยเต๋า'";
+                document.getElementById("header-mode-title").innerText = "DUAL SCREEN (MAIN BOARD + REMOTE)";
+                initHostOnlineRoom();
+            }
         }
 
         function updateStartGameButtonUI() {
@@ -1012,7 +1075,7 @@
             } else {
                 btn.disabled = false;
                 btn.className = "w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-slate-950 font-black text-base sm:text-xl tracking-wide shadow-xl shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer";
-                btn.innerHTML = `<span>เริ่มเกมลุยวงเหล้าออนไลน์!</span> <i class="fa-solid fa-play"></i>`;
+                btn.innerHTML = `<span>เริ่มเกมลุยวงเหล้า!</span> <i class="fa-solid fa-play"></i>`;
             }
         }
 
@@ -1053,7 +1116,7 @@
                 gameState.myPeerId = id;
                 if (gameState.players[0]) gameState.players[0].peerId = id;
 
-                document.getElementById("remote-conn-status").innerText = "🟢 ห้องออนไลน์พร้อมใช้งาน! แจ้งรหัส 4 หลักให้เพื่อนเข้าได้เลย";
+                document.getElementById("remote-conn-status").innerText = "🟢 พร้อมเชื่อมต่อ! แจ้งรหัส 4 หลักหรือให้เพื่อนสแกน QR Code";
                 
                 const currentUrl = window.location.href.split('?')[0];
                 const connectUrl = `${currentUrl}?room=${randomCode}`;
@@ -1071,7 +1134,7 @@
 
             peer.on('connection', (conn) => {
                 connections.push(conn);
-                document.getElementById("remote-conn-status").innerText = `🎉 มีเพื่อนเข้ามาเชื่อมต่อแล้ว (${connections.length} คน)`;
+                document.getElementById("remote-conn-status").innerText = `🎉 มีผู้เชื่อมต่อแล้ว (${connections.length} อุปกรณ์)`;
 
                 conn.on('data', (data) => {
                     handleIncomingNetworkData(data, conn);
@@ -1168,6 +1231,16 @@
             } else if (data.type === 'REQ_FINISH_TURN' && gameState.isHost) {
                 const activePlayer = gameState.players[gameState.currentPlayerIdx];
                 if (activePlayer && (activePlayer.peerId === data.peerId || !activePlayer.peerId)) {
+                    // หากมีการเลือกเป้าหมายให้ดื่ม
+                    if (data.targetPlayerId !== undefined && data.targetPlayerId !== null) {
+                        const targetPlayer = gameState.players[data.targetPlayerId];
+                        const drinkAdd = data.drinksCount || 1;
+                        if (targetPlayer) {
+                            targetPlayer.drinksCount = (targetPlayer.drinksCount || 0) + drinkAdd;
+                            logHistory(`🎯 [${activePlayer.name}] สั่งให้ [${targetPlayer.name}] ดื่ม +${drinkAdd}!`);
+                        }
+                    }
+
                     document.getElementById("tile-modal").classList.add("hidden");
                     if (activePlayer.hasExtraTurn) {
                         activePlayer.hasExtraTurn = false;
@@ -1698,7 +1771,7 @@
             if (isDouble) {
                 player.consecutiveDoubles = (player.consecutiveDoubles || 0) + 1;
                 if (player.consecutiveDoubles >= 3) {
-                    player.drinksCount = (player.drinksCount || 0) + 1; // ลงโทษดื่มเพิ่ม 1 ช็อต
+                    player.drinksCount = (player.drinksCount || 0) + 1;
                     player.consecutiveDoubles = 0;
                     player.hasExtraTurn = false;
                     player.tripleDoublePenalty = true;
@@ -1753,40 +1826,94 @@
             soundFX.playLand();
             const map = gameState.activeMap;
             const tile = map.tiles[player.position];
+            const totalP = gameState.players.length;
 
             let addDrinks = 0;
-            const title = tile.title || "";
-            if (title.includes("3 ช็อต")) addDrinks = 3;
-            else if (title.includes("2 ช็อต") || title.includes("2 ขวด")) addDrinks = 2;
-            else if (title.includes("1 ช็อต") || title.includes("1 ขวด")) addDrinks = 1;
-            else if (title.includes("ครึ่ง")) addDrinks = 0.5;
-            else if (title.includes("หมดแก้ว")) addDrinks = 2;
-            else if (tile.type === 'drink' || tile.type === 'sip' || tile.type === 'action' || tile.type === 'start' || tile.type === 'group') addDrinks = 1;
+            let isCommandTile = false;
+            let targetNotice = "";
+            gameState.pendingCommandDrinks = 0;
 
-            if (addDrinks > 0) {
-                player.drinksCount = (player.drinksCount || 0) + addDrinks;
+            const title = tile.title || "";
+            const desc = tile.desc || "";
+
+            // 1. ตรวจสอบเงื่อนไขทิศทางตามเข็มนาฬิกา (คนข้างขวา / คนข้างซ้าย)
+            if (title.includes("คนข้างขวา") || desc.includes("คนข้างขวา") || title.includes("คนขวามือ")) {
+                // คนข้างขวาตามเข็มนาฬิกา = ผู้เล่นก่อนหน้า (Previous Player)
+                const rightIdx = (gameState.currentPlayerIdx - 1 + totalP) % totalP;
+                const rightPlayer = gameState.players[rightIdx];
+                let drinkQty = title.includes("2 ช็อต") ? 2 : 1;
+                rightPlayer.drinksCount = (rightPlayer.drinksCount || 0) + drinkQty;
+                targetNotice = `<div class="mt-2.5 p-2 bg-amber-500/20 border border-amber-500/50 rounded-xl text-amber-300 font-extrabold text-xs">👉 คนข้างขวาของคุณ (ผู้เล่นก่อนหน้า) คือ <b>[${rightPlayer.name}]</b> โดนจัดไป +${drinkQty} ดื่ม!</div>`;
+                logHistory(`👉 [${player.name}] สั่งคนข้างขวา [${rightPlayer.name}] ดื่ม +${drinkQty}!`);
+            } else if (title.includes("คนข้างซ้าย") || desc.includes("คนข้างซ้าย") || title.includes("คนซ้ายมือ")) {
+                // คนข้างซ้ายตามเข็มนาฬิกา = ผู้เล่นคนถัดไป (Next Player)
+                const leftIdx = (gameState.currentPlayerIdx + 1) % totalP;
+                const leftPlayer = gameState.players[leftIdx];
+                let drinkQty = title.includes("2 ช็อต") ? 2 : 1;
+                leftPlayer.drinksCount = (leftPlayer.drinksCount || 0) + drinkQty;
+                targetNotice = `<div class="mt-2.5 p-2 bg-amber-500/20 border border-amber-500/50 rounded-xl text-amber-300 font-extrabold text-xs">👈 คนข้างซ้ายของคุณ (ผู้เล่นคนถัดไป) คือ <b>[${leftPlayer.name}]</b> โดนจัดไป +${drinkQty} ดื่ม!</div>`;
+                logHistory(`👈 [${player.name}] สั่งคนข้างซ้าย [${leftPlayer.name}] ดื่ม +${drinkQty}!`);
+            }
+            // 2. ตรวจสอบช่องคำสั่ง "สั่งใครก็ได้ / เลือกเพื่อน"
+            else if (tile.type === 'command' || title.includes("สั่งใครก็ได้") || title.includes("เลือกเพื่อน") || title.includes("เรียกใครก็ได้")) {
+                isCommandTile = true;
+                let cmdDrinks = 1;
+                if (title.includes("หมดแก้ว") || desc.includes("หมดแก้ว") || title.includes("2 ช็อต")) cmdDrinks = 2;
+                gameState.pendingCommandDrinks = cmdDrinks;
+                targetNotice = `<div class="mt-2.5 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-xl text-yellow-300 font-extrabold text-xs">👑 กรุณาเลือกเพื่อนในห้อง 1 คนด้านล่างเพื่อรับโทษดื่ม (+${cmdDrinks})!</div>`;
+            }
+            // 3. ช่องดื่มปกติของตัวเอง
+            else {
+                if (title.includes("3 ช็อต")) addDrinks = 3;
+                else if (title.includes("2 ช็อต") || title.includes("2 ขวด")) addDrinks = 2;
+                else if (title.includes("1 ช็อต") || title.includes("1 ขวด")) addDrinks = 1;
+                else if (title.includes("ครึ่ง")) addDrinks = 0.5;
+                else if (title.includes("หมดแก้ว")) addDrinks = 2;
+                else if (tile.type === 'drink' || tile.type === 'sip' || tile.type === 'start') addDrinks = 1;
+
+                if (addDrinks > 0) {
+                    player.drinksCount = (player.drinksCount || 0) + addDrinks;
+                }
             }
 
-            let extraNotice = "";
+            let doubleNotice = "";
             if (player.tripleDoublePenalty) {
-                extraNotice = `<div class="mt-2.5 p-2 bg-rose-500/20 border border-rose-500/50 rounded-xl text-rose-300 font-extrabold text-xs animate-pulse">⚠️ ทอยได้เลขเบิ้ลครั้งที่ 3 ติดกัน! โดนทำโทษดื่มเพิ่ม 1 ช็อต (+1) และจบเทิร์นทันที!</div>`;
+                doubleNotice = `<div class="mt-2.5 p-2 bg-rose-500/20 border border-rose-500/50 rounded-xl text-rose-300 font-extrabold text-xs animate-pulse">⚠️ ทอยได้เลขเบิ้ลครั้งที่ 3 ติดกัน! โดนทำโทษดื่มเพิ่ม 1 ช็อต (+1) และจบเทิร์นทันที!</div>`;
                 logHistory(`🚨 [${player.name}] ทอยเบิ้ล 3 ครั้งติด! โดนดื่มเพิ่ม 1 ช็อตและจบเทิร์น!`);
             } else if (isDouble) {
-                extraNotice = `<div class="mt-2.5 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-xl text-yellow-300 font-extrabold text-xs">🎲 ทอยได้เลขเบิ้ล (ครั้งที่ ${player.consecutiveDoubles}/3)! คุณได้รับสิทธิ์ทอยลูกเต๋าเพิ่มอีก 1 ตา!</div>`;
+                doubleNotice = `<div class="mt-2.5 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-xl text-yellow-300 font-extrabold text-xs">🎲 ทอยได้เลขเบิ้ล (ครั้งที่ ${player.consecutiveDoubles}/3)! คุณได้รับสิทธิ์ทอยลูกเต๋าเพิ่มอีก 1 ตา!</div>`;
                 logHistory(`🎲 [${player.name}] ทอยเบิ้ล (${player.consecutiveDoubles}/3)! ได้สิทธิ์ทอยต่ออีกตา`);
-            } else {
+            } else if (!isCommandTile && !targetNotice) {
                 logHistory(`📌 [${player.name}] ตกช่อง #${player.position} "${tile.title}"`);
             }
 
-            openTileModal(player, tile, extraNotice);
+            openTileModal(player, tile, targetNotice + doubleNotice, isCommandTile);
         }
 
-        function openTileModal(player, tile, extraNotice = "") {
+        function openTileModal(player, tile, extraNotice = "", isCommandTile = false) {
             document.getElementById("modal-player-avatar").innerText = player.avatar;
             document.getElementById("modal-player-name").innerText = player.name;
             document.getElementById("modal-tile-icon").innerText = tile.icon;
             document.getElementById("modal-tile-title").innerText = tile.title;
             document.getElementById("modal-tile-desc").innerHTML = tile.desc + (extraNotice || "");
+
+            const selectorBox = document.getElementById("modal-target-selector-box");
+            const selectEl = document.getElementById("select-target-player");
+
+            if (isCommandTile && selectorBox && selectEl) {
+                selectorBox.classList.remove("hidden");
+                selectEl.innerHTML = "";
+                gameState.players.forEach(p => {
+                    const isSelf = p.id === player.id;
+                    const opt = document.createElement("option");
+                    opt.value = p.id;
+                    opt.innerText = `${p.avatar} ${p.name} ${isSelf ? '(ตัวเอง)' : ''}`;
+                    if (!isSelf) opt.selected = true;
+                    selectEl.appendChild(opt);
+                });
+            } else if (selectorBox) {
+                selectorBox.classList.add("hidden");
+            }
 
             const confirmBtn = document.getElementById("modal-confirm-btn");
             const myTurn = isMyTurn();
@@ -1807,12 +1934,30 @@
         function closeTileModal() {
             if (!isMyTurn()) return;
 
+            let chosenTargetId = null;
+            const selectorBox = document.getElementById("modal-target-selector-box");
+            if (selectorBox && !selectorBox.classList.contains("hidden")) {
+                const selectEl = document.getElementById("select-target-player");
+                if (selectEl) {
+                    chosenTargetId = parseInt(selectEl.value);
+                }
+            }
+
             document.getElementById("tile-modal").classList.add("hidden");
 
             if (gameState.isHost) {
-                const player = gameState.players[gameState.currentPlayerIdx];
-                if (player && player.hasExtraTurn) {
-                    player.hasExtraTurn = false; // ปลดล็อกเพื่อรอผลการทอยรอบถัดไป
+                const activePlayer = gameState.players[gameState.currentPlayerIdx];
+                if (chosenTargetId !== null && !isNaN(chosenTargetId)) {
+                    const targetPlayer = gameState.players[chosenTargetId];
+                    const qty = gameState.pendingCommandDrinks || 1;
+                    if (targetPlayer) {
+                        targetPlayer.drinksCount = (targetPlayer.drinksCount || 0) + qty;
+                        logHistory(`🎯 [${activePlayer.name}] เลือกสั่ง [${targetPlayer.name}] ดื่ม +${qty}!`);
+                    }
+                }
+
+                if (activePlayer && activePlayer.hasExtraTurn) {
+                    activePlayer.hasExtraTurn = false;
                     updateTurnUI();
                     updatePlayerTokensPosition();
                     broadcastStateToAll();
@@ -1822,11 +1967,13 @@
                     broadcastToAll({ type: 'CLOSE_TILE_MODAL' });
                 }
             } else {
-                // เครื่องลูกส่งสัญญาณขอจบเทิร์นไปยัง Host
+                // เครื่องลูกส่งสัญญาณขอจบเทิร์นไปยัง Host พร้อมข้อมูลผู้เล่นที่เลือกให้ดื่ม
                 if (connections[0] && connections[0].open) {
                     connections[0].send({
                         type: 'REQ_FINISH_TURN',
-                        peerId: gameState.myPeerId
+                        peerId: gameState.myPeerId,
+                        targetPlayerId: chosenTargetId,
+                        drinksCount: gameState.pendingCommandDrinks || 1
                     });
                 }
             }
